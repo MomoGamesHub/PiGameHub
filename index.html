@@ -2,11 +2,66 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>PiGameHub</title>
+  <title>PiGameHub - Domino Games</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      text-align: center;
+      padding: 20px;
+    }
+    button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #gameContainer {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      min-height: 200px;
+    }
+  </style>
 </head>
 <body>
-  <h1>🎮 PiGameHub</h1>
-  <p>منصة ألعاب داخل نظام Pi Network</p>
-  <p>قريبًا…</p>
+
+<h1>🎮 PiGameHub</h1>
+<h3>ألعاب الدومينو</h3>
+
+<button onclick="playNormalDomino()">الدومينو العادية</button>
+<button onclick="playAmericanDomino()">الدومينو الأمريكية</button>
+<button onclick="playFastDomino()">الدومينو السريعة</button>
+
+<div id="gameContainer">
+  <p>اختر لعبة للبدء</p>
+</div>
+
+<script>
+function playNormalDomino() {
+  document.getElementById("gameContainer").innerHTML = `
+    <h2>الدومينو العادية</h2>
+    <p>اللعبة تعمل الآن (نسخة تجريبية)</p>
+    <button onclick="alert('تم لعب حركة دومينو')">العب حركة</button>
+  `;
+}
+
+function playAmericanDomino() {
+  document.getElementById("gameContainer").innerHTML = `
+    <h2>الدومينو الأمريكية</h2>
+    <p>نسخة أمريكية تجريبية</p>
+    <button onclick="alert('حركة دومينو أمريكية')">العب حركة</button>
+  `;
+}
+
+function playFastDomino() {
+  document.getElementById("gameContainer").innerHTML = `
+    <h2>الدومينو السريعة</h2>
+    <p>نسخة سريعة للتجربة</p>
+    <button onclick="alert('حركة سريعة!')">العب بسرعة</button>
+  `;
+}
+</script>
+
 </body>
 </html>
