@@ -6,6 +6,21 @@
 
   <!-- Pi SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script>
+  Pi.init({ version: "2.0", sandbox: true });
+
+  function loginPi() {
+    Pi.authenticate(["username"])
+      .then(function(auth) {
+        document.getElementById("piUser").innerText =
+          "مرحبًا " + auth.user.username + " 👋";
+      })
+      .catch(function(error) {
+        alert("لم يتم تسجيل الدخول");
+        console.log(error);
+      });
+  }
+</script>
   <script>
     Pi.init({ version: "2.0", sandbox: true });
 
