@@ -2,96 +2,96 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Domino – Chrome Test</title>
+<title>Domino Full – Chrome Test</title>
 
 <style>
-body {
-  margin: 0;
-  background: #0e0f1a;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  text-align: center;
+body{
+  margin:0;
+  background:#0e0f1a;
+  color:#fff;
+  font-family:Arial, sans-serif;
+  text-align:center;
 }
 
-/* ====== مناطق اللعب ====== */
-#computer-zone, #player-zone {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px;
+/* ===== المناطق ===== */
+#computer-zone,#player-zone{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  padding:14px;
 }
 
-#computer-zone {
-  background: #1a1c2e;
-  border-bottom: 2px solid #333;
-  margin-bottom: 30px;
+#computer-zone{
+  background:#1a1c2e;
+  border-bottom:2px solid #333;
+  margin-bottom:30px;
 }
 
-#player-zone {
-  background: #1a1c2e;
-  border-top: 2px solid #333;
-  margin-top: 30px;
+#player-zone{
+  background:#1a1c2e;
+  border-top:2px solid #333;
+  margin-top:30px;
 }
 
-/* ====== الطاولة ====== */
-#board {
-  min-height: 160px;
-  margin: 40px auto;
-  padding: 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  background: #10121f;
-  border-radius: 14px;
+/* ===== الطاولة ===== */
+#board{
+  min-height:180px;
+  margin:40px auto;
+  padding:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  background:#10121f;
+  border-radius:16px;
 }
 
-/* ====== الدومينو ====== */
-.domino {
-  width: 60px;
-  height: 120px;
-  background: #fff;
-  color: #000;
-  border-radius: 8px;
-  border: 2px solid #4ed8a2;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: 0.2s;
+/* ===== الدومينو ===== */
+.domino{
+  width:60px;
+  height:120px;
+  background:#fff;
+  color:#000;
+  border-radius:8px;
+  border:2px solid #4ed8a2;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  cursor:pointer;
+  transition:.2s;
 }
 
-.domino div {
-  font-size: 26px;
-  font-weight: bold;
-  padding: 6px;
+.domino div{
+  font-size:26px;
+  font-weight:bold;
+  padding:6px;
 }
 
 /* قطعة مختارة */
-.domino.selected {
-  box-shadow: 0 0 15px 4px #ffd700;
-  transform: scale(1.1);
+.domino.selected{
+  box-shadow:0 0 15px 4px #ffd700;
+  transform:scale(1.1);
 }
 
-/* قطع الكمبيوتر (مقلوبة) */
-.domino.back {
-  background: linear-gradient(135deg,#555,#222);
-  border: 2px solid #888;
-  cursor: default;
+/* كمبيوتر */
+.domino.back{
+  background:linear-gradient(135deg,#555,#222);
+  border:2px solid #888;
+  cursor:default;
 }
 
-/* ====== أزرار ====== */
-button {
-  margin: 8px;
-  padding: 10px 18px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  background: #4ed8a2;
-  color: #000;
-  font-weight: bold;
+/* ===== أزرار ===== */
+button{
+  margin:8px;
+  padding:10px 18px;
+  font-size:16px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  background:#4ed8a2;
+  color:#000;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -116,12 +116,12 @@ button {
 <button onclick="resetGame()">إعادة اللعبة</button>
 
 <script>
-/* ====== المتغيرات ====== */
+/* ===== المتغيرات ===== */
 let deck=[], playerHand=[], computerHand=[], pile=[];
 let left=null, right=null;
 let selectedIndex=null;
 
-/* ====== إنشاء الدِك ====== */
+/* ===== إنشاء الدِك ===== */
 function createDeck(){
   deck=[];
   for(let i=0;i<=6;i++){
@@ -139,7 +139,7 @@ function shuffle(arr){
   }
 }
 
-/* ====== توزيع ====== */
+/* ===== توزيع ===== */
 function deal(){
   playerHand=deck.splice(0,7);
   computerHand=deck.splice(0,7);
@@ -148,11 +148,11 @@ function deal(){
   renderHands();
 }
 
-/* ====== رسم الأيادي ====== */
+/* ===== رسم الأيادي ===== */
 function renderHands(){
   const p=document.getElementById("player-zone");
   const c=document.getElementById("computer-zone");
-  p.innerHTML=""; 
+  p.innerHTML="";
   c.innerHTML="";
 
   playerHand.forEach(([a,b],i)=>{
@@ -172,7 +172,7 @@ function renderHands(){
   });
 }
 
-/* ====== دومينو ====== */
+/* ===== دومينو ===== */
 function createDomino(a,b){
   const d=document.createElement("div");
   d.className="domino";
@@ -186,5 +186,83 @@ function draw(d){
   d.innerHTML=`<div>${d.dataset.a}</div><div>${d.dataset.b}</div>`;
 }
 
-/* ====== اللعب على الطاولة ====== */
-function play(a,b
+/* ===== اللعب على الطاولة ===== */
+function play(a,b){
+  const board=document.getElementById("board");
+  const d=createDomino(a,b);
+
+  if(left===null){
+    left=a; right=b;
+    board.appendChild(d);
+    return true;
+  }
+  if(a===right){
+    right=b;
+    board.appendChild(d);
+    return true;
+  }
+  if(b===left){
+    left=a;
+    board.prepend(d);
+    return true;
+  }
+  return false;
+}
+
+/* ===== دور اللاعب ===== */
+function playerTurn(){
+  if(selectedIndex===null){
+    alert("اختار قطعة الأول 👆");
+    return;
+  }
+
+  let [a,b]=playerHand[selectedIndex];
+
+  if(play(a,b)||play(b,a)){
+    playerHand.splice(selectedIndex,1);
+    selectedIndex=null;
+    renderHands();
+    setTimeout(computerTurn,500);
+  }else{
+    alert("القطعة دي مش صالحة ❌");
+  }
+}
+
+/* ===== دور الكمبيوتر ===== */
+function computerTurn(){
+  for(let i=0;i<computerHand.length;i++){
+    let [a,b]=computerHand[i];
+    if(play(a,b)||play(b,a)){
+      computerHand.splice(i,1);
+      renderHands();
+      return;
+    }
+  }
+  if(pile.length){
+    computerHand.push(pile.shift());
+    updatePile();
+    renderHands();
+  }
+}
+
+/* ===== pile ===== */
+function updatePile(){
+  document.getElementById("pileCount").textContent=pile.length;
+}
+
+/* ===== إعادة ===== */
+function resetGame(){
+  document.getElementById("board").innerHTML="";
+  left=null; right=null;
+  selectedIndex=null;
+  createDeck();
+  deal();
+}
+
+/* ===== تشغيل ===== */
+createDeck();
+deal();
+</script>
+
+</body>
+</html>
