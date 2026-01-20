@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>PiGameHub - Domino</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
   background: #f5f5f5;
   text-align: center;
 }
+
 #board {
   display: flex;
   justify-content: center;
@@ -16,6 +18,7 @@ body {
   min-height: 80px;
   margin: 20px;
 }
+
 .domino {
   width: 60px;
   height: 120px;
@@ -26,10 +29,19 @@ body {
   justify-content: center;
   font-size: 22px;
 }
+
 button {
   padding: 10px 20px;
   font-size: 16px;
 }
+
+#message {
+  margin-top: 15px;
+  font-size: 16px;
+  height: 24px;
+}
+.success { color: green; }
+.error { color: red; }
 </style>
 </head>
 
@@ -41,9 +53,18 @@ button {
 
 <button onclick="drawDomino()">سحب قطعة</button>
 
+<div id="message"></div>
+
 <script>
 let leftValue = null;
 let rightValue = null;
+
+function showMessage(text, type) {
+  const msg = document.getElementById("message");
+  msg.textContent = text;
+  msg.className = type;
+  setTimeout(() => msg.textContent = "", 2000);
+}
 
 function drawDomino() {
   const a = Math.floor(Math.random() * 7);
@@ -59,24 +80,25 @@ function drawDomino() {
     leftValue = a;
     rightValue = b;
     board.appendChild(domino);
+    showMessage("✅ أول قطعة نزلت", "success");
     return;
   }
 
-  // اللعب على اليمين
   if (a === rightValue) {
     rightValue = b;
     board.appendChild(domino);
+    showMessage("✔️ لعبت على اليمين", "success");
     return;
   }
 
-  // اللعب على الشمال
   if (b === leftValue) {
     leftValue = a;
     board.prepend(domino);
+    showMessage("✔️ لعبت على الشمال", "success");
     return;
   }
 
-  alert("❌ القطعة لا تطابق لا اليمين ولا الشمال");
+  showMessage("❌ القطعة لا تطابق", "error");
 }
 </script>
 
