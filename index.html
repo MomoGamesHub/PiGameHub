@@ -2,8 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub - Domino Full Game</title>
-
+<title>PiGameHub - Domino Real Rules</title>
 <style>
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,36 +12,28 @@ body {
   margin: 0;
   padding: 0;
 }
-
 h2 { color: #ffd700; margin-top: 15px; }
-
-#user { margin: 10px; font-size: 18px; color: #4ed8a2; font-weight: bold; }
-
-#score { font-size: 20px; margin: 10px; font-weight: bold; color: #fff; }
-
-#board { display: flex; justify-content:center; gap:12px; min-height:120px; margin:20px auto; padding:10px; background:#1c1f33; border-radius:15px; width:fit-content; }
-
+#user { margin:10px; font-size:18px; color:#4ed8a2; font-weight:bold; }
+#score { font-size:20px; margin:10px; font-weight:bold; color:#fff; }
+#board { display:flex; justify-content:center; gap:12px; min-height:120px; margin:20px auto; padding:10px; background:#1c1f33; border-radius:15px; width:fit-content; flex-wrap:wrap;}
 .domino {
-  width: 70px; height: 140px; border-radius:8px;
+  width:70px; height:140px; border-radius:8px;
   background:#fff; border:2px solid #4ed8a2;
   display:flex; flex-direction:column; justify-content:center;
   cursor:pointer; box-shadow:2px 2px 8px rgba(0,0,0,0.4);
   transition: transform 0.2s;
 }
-
 .domino:hover { transform: scale(1.1); }
-
 button { padding:10px 20px; font-size:16px; margin:5px; border:none; border-radius:8px; background:#4ed8a2; color:#000; cursor:pointer; font-weight:bold; transition: background 0.2s; }
 button:hover { background:#37b383; }
-
-#message { margin-top: 15px; font-size: 16px; height: 24px; }
+#message { margin-top:15px; font-size:16px; height:24px; }
 .success { color: #4ed8a2; }
 .error { color: #ff4c4c; }
 </style>
 </head>
-
 <body>
-<h2>🎲 Domino - PiGameHub</h2>
+
+<h2>🎲 Domino - PiGameHub Real Rules</h2>
 <div id="user">👤 مرحبًا بك!</div>
 <div id="score">⭐ النقاط: 0</div>
 <div id="board"></div>
@@ -55,7 +46,7 @@ button:hover { background:#37b383; }
 <script>
 // --- المتغيرات ---
 let deck=[], playerHand=[], computerHand=[], pile=[];
-let leftValue=null, rightValue=null, score=0;
+let leftValue=null, rightValue=null, score=0, playerPass=false, computerPass=false;
 
 // --- إنشاء Deck كامل ---
 function createDeck(){
@@ -146,51 +137,66 @@ function playPiece(a,b,isPlayer){
 
 // --- حركة اللاعب ---
 function playerPlay(){
-  if(playerHand.length===0){
-    showMessage("❌ لا يوجد قطع متاحة","error");
+  if(playerHand.length===0 && !playerPass){
+    playerPass=true;
+    showMessage("❌ لا توجد قطع صالحة للعب، تمرير الدور","error");
+    setTimeout(computerPlay,500);
     return;
   }
   let played=false;
-  // جرب كل قطعة في يد اللاعب
   for(let i=0;i<playerHand.length;i++){
     const [a,b]=playerHand[i];
     if(playPiece(a,b,true)){
       playerHand.splice(i,1);
-      played=true;
-      break;
-    } else if(playPiece(b,a,true)){ // جرب التدوير
+      played=true; break;
+    } else if(playPiece(b,a,true)){
       playerHand.splice(i,1);
-      played=true;
-      break;
+      played=true; break;
     }
   }
-  if(!played){showMessage("❌ لا توجد قطع صالحة للعب","error");}
-  // بعد حركة اللاعب يلعب الكمبيوتر
+  if(!played){
+    playerPass=true;
+    showMessage("❌ لا توجد قطع صالحة للعب، تمرير الدور","error");
+  }
   setTimeout(computerPlay,500);
+  checkEnd();
 }
 
-// --- AI بسيط للكمبيوتر ---
+// --- AI الكمبيوتر ---
 function computerPlay(){
-  if(computerHand.length===0) return;
+  if(computerHand.length===0 && !computerPass){
+    computerPass=true;
+    showMessage("🤖 الكمبيوتر يمرر الدور","error");
+    checkEnd();
+    return;
+  }
+  let played=false;
   for(let i=0;i<computerHand.length;i++){
     const [a,b]=computerHand[i];
-    if(playPiece(a,b,false)){
-      computerHand.splice(i,1);
-      showMessage("🤖 الكمبيوتر لعب قطعة","success");
-      return;
-    } else if(playPiece(b,a,false)){
-      computerHand.splice(i,1);
-      showMessage("🤖 الكمبيوتر لعب قطعة","success");
-      return;
-    }
+    if(playPiece(a,b,false)){ computerHand.splice(i,1); played=true; showMessage("🤖 الكمبيوتر لعب قطعة","success"); break;
+    } else if(playPiece(b,a,false)){ computerHand.splice(i,1); played=true; showMessage("🤖 الكمبيوتر لعب قطعة","success"); break; }
   }
-  showMessage("🤖 الكمبيوتر لم يلعب","error");
+  if(!played){ computerPass=true; showMessage("🤖 الكمبيوتر لم يلعب","error"); }
+  checkEnd();
+}
+
+// --- تحقق نهاية الجولة ---
+function checkEnd(){
+  if((playerHand.length===0 || playerPass) && (computerHand.length===0 || computerPass)){
+    let msg="🏁 الجولة انتهت! ";
+    if(playerHand.length<computerHand.length){ msg+="🎉 فاز اللاعب!"; score+=10; }
+    else if(computerHand.length<playerHand.length){ msg+="🤖 فاز الكمبيوتر!"; }
+    else msg+="تعادل!";
+    showMessage(msg,"success");
+    playerPass=false; computerPass=false;
+  }
 }
 
 // --- إعادة اللعبة ---
 function resetGame(){
   document.getElementById("board").innerHTML="";
   leftValue=null; rightValue=null; score=0; updateScore();
+  playerPass=false; computerPass=false;
   createDeck(); deal();
   showMessage("🔁 لعبة جديدة — النقاط صفر","success");
 }
