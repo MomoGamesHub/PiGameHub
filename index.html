@@ -35,14 +35,15 @@ button {
 
 <body>
 
-<h2>🎲 Domino (Web Version)</h2>
+<h2>🎲 Domino (Left & Right)</h2>
 
 <div id="board"></div>
 
 <button onclick="drawDomino()">سحب قطعة</button>
 
 <script>
-let boardValue = null;
+let leftValue = null;
+let rightValue = null;
 
 function drawDomino() {
   const a = Math.floor(Math.random() * 7);
@@ -52,15 +53,30 @@ function drawDomino() {
   domino.className = "domino";
   domino.innerHTML = `<div>${a}</div><div>${b}</div>`;
 
-  if (boardValue === null) {
-    boardValue = b;
-    document.getElementById("board").appendChild(domino);
-  } else if (a === boardValue) {
-    boardValue = b;
-    document.getElementById("board").appendChild(domino);
-  } else {
-    alert("❌ القطعة لا تطابق اللوحة");
+  const board = document.getElementById("board");
+
+  if (leftValue === null && rightValue === null) {
+    leftValue = a;
+    rightValue = b;
+    board.appendChild(domino);
+    return;
   }
+
+  // اللعب على اليمين
+  if (a === rightValue) {
+    rightValue = b;
+    board.appendChild(domino);
+    return;
+  }
+
+  // اللعب على الشمال
+  if (b === leftValue) {
+    leftValue = a;
+    board.prepend(domino);
+    return;
+  }
+
+  alert("❌ القطعة لا تطابق لا اليمين ولا الشمال");
 }
 </script>
 
