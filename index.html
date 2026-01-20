@@ -28,6 +28,7 @@ body {
   flex-direction: column;
   justify-content: center;
   font-size: 22px;
+  cursor: pointer;
 }
 
 button {
@@ -47,7 +48,7 @@ button {
 
 <body>
 
-<h2>🎲 Domino (Left & Right)</h2>
+<h2>🎲 Domino (Rotate by Click)</h2>
 
 <div id="board"></div>
 
@@ -66,39 +67,58 @@ function showMessage(text, type) {
   setTimeout(() => msg.textContent = "", 2000);
 }
 
+function createDomino(a, b) {
+  const domino = document.createElement("div");
+  domino.className = "domino";
+  domino.dataset.a = a;
+  domino.dataset.b = b;
+  renderDomino(domino);
+
+  domino.onclick = () => {
+    const temp = domino.dataset.a;
+    domino.dataset.a = domino.dataset.b;
+    domino.dataset.b = temp;
+    renderDomino(domino);
+    showMessage("🔄 تم تدوير القطعة", "success");
+  };
+
+  return domino;
+}
+
+function renderDomino(domino) {
+  domino.innerHTML = `<div>${domino.dataset.a}</div><div>${domino.dataset.b}</div>`;
+}
+
 function drawDomino() {
   const a = Math.floor(Math.random() * 7);
   const b = Math.floor(Math.random() * 7);
 
-  const domino = document.createElement("div");
-  domino.className = "domino";
-  domino.innerHTML = `<div>${a}</div><div>${b}</div>`;
-
+  const domino = createDomino(a, b);
   const board = document.getElementById("board");
 
   if (leftValue === null && rightValue === null) {
-    leftValue = a;
-    rightValue = b;
+    leftValue = Number(domino.dataset.a);
+    rightValue = Number(domino.dataset.b);
     board.appendChild(domino);
     showMessage("✅ أول قطعة نزلت", "success");
     return;
   }
 
-  if (a === rightValue) {
-    rightValue = b;
+  if (Number(domino.dataset.a) === rightValue) {
+    rightValue = Number(domino.dataset.b);
     board.appendChild(domino);
     showMessage("✔️ لعبت على اليمين", "success");
     return;
   }
 
-  if (b === leftValue) {
-    leftValue = a;
+  if (Number(domino.dataset.b) === leftValue) {
+    leftValue = Number(domino.dataset.a);
     board.prepend(domino);
     showMessage("✔️ لعبت على الشمال", "success");
     return;
   }
 
-  showMessage("❌ القطعة لا تطابق", "error");
+  showMessage("❌ القطعة لا تطابق — جرّب تدويرها", "error");
 }
 </script>
 
