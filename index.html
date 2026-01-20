@@ -11,6 +11,12 @@ body {
   text-align: center;
 }
 
+#score {
+  font-size: 20px;
+  margin: 10px;
+  font-weight: bold;
+}
+
 #board {
   display: flex;
   justify-content: center;
@@ -51,6 +57,8 @@ button {
 
 <h2>🎲 Domino</h2>
 
+<div id="score">⭐ النقاط: 0</div>
+
 <div id="board"></div>
 
 <button onclick="drawDomino()">سحب قطعة</button>
@@ -61,6 +69,11 @@ button {
 <script>
 let leftValue = null;
 let rightValue = null;
+let score = 0;
+
+function updateScore() {
+  document.getElementById("score").textContent = "⭐ النقاط: " + score;
+}
 
 function showMessage(text, type) {
   const msg = document.getElementById("message");
@@ -102,32 +115,40 @@ function drawDomino() {
     leftValue = Number(domino.dataset.a);
     rightValue = Number(domino.dataset.b);
     board.appendChild(domino);
-    showMessage("✅ أول قطعة نزلت", "success");
+    score++;
+    updateScore();
+    showMessage("✅ أول قطعة +1 نقطة", "success");
     return;
   }
 
   if (Number(domino.dataset.a) === rightValue) {
     rightValue = Number(domino.dataset.b);
     board.appendChild(domino);
-    showMessage("✔️ لعبت على اليمين", "success");
+    score++;
+    updateScore();
+    showMessage("✔️ لعب صح +1", "success");
     return;
   }
 
   if (Number(domino.dataset.b) === leftValue) {
     leftValue = Number(domino.dataset.a);
     board.prepend(domino);
-    showMessage("✔️ لعبت على الشمال", "success");
+    score++;
+    updateScore();
+    showMessage("✔️ لعب صح +1", "success");
     return;
   }
 
-  showMessage("❌ القطعة لا تطابق — جرّب تدويرها", "error");
+  showMessage("❌ القطعة لا تطابق", "error");
 }
 
 function resetGame() {
   document.getElementById("board").innerHTML = "";
   leftValue = null;
   rightValue = null;
-  showMessage("🔁 تم بدء لعبة جديدة", "success");
+  score = 0;
+  updateScore();
+  showMessage("🔁 لعبة جديدة — النقاط صفر", "success");
 }
 </script>
 
