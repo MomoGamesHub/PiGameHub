@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino</title>
+<title>Domino – Chrome Test</title>
 
 <style>
 body {
@@ -18,21 +18,25 @@ body {
   display: flex;
   justify-content: center;
   gap: 8px;
-  padding: 12px;
+  padding: 14px;
 }
 
 #computer-zone {
   background: #1a1c2e;
   border-bottom: 2px solid #333;
+  margin-bottom: 30px;
 }
 
 #player-zone {
   background: #1a1c2e;
   border-top: 2px solid #333;
+  margin-top: 30px;
 }
 
+/* ====== الطاولة ====== */
 #board {
-  min-height: 140px;
+  min-height: 160px;
+  margin: 40px auto;
   padding: 15px;
   display: flex;
   justify-content: center;
@@ -40,6 +44,7 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   background: #10121f;
+  border-radius: 14px;
 }
 
 /* ====== الدومينو ====== */
@@ -54,28 +59,29 @@ body {
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .domino div {
   font-size: 26px;
   font-weight: bold;
-  line-height: 1;
   padding: 6px;
 }
 
-/* دومينو مقلوب (الكمبيوتر) */
+/* قطعة مختارة */
+.domino.selected {
+  box-shadow: 0 0 15px 4px #ffd700;
+  transform: scale(1.1);
+}
+
+/* قطع الكمبيوتر (مقلوبة) */
 .domino.back {
   background: linear-gradient(135deg,#555,#222);
   border: 2px solid #888;
   cursor: default;
 }
 
-/* ====== معلومات ====== */
-#info {
-  padding: 10px;
-  background: #14162a;
-}
-
+/* ====== أزرار ====== */
 button {
   margin: 8px;
   padding: 10px 18px;
@@ -94,25 +100,26 @@ button {
 
 <div id="computer-zone"></div>
 
-<div id="info">
+<div style="padding:10px;background:#14162a">
   🤖 الكمبيوتر | 📦 Pile: <span id="pileCount">0</span>
 </div>
 
 <div id="board"></div>
 
-<div id="info">
+<div style="padding:10px;background:#14162a">
   👤 أنت
 </div>
 
 <div id="player-zone"></div>
 
-<button onclick="playerTurn()">لعب قطعة</button>
+<button onclick="playerTurn()">لعب القطعة المختارة</button>
 <button onclick="resetGame()">إعادة اللعبة</button>
 
 <script>
 /* ====== المتغيرات ====== */
 let deck=[], playerHand=[], computerHand=[], pile=[];
 let left=null, right=null;
+let selectedIndex=null;
 
 /* ====== إنشاء الدِك ====== */
 function createDeck(){
@@ -143,27 +150,29 @@ function deal(){
 
 /* ====== رسم الأيادي ====== */
 function renderHands(){
-  const pZone=document.getElementById("player-zone");
-  const cZone=document.getElementById("computer-zone");
-  pZone.innerHTML="";
-  cZone.innerHTML="";
+  const p=document.getElementById("player-zone");
+  const c=document.getElementById("computer-zone");
+  p.innerHTML=""; 
+  c.innerHTML="";
 
-  // يد اللاعب
   playerHand.forEach(([a,b],i)=>{
     const d=createDomino(a,b);
-    d.onclick=()=>rotate(d);
-    pZone.appendChild(d);
+    if(i===selectedIndex) d.classList.add("selected");
+    d.onclick=()=>{
+      selectedIndex=i;
+      renderHands();
+    };
+    p.appendChild(d);
   });
 
-  // يد الكمبيوتر (مقلوبة)
   computerHand.forEach(()=>{
     const d=document.createElement("div");
     d.className="domino back";
-    cZone.appendChild(d);
+    c.appendChild(d);
   });
 }
 
-/* ====== إنشاء دومينو ====== */
+/* ====== دومينو ====== */
 function createDomino(a,b){
   const d=document.createElement("div");
   d.className="domino";
@@ -177,77 +186,5 @@ function draw(d){
   d.innerHTML=`<div>${d.dataset.a}</div><div>${d.dataset.b}</div>`;
 }
 
-function rotate(d){
-  [d.dataset.a,d.dataset.b]=[d.dataset.b,d.dataset.a];
-  draw(d);
-}
-
-/* ====== اللعب ====== */
-function play(a,b){
-  const board=document.getElementById("board");
-  const d=createDomino(a,b);
-
-  if(left===null){
-    left=a; right=b;
-    board.appendChild(d);
-    return true;
-  }
-  if(a===right){ right=b; board.appendChild(d); return true; }
-  if(b===left){ left=a; board.prepend(d); return true; }
-  return false;
-}
-
-/* ====== دور اللاعب ====== */
-function playerTurn(){
-  for(let i=0;i<playerHand.length;i++){
-    let [a,b]=playerHand[i];
-    if(play(a,b)||play(b,a)){
-      playerHand.splice(i,1);
-      renderHands();
-      setTimeout(computerTurn,500);
-      return;
-    }
-  }
-  if(pile.length){
-    playerHand.push(pile.shift());
-    updatePile();
-    renderHands();
-  }
-}
-
-/* ====== دور الكمبيوتر ====== */
-function computerTurn(){
-  for(let i=0;i<computerHand.length;i++){
-    let [a,b]=computerHand[i];
-    if(play(a,b)||play(b,a)){
-      computerHand.splice(i,1);
-      renderHands();
-      return;
-    }
-  }
-  if(pile.length){
-    computerHand.push(pile.shift());
-    updatePile();
-    renderHands();
-  }
-}
-
-/* ====== pile ====== */
-function updatePile(){
-  document.getElementById("pileCount").textContent=pile.length;
-}
-
-/* ====== إعادة ====== */
-function resetGame(){
-  document.getElementById("board").innerHTML="";
-  left=null; right=null;
-  createDeck(); deal();
-}
-
-/* ====== تشغيل ====== */
-createDeck();
-deal();
-</script>
-
-</body>
-</html>
+/* ====== اللعب على الطاولة ====== */
+function play(a,b
