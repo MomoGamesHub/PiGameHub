@@ -32,8 +32,9 @@ body {
 }
 
 button {
-  padding: 10px 20px;
+  padding: 10px 16px;
   font-size: 16px;
+  margin: 5px;
 }
 
 #message {
@@ -48,11 +49,12 @@ button {
 
 <body>
 
-<h2>🎲 Domino (Rotate by Click)</h2>
+<h2>🎲 Domino</h2>
 
 <div id="board"></div>
 
 <button onclick="drawDomino()">سحب قطعة</button>
+<button onclick="resetGame()">🔄 إعادة اللعب</button>
 
 <div id="message"></div>
 
@@ -65,6 +67,10 @@ function showMessage(text, type) {
   msg.textContent = text;
   msg.className = type;
   setTimeout(() => msg.textContent = "", 2000);
+}
+
+function renderDomino(domino) {
+  domino.innerHTML = `<div>${domino.dataset.a}</div><div>${domino.dataset.b}</div>`;
 }
 
 function createDomino(a, b) {
@@ -83,10 +89,6 @@ function createDomino(a, b) {
   };
 
   return domino;
-}
-
-function renderDomino(domino) {
-  domino.innerHTML = `<div>${domino.dataset.a}</div><div>${domino.dataset.b}</div>`;
 }
 
 function drawDomino() {
@@ -119,6 +121,13 @@ function drawDomino() {
   }
 
   showMessage("❌ القطعة لا تطابق — جرّب تدويرها", "error");
+}
+
+function resetGame() {
+  document.getElementById("board").innerHTML = "";
+  leftValue = null;
+  rightValue = null;
+  showMessage("🔁 تم بدء لعبة جديدة", "success");
 }
 </script>
 
