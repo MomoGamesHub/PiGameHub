@@ -39,10 +39,11 @@ body{
   margin:40px auto;
   padding:20px;
   display:flex;
-  justify-content:center;
+  justify-content:flex-start;
   align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
+  gap:6px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
   background:#10121f;
   border-radius:16px;
 }
@@ -98,18 +99,19 @@ button{
 
 <body>
 
+<!-- ===== كمبيوتر ===== -->
 <div id="computer-zone"></div>
-
 <div style="padding:10px;background:#14162a">
-  🤖 الكمبيوتر | 📦 Pile: <span id="pileCount">0</span>
+  🤖 الكمبيوتر | نقاط: <span id="computerScore">0</span> | 📦 Pile: <span id="pileCount">0</span>
 </div>
 
+<!-- ===== الطاولة ===== -->
 <div id="board"></div>
 
+<!-- ===== اللاعب ===== -->
 <div style="padding:10px;background:#14162a">
-  👤 أنت
+  👤 أنت | نقاط: <span id="playerScore">0</span>
 </div>
-
 <div id="player-zone"></div>
 
 <!-- ===== الأزرار ===== -->
@@ -122,6 +124,7 @@ button{
 let deck=[], playerHand=[], computerHand=[], pile=[];
 let left=null, right=null;
 let selectedIndex=null;
+let playerScore=0, computerScore=0;
 
 /* ===== إنشاء الدِك ===== */
 function createDeck(){
@@ -148,6 +151,7 @@ function deal(){
   pile=deck.splice(0);
   updatePile();
   renderHands();
+  updateScore();
 }
 
 /* ===== رسم الأيادي ===== */
@@ -222,8 +226,10 @@ function playerTurn(){
 
   if(play(a,b)||play(b,a)){
     playerHand.splice(selectedIndex,1);
+    playerScore++;
     selectedIndex=null;
     renderHands();
+    updateScore();
     setTimeout(computerTurn,500);
   }else{
     alert("القطعة دي مش صالحة ❌");
@@ -247,7 +253,9 @@ function computerTurn(){
     let [a,b]=computerHand[i];
     if(play(a,b)||play(b,a)){
       computerHand.splice(i,1);
+      computerScore++;
       renderHands();
+      updateScore();
       return;
     }
   }
@@ -263,11 +271,18 @@ function updatePile(){
   document.getElementById("pileCount").textContent=pile.length;
 }
 
-/* ===== إعادة ===== */
+/* ===== تحديث النقاط ===== */
+function updateScore(){
+  document.getElementById("playerScore").textContent = playerScore;
+  document.getElementById("computerScore").textContent = computerScore;
+}
+
+/* ===== إعادة اللعبة ===== */
 function resetGame(){
   document.getElementById("board").innerHTML="";
   left=null; right=null;
   selectedIndex=null;
+  playerScore=0; computerScore=0;
   createDeck();
   deal();
 }
