@@ -6,41 +6,79 @@
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #0f111a; /* لون خلفية Pi Browser */
+  color: #fff;
   text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  color: #ffd700; /* ذهبي يلمع */
+  margin-top: 15px;
+}
+
+#user {
+  margin: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #4ed8a2; /* لون Pi الأخضر */
 }
 
 #score {
   font-size: 20px;
   margin: 10px;
   font-weight: bold;
+  color: #fff;
 }
 
 #board {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  min-height: 80px;
-  margin: 20px;
+  gap: 12px;
+  min-height: 100px;
+  margin: 20px auto;
+  padding: 10px;
+  background: #1c1f33;
+  border-radius: 15px;
+  width: fit-content;
 }
 
 .domino {
-  width: 60px;
-  height: 120px;
-  border: 2px solid #333;
-  background: white;
+  width: 70px;
+  height: 140px;
+  border: 2px solid #4ed8a2;
+  background: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 22px;
+  font-size: 24px;
   cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  transition: transform 0.2s;
+}
+
+.domino:hover {
+  transform: scale(1.1);
 }
 
 button {
-  padding: 10px 16px;
+  padding: 10px 20px;
   font-size: 16px;
   margin: 5px;
+  border: none;
+  border-radius: 8px;
+  background: #4ed8a2;
+  color: #000;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #37b383;
 }
 
 #message {
@@ -48,15 +86,17 @@ button {
   font-size: 16px;
   height: 24px;
 }
-.success { color: green; }
-.error { color: red; }
+.success { color: #4ed8a2; }
+.error { color: #ff4c4c; }
+
 </style>
 </head>
 
 <body>
 
-<h2>🎲 Domino</h2>
+<h2>🎲 Domino - PiGameHub</h2>
 
+<div id="user">👤 مرحبًا بك!</div>
 <div id="score">⭐ النقاط: 0</div>
 
 <div id="board"></div>
@@ -126,7 +166,7 @@ function drawDomino() {
     board.appendChild(domino);
     score++;
     updateScore();
-    showMessage("✔️ لعب صح +1", "success");
+    showMessage("✔️ لعب على اليمين +1", "success");
     return;
   }
 
@@ -135,11 +175,11 @@ function drawDomino() {
     board.prepend(domino);
     score++;
     updateScore();
-    showMessage("✔️ لعب صح +1", "success");
+    showMessage("✔️ لعب على الشمال +1", "success");
     return;
   }
 
-  showMessage("❌ القطعة لا تطابق", "error");
+  showMessage("❌ القطعة لا تطابق — جرّب تدويرها", "error");
 }
 
 function resetGame() {
