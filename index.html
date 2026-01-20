@@ -53,7 +53,6 @@ h2 {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-size: 24px;
   cursor: pointer;
   border-radius: 8px;
   box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
@@ -111,10 +110,12 @@ let leftValue = null;
 let rightValue = null;
 let score = 0;
 
+// --- تحديث النقاط ---
 function updateScore() {
   document.getElementById("score").textContent = "⭐ النقاط: " + score;
 }
 
+// --- رسالة مؤقتة ---
 function showMessage(text, type) {
   const msg = document.getElementById("message");
   msg.textContent = text;
@@ -122,10 +123,32 @@ function showMessage(text, type) {
   setTimeout(() => msg.textContent = "", 2000);
 }
 
+// --- رسم القطعة مع أرقام واضحة ---
 function renderDomino(domino) {
-  domino.innerHTML = `<div>${domino.dataset.a}</div><div>${domino.dataset.b}</div>`;
+  domino.innerHTML = `
+    <div style="
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:28px;
+      font-weight:bold;
+      color:#333;
+      border-bottom:2px solid #4ed8a2;
+    ">${domino.dataset.a}</div>
+    <div style="
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:28px;
+      font-weight:bold;
+      color:#333;
+    ">${domino.dataset.b}</div>
+  `;
 }
 
+// --- إنشاء قطعة دومينو ---
 function createDomino(a, b) {
   const domino = document.createElement("div");
   domino.className = "domino";
@@ -133,6 +156,7 @@ function createDomino(a, b) {
   domino.dataset.b = b;
   renderDomino(domino);
 
+  // تدوير القطعة بالضغط عليها
   domino.onclick = () => {
     const temp = domino.dataset.a;
     domino.dataset.a = domino.dataset.b;
@@ -144,6 +168,7 @@ function createDomino(a, b) {
   return domino;
 }
 
+// --- سحب قطعة ---
 function drawDomino() {
   const a = Math.floor(Math.random() * 7);
   const b = Math.floor(Math.random() * 7);
@@ -182,6 +207,7 @@ function drawDomino() {
   showMessage("❌ القطعة لا تطابق — جرّب تدويرها", "error");
 }
 
+// --- إعادة اللعب ---
 function resetGame() {
   document.getElementById("board").innerHTML = "";
   leftValue = null;
