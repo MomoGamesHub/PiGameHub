@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub - Domino Full Deck</title>
+<title>PiGameHub - Domino Full Game</title>
 
 <style>
 body {
@@ -20,7 +20,7 @@ h2 { color: #ffd700; margin-top: 15px; }
 
 #score { font-size: 20px; margin: 10px; font-weight: bold; color: #fff; }
 
-#board { display: flex; justify-content:center; gap:12px; min-height:100px; margin:20px auto; padding:10px; background:#1c1f33; border-radius:15px; width:fit-content; }
+#board { display: flex; justify-content:center; gap:12px; min-height:120px; margin:20px auto; padding:10px; background:#1c1f33; border-radius:15px; width:fit-content; }
 
 .domino {
   width: 70px; height: 140px; border-radius:8px;
@@ -47,112 +47,156 @@ button:hover { background:#37b383; }
 <div id="score">⭐ النقاط: 0</div>
 <div id="board"></div>
 
-<button onclick="playerDraw()">سحب قطعة</button>
+<button onclick="playerPlay()">لعب قطعة</button>
 <button onclick="resetGame()">🔄 إعادة اللعب</button>
 
 <div id="message"></div>
 
 <script>
-// --- الهيكل الأساسي ---
-let deck = [];
-let playerHand = [];
-let computerHand = [];
-let pile = [];
-let leftValue = null;
-let rightValue = null;
-let score = 0;
+// --- المتغيرات ---
+let deck=[], playerHand=[], computerHand=[], pile=[];
+let leftValue=null, rightValue=null, score=0;
 
-// --- انشاء Deck كامل 28 قطعة ---
-function createDeck() {
-  deck = [];
-  for (let i = 0; i <= 6; i++) {
-    for (let j = i; j <= 6; j++) {
+// --- إنشاء Deck كامل ---
+function createDeck(){
+  deck=[];
+  for(let i=0;i<=6;i++){
+    for(let j=i;j<=6;j++){
       deck.push([i,j]);
     }
   }
   shuffle(deck);
 }
 
-// --- خلط القطع ---
-function shuffle(array) {
-  for (let i = array.length -1; i>0; i--){
-    const j = Math.floor(Math.random() * (i+1));
-    [array[i], array[j]] = [array[j], array[i]];
+// --- خلط ---
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]];
   }
 }
 
-// --- توزيع القطع ---
-function deal() {
-  playerHand = deck.splice(0,7);
-  computerHand = deck.splice(0,7);
-  pile = deck.splice(0); // الباقي 14 قطعة
+// --- توزيع ---
+function deal(){
+  playerHand=deck.splice(0,7);
+  computerHand=deck.splice(0,7);
+  pile=deck.splice(0);
 }
 
 // --- تحديث النقاط ---
-function updateScore() {
-  document.getElementById("score").textContent = "⭐ النقاط: " + score;
+function updateScore(){
+  document.getElementById("score").textContent="⭐ النقاط: "+score;
 }
 
-// --- رسالة مؤقتة ---
+// --- رسالة ---
 function showMessage(text,type){
-  const msg = document.getElementById("message");
-  msg.textContent = text;
-  msg.className = type;
-  setTimeout(()=> msg.textContent="",2000);
+  const msg=document.getElementById("message");
+  msg.textContent=text;
+  msg.className=type;
+  setTimeout(()=>msg.textContent="",2000);
 }
 
 // --- رسم قطعة ---
-function renderDomino(domino) {
-  domino.innerHTML = `
+function renderDomino(domino){
+  domino.innerHTML=`
     <div style="flex:1; display:flex; justify-content:center; align-items:center; font-size:28px; font-weight:bold; color:#333; border-bottom:2px solid #4ed8a2;">${domino.dataset.a}</div>
     <div style="flex:1; display:flex; justify-content:center; align-items:center; font-size:28px; font-weight:bold; color:#333;">${domino.dataset.b}</div>
   `;
 }
 
-// --- إنشاء عنصر قطعة ---
+// --- إنشاء عنصر ---
 function createDominoElement(a,b){
-  const domino = document.createElement("div");
+  const domino=document.createElement("div");
   domino.className="domino";
   domino.dataset.a=a;
   domino.dataset.b=b;
   renderDomino(domino);
-  // تدوير القطعة عند الضغط
   domino.onclick=()=>{
-    [domino.dataset.a,domino.dataset.b] = [domino.dataset.b,domino.dataset.a];
+    [domino.dataset.a,domino.dataset.b]=[domino.dataset.b,domino.dataset.a];
     renderDomino(domino);
     showMessage("🔄 تم تدوير القطعة","success");
   };
   return domino;
 }
 
-// --- سحب قطعة للاعب (حالياً بسيطة من اليد) ---
-function playerDraw(){
+// --- اللعب على اللوحة ---
+function playPiece(a,b,isPlayer){
+  const domino=createDominoElement(a,b);
+  const board=document.getElementById("board");
+  if(leftValue===null && rightValue===null){
+    leftValue=a; rightValue=b;
+    board.appendChild(domino);
+    if(isPlayer){score++; updateScore();}
+    return true;
+  }
+  if(a===rightValue){
+    rightValue=b;
+    board.appendChild(domino);
+    if(isPlayer){score++; updateScore();}
+    return true;
+  }
+  if(b===leftValue){
+    leftValue=a;
+    board.prepend(domino);
+    if(isPlayer){score++; updateScore();}
+    return true;
+  }
+  return false;
+}
+
+// --- حركة اللاعب ---
+function playerPlay(){
   if(playerHand.length===0){
     showMessage("❌ لا يوجد قطع متاحة","error");
     return;
   }
-  const [a,b] = playerHand.shift();
-  const domino = createDominoElement(a,b);
-  document.getElementById("board").appendChild(domino);
-  score++;
-  updateScore();
-  showMessage("✅ قطعة نزلت","success");
+  let played=false;
+  // جرب كل قطعة في يد اللاعب
+  for(let i=0;i<playerHand.length;i++){
+    const [a,b]=playerHand[i];
+    if(playPiece(a,b,true)){
+      playerHand.splice(i,1);
+      played=true;
+      break;
+    } else if(playPiece(b,a,true)){ // جرب التدوير
+      playerHand.splice(i,1);
+      played=true;
+      break;
+    }
+  }
+  if(!played){showMessage("❌ لا توجد قطع صالحة للعب","error");}
+  // بعد حركة اللاعب يلعب الكمبيوتر
+  setTimeout(computerPlay,500);
+}
+
+// --- AI بسيط للكمبيوتر ---
+function computerPlay(){
+  if(computerHand.length===0) return;
+  for(let i=0;i<computerHand.length;i++){
+    const [a,b]=computerHand[i];
+    if(playPiece(a,b,false)){
+      computerHand.splice(i,1);
+      showMessage("🤖 الكمبيوتر لعب قطعة","success");
+      return;
+    } else if(playPiece(b,a,false)){
+      computerHand.splice(i,1);
+      showMessage("🤖 الكمبيوتر لعب قطعة","success");
+      return;
+    }
+  }
+  showMessage("🤖 الكمبيوتر لم يلعب","error");
 }
 
 // --- إعادة اللعبة ---
 function resetGame(){
   document.getElementById("board").innerHTML="";
-  leftValue=null; rightValue=null;
-  score=0; updateScore();
-  createDeck();
-  deal();
+  leftValue=null; rightValue=null; score=0; updateScore();
+  createDeck(); deal();
   showMessage("🔁 لعبة جديدة — النقاط صفر","success");
 }
 
 // --- بدء اللعبة ---
-createDeck();
-deal();
-updateScore();
+createDeck(); deal(); updateScore();
 </script>
 </body>
 </html>
