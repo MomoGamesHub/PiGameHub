@@ -112,7 +112,9 @@ button{
 
 <div id="player-zone"></div>
 
+<!-- ===== الأزرار ===== -->
 <button onclick="playerTurn()">لعب القطعة المختارة</button>
+<button onclick="drawFromPile()">اسحب قطعة</button>
 <button onclick="resetGame()">إعادة اللعبة</button>
 
 <script>
@@ -225,6 +227,17 @@ function playerTurn(){
     setTimeout(computerTurn,500);
   }else{
     alert("القطعة دي مش صالحة ❌");
+  }
+}
+
+/* ===== زر السحب اليدوي ===== */
+function drawFromPile(){
+  if(pile.length>0){
+    playerHand.push(pile.shift());
+    updatePile();
+    renderHands();
+  } else {
+    alert("مفيش قطع في pile!");
   }
 }
 
