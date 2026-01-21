@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Domino Full – Integrated Version</title>
+<title>Domino Full – Unified Layout</title>
 
 <style>
 body{
@@ -13,37 +13,38 @@ body{
   text-align:center;
 }
 
-/* ===== المناطق ===== */
+/* ===== أيادي اللاعبين ===== */
 #computer-zone,#player-zone{
   display:flex;
   justify-content:center;
   gap:8px;
   padding:14px;
-}
-
-#computer-zone{
   background:#1a1c2e;
-  border-bottom:2px solid #333;
 }
 
-#player-zone{
-  background:#1a1c2e;
-  border-top:2px solid #333;
-}
+#computer-zone{border-bottom:2px solid #333;}
+#player-zone{border-top:2px solid #333;}
 
-/* ===== منطقة الطاولة ===== */
-#table-area{
-  display:flex;
-  justify-content:center;
+/* ===== تخطيط اللعبة ===== */
+#game-layout{
+  display:grid;
+  grid-template-columns:120px 1fr 120px;
   align-items:center;
-  gap:20px;
-  margin:30px auto;
+  margin:30px 10px;
+}
+
+/* ===== المخزون ===== */
+.outer-pile{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  min-height:220px;
 }
 
 /* ===== الطاولة ===== */
 #board{
   min-height:180px;
-  max-width:70%;
   padding:20px;
   display:flex;
   align-items:center;
@@ -52,16 +53,6 @@ body{
   overflow-x:auto;
   background:#10121f;
   border-radius:16px;
-}
-
-/* ===== مناطق السحب ===== */
-.side-pile{
-  width:70px;
-  min-height:180px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
 }
 
 /* ===== الدومينو ===== */
@@ -119,19 +110,22 @@ button{
   🤖 الكمبيوتر | نقاط: <span id="computerScore">0</span>
 </div>
 
-<!-- ===== الطاولة + السحب ===== -->
-<div id="table-area">
+<!-- ===== التخطيط ===== -->
+<div id="game-layout">
 
-  <div id="left-pile" class="side-pile"></div>
+  <!-- مخزون الكمبيوتر -->
+  <div id="left-pile" class="outer-pile"></div>
 
+  <!-- الطاولة -->
   <div id="board"></div>
 
-  <div id="right-pile" class="side-pile"></div>
+  <!-- مخزون اللاعب -->
+  <div id="right-pile" class="outer-pile"></div>
 
 </div>
 
 <div style="padding:8px;background:#14162a">
-  📦 Pile: <span id="pileCount">0</span>
+  📦 Pile المتبقي: <span id="pileCount">0</span>
 </div>
 
 <!-- ===== اللاعب ===== -->
@@ -140,7 +134,7 @@ button{
 </div>
 <div id="player-zone"></div>
 
-<!-- ===== الأزرار ===== -->
+<!-- ===== أزرار ===== -->
 <button onclick="playerTurn()">لعب القطعة المختارة</button>
 <button onclick="drawFromPile()">اسحب قطعة</button>
 <button onclick="resetGame()">إعادة اللعبة</button>
@@ -179,13 +173,14 @@ function deal(){
   renderAll();
 }
 
-/* ===== رسم ===== */
+/* ===== رسم شامل ===== */
 function renderAll(){
   renderHands();
   renderSidePiles();
   updateScore();
 }
 
+/* ===== أيادي ===== */
 function renderHands(){
   const p=document.getElementById("player-zone");
   const c=document.getElementById("computer-zone");
@@ -206,19 +201,20 @@ function renderHands(){
   });
 }
 
+/* ===== مخزون بعيد ===== */
 function renderSidePiles(){
   const leftPile=document.getElementById("left-pile");
   const rightPile=document.getElementById("right-pile");
   leftPile.innerHTML="";
   rightPile.innerHTML="";
 
-  computerHand.slice(0,3).forEach(()=>{
+  computerHand.forEach(()=>{
     const d=document.createElement("div");
     d.className="domino back";
     leftPile.appendChild(d);
   });
 
-  playerHand.slice(0,3).forEach(()=>{
+  playerHand.forEach(()=>{
     const d=document.createElement("div");
     d.className="domino back";
     rightPile.appendChild(d);
@@ -233,7 +229,7 @@ function createDomino(a,b){
   return d;
 }
 
-/* ===== اللعب ===== */
+/* ===== اللعب على الطاولة ===== */
 function play(a,b){
   const board=document.getElementById("board");
   const d=createDomino(a,b);
