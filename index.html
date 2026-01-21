@@ -2,14 +2,25 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino Clean Base</title>
-
+<title>PiGameHub – Domino Basic Test</title>
 <style>
 body{
   margin:0;
   font-family:Arial;
   background:#1b1b2f;
   color:#fff;
+}
+
+#login-screen,#avatar-screen,#game-screen{
+  display:none;
+  text-align:center;
+  padding:20px;
+}
+
+input,button,select{
+  padding:10px;
+  margin:10px;
+  font-size:16px;
 }
 
 #game-layout{
@@ -76,46 +87,76 @@ body{
   outline:3px solid yellow;
 }
 
-button{
-  padding:10px 20px;
-  font-size:16px;
-  margin:10px auto;
-  display:block;
-}
 </style>
 </head>
 
 <body>
 
-<h2 style="text-align:center">🁫 Domino</h2>
-
-<div id="game-layout">
-  <div id="left-pile" class="outer-pile"></div>
-  <div id="board-area">
-    <div id="board"></div>
-  </div>
-  <div id="right-pile" class="outer-pile"></div>
+<!-- ===== شاشة تسجيل الدخول ===== -->
+<div id="login-screen">
+  <h2>تسجيل الدخول</h2>
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="text" id="phone" placeholder="رقم الموبايل"><br>
+  <button onclick="login()">تسجيل الدخول تجريبي</button>
 </div>
 
-<h3 style="text-align:center">يد الكمبيوتر</h3>
-<div id="computer-hand" class="hand"></div>
+<!-- ===== شاشة اختيار Avatar ===== -->
+<div id="avatar-screen">
+  <h2>اختر شخصيتك</h2>
+  <select id="avatar-select">
+    <option value="avatar1">Avatar 1 (مجاني)</option>
+    <option value="avatar2">Avatar 2 (مقفل)</option>
+    <option value="avatar3">Avatar 3 (مجاني)</option>
+  </select><br>
+  <button onclick="startGame()">ابدأ اللعبة</button>
+</div>
 
-<h3 style="text-align:center">يدك</h3>
-<div id="player-hand" class="hand"></div>
+<!-- ===== شاشة اللعبة ===== -->
+<div id="game-screen">
+  <h2>🁫 Domino</h2>
 
-<button onclick="drawTile()">اسحب قطعة</button>
+  <div id="game-layout">
+    <div id="left-pile" class="outer-pile"></div>
+    <div id="board-area">
+      <div id="board"></div>
+    </div>
+    <div id="right-pile" class="outer-pile"></div>
+  </div>
+
+  <h3>يد الكمبيوتر</h3>
+  <div id="computer-hand" class="hand"></div>
+
+  <h3>يدك</h3>
+  <div id="player-hand" class="hand"></div>
+
+  <button onclick="drawTile()">اسحب قطعة</button>
+</div>
 
 <script>
-/* ===== المتغيرات ===== */
-let tiles=[];
-let pile=[];
-let board=[];
-let left=null;
-let right=null;
+/* ===== تسجيل دخول تجريبي ===== */
+function login(){
+  const email=document.getElementById("email").value;
+  const phone=document.getElementById("phone").value;
+  if(email || phone){
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("avatar-screen").style.display="block";
+  }else{
+    alert("ادخل ايميل او رقم موبايل");
+  }
+}
 
-let playerHand=[];
-let computerHand=[];
-let selectedIndex=null;
+/* ===== اختيار Avatar ===== */
+function startGame(){
+  const avatar=document.getElementById("avatar-select").value;
+  console.log("Avatar selected:",avatar);
+  document.getElementById("avatar-screen").style.display="none";
+  document.getElementById("game-screen").style.display="block";
+  initGame();
+}
+
+/* ===== المتغيرات الأساسية للعبة ===== */
+let tiles=[],pile=[],board=[],left=null,right=null;
+let playerHand=[],computerHand=[],selectedIndex=null;
 
 /* ===== إنشاء القطع ===== */
 for(let i=0;i<=6;i++){
@@ -128,76 +169,58 @@ for(let i=0;i<=6;i++){
 tiles.sort(()=>Math.random()-0.5);
 
 /* ===== توزيع ===== */
-playerHand=tiles.splice(0,7);
-computerHand=tiles.splice(0,7);
-pile=tiles;
+function initGame(){
+  playerHand=tiles.splice(0,7);
+  computerHand=tiles.splice(0,7);
+  pile=tiles;
 
-/* ===== اللعب ===== */
+  renderAll();
+}
+
+/* ===== أدوات ===== */
+function canPlay(hand){
+  if(left===null) return hand.length>0;
+  return hand.some(([a,b])=> a===left || a===right || b===left || b===right );
+}
+
 function play(a,b){
-  if(left===null){
-    board.push([a,b]);
-    left=a; right=b;
-    return true;
-  }
-  if(a===right){
-    board.push([a,b]);
-    right=b;
-    return true;
-  }
-  if(b===left){
-    board.unshift([a,b]);
-    left=a;
-    return true;
-  }
+  if(left===null){board.push([a,b]); left=a; right=b; return true;}
+  if(a===right){board.push([a,b]); right=b; return true;}
+  if(b===left){board.unshift([a,b]); left=a; return true;}
   return false;
 }
 
 /* ===== دور اللاعب ===== */
 function playerTurn(){
-  if(selectedIndex===null){
-    alert("اختار قطعة");
-    return;
-  }
+  if(selectedIndex===null){ alert("اختر قطعة"); return; }
   let [a,b]=playerHand[selectedIndex];
   if(play(a,b)||play(b,a)){
     playerHand.splice(selectedIndex,1);
     selectedIndex=null;
     renderAll();
     setTimeout(computerTurn,500);
-  }else{
-    alert("قطعة غير مطابقة");
-  }
+  }else{ alert("قطعة غير مطابقة"); }
 }
 
 /* ===== دور الكمبيوتر ===== */
 function computerTurn(){
   for(let i=0;i<computerHand.length;i++){
     let [a,b]=computerHand[i];
-    if(play(a,b)||play(b,a)){
-      computerHand.splice(i,1);
-      renderAll();
-      return;
-    }
+    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); renderAll(); return;}
   }
 }
 
 /* ===== سحب ===== */
 function drawTile(){
-  if(pile.length){
-    playerHand.push(pile.shift());
-    renderAll();
-  }else{
-    alert("المخزون فاضي");
-  }
+  if(pile.length){ playerHand.push(pile.shift()); renderAll();}
+  else{ alert("المخزون فاضي"); }
 }
 
 /* ===== رسم ===== */
 function renderTile([a,b],hidden=false){
   let d=document.createElement("div");
   d.className="tile"+(hidden?" hidden":"");
-  if(!hidden){
-    d.innerHTML=`<div>${a}</div><div>${b}</div>`;
-  }
+  if(!hidden){ d.innerHTML=`<div>${a}</div><div>${b}</div>`; }
   return d;
 }
 
@@ -230,8 +253,10 @@ const playerDiv=document.getElementById("player-hand");
 const computerDiv=document.getElementById("computer-hand");
 const leftPile=document.getElementById("left-pile");
 const rightPile=document.getElementById("right-pile");
+</script>
 
-renderAll();
+<script>
+document.getElementById("login-screen").style.display="block";
 </script>
 
 </body>
