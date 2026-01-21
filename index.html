@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino Full Pro Real</title>
+<title>PiGameHub – Domino Pro Advanced</title>
 <style>
 body{margin:0;font-family:Arial;background:#1b1b2f;color:#fff;}
 .screen{display:none;text-align:center;padding:20px;}
@@ -19,6 +19,7 @@ input,button,select{padding:10px;margin:10px;font-size:16px;cursor:pointer;}
 .avatar-card{display:inline-block;width:80px;height:80px;background:#444;border-radius:8px;margin:10px;cursor:pointer;transition:transform 0.2s;display:flex;justify-content:center;align-items:center;color:#fff;font-weight:bold;}
 .avatar-card.selected{border:3px solid yellow;transform:scale(1.1);}
 button{padding:10px 20px;font-size:16px;margin:10px auto;display:block;cursor:pointer;}
+.scoreboard{margin-top:10px;}
 </style>
 </head>
 <body>
@@ -40,13 +41,18 @@ button{padding:10px 20px;font-size:16px;margin:10px auto;display:block;cursor:po
 
 <!-- شاشة اللعبة -->
 <div id="game-screen" class="screen">
-  <h2>🁫 Domino – النسخة الاحترافية</h2>
+  <h2>🁫 Domino – النسخة الاحترافية المتطورة</h2>
   <div id="game-layout">
     <div id="left-pile" class="outer-pile"></div>
     <div id="board-area">
       <div id="board"></div>
     </div>
     <div id="right-pile" class="outer-pile"></div>
+  </div>
+
+  <div class="scoreboard">
+    <span>نقاطك: <span id="player-score">0</span></span> |
+    <span>نقاط الكمبيوتر: <span id="computer-score">0</span></span>
   </div>
 
   <h3>يد الكمبيوتر</h3>
@@ -101,11 +107,11 @@ function startGame(){
 // المتغيرات الأساسية
 let tiles=[],pile=[],board=[],left=null,right=null;
 let playerHand=[],computerHand=[],selectedIndex=null;
+let playerScore=0,computerScore=0;
 
 // إنشاء القطع
 for(let i=0;i<=6;i++){
   for(let j=i;j<=6;j++){ tiles.push([i,j]); }
-}
 
 // خلط
 tiles.sort(()=>Math.random()-0.5);
@@ -116,6 +122,7 @@ function initGame(){
   computerHand=tiles.splice(0,7);
   pile=tiles;
   renderAll();
+  updateScore();
 }
 
 // أدوات اللعب
@@ -136,6 +143,12 @@ function calcPoints(hand){
   return hand.reduce((sum,[a,b])=>sum+(a+b),0);
 }
 
+// تحديث لوحة النقاط
+function updateScore(){
+  document.getElementById("player-score").innerText=playerScore;
+  document.getElementById("computer-score").innerText=computerScore;
+}
+
 // نهاية اللعبة
 function checkEndGame(){
   if(!canPlay(playerHand) && !canPlay(computerHand) && pile.length===0){
@@ -143,13 +156,14 @@ function checkEndGame(){
     const computerPoints=calcPoints(computerHand);
     let winner,loser;
     if(playerPoints<computerPoints){
-      winner="أنت"; loser="الكمبيوتر";
+      winner="أنت"; loser="الكمبيوتر"; playerScore+=10;
     }else if(computerPoints<playerPoints){
-      winner="الكمبيوتر"; loser="أنت";
+      winner="الكمبيوتر"; loser="أنت"; computerScore+=10;
     }else{
       winner="تعادل"; loser="";
     }
-    alert(`نهاية اللعبة!\nفائز: ${winner} (${winner!=="تعادل"?Math.min(playerPoints,computerPoints):""} نقاط)\nخاسر: ${loser} (${winner!=="تعادل"?Math.max(playerPoints,computerPoints):""} نقاط)`);
+    alert(`نهاية اللعبة!\nفائز: ${winner}\nخاسر: ${loser}`);
+    updateScore();
     return true;
   }
   return false;
@@ -168,10 +182,13 @@ function playerTurn(idx){
 
 // دور الكمبيوتر
 function computerTurn(){
+  let moved=false;
   for(let i=0;i<computerHand.length;i++){
     let [a,b]=computerHand[i];
-    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); renderAll(); checkEndGame(); return; }
+    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); moved=true; renderAll(); break; }
   }
+  if(!moved && pile.length===0){alert("تمرير الدور للكمبيوتر");}
+  checkEndGame();
 }
 
 // سحب
