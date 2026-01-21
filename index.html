@@ -2,14 +2,9 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino Full Pro</title>
+<title>PiGameHub – Domino Full Pro with End Game</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#1b1b2f;
-  color:#fff;
-}
+body{margin:0;font-family:Arial;background:#1b1b2f;color:#fff;}
 .screen{display:none;text-align:center;padding:20px;}
 input,button,select{padding:10px;margin:10px;font-size:16px;cursor:pointer;}
 #game-layout{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;margin:20px;}
@@ -78,7 +73,7 @@ function login(){
 // إعداد Avatars واقعية
 let selectedAvatar=null;
 function setupAvatars(){
-  const avatars=["🙂","😎","🧑"]; // رموز تمثل Avatars حقيقية
+  const avatars=["🙂","😎","🧑"];
   const container=document.getElementById("avatar-container");
   container.innerHTML="";
   avatars.forEach(a=>{
@@ -136,6 +131,30 @@ function play(a,b){
   return false;
 }
 
+// حساب مجموع النقاط
+function calcPoints(hand){
+  return hand.reduce((sum,[a,b])=>sum+(a+b),0);
+}
+
+// نهاية اللعبة
+function checkEndGame(){
+  if(!canPlay(playerHand) && !canPlay(computerHand) && pile.length===0){
+    const playerPoints=calcPoints(playerHand);
+    const computerPoints=calcPoints(computerHand);
+    let winner,loser;
+    if(playerPoints<computerPoints){
+      winner="أنت"; loser="الكمبيوتر";
+    }else if(computerPoints<playerPoints){
+      winner="الكمبيوتر"; loser="أنت";
+    }else{
+      winner="تعادل"; loser="";
+    }
+    alert(`نهاية اللعبة!\nفائز: ${winner} (${winner!=="تعادل"?Math.min(playerPoints,computerPoints):""} نقاط)\nخاسر: ${loser} (${winner!=="تعادل"?Math.max(playerPoints,computerPoints):""} نقاط)`);
+    return true;
+  }
+  return false;
+}
+
 // دور اللاعب
 function playerTurn(idx){
   let [a,b]=playerHand[idx];
@@ -143,7 +162,7 @@ function playerTurn(idx){
     playerHand.splice(idx,1);
     selectedIndex=null;
     renderAll();
-    setTimeout(computerTurn,500);
+    if(!checkEndGame()) setTimeout(computerTurn,500);
   }else{ alert("قطعة غير مطابقة"); }
 }
 
@@ -151,7 +170,7 @@ function playerTurn(idx){
 function computerTurn(){
   for(let i=0;i<computerHand.length;i++){
     let [a,b]=computerHand[i];
-    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); renderAll(); return; }
+    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); renderAll(); checkEndGame(); return; }
   }
 }
 
@@ -161,6 +180,7 @@ function drawTile(){
     const t=pile.shift();
     playerHand.push(t);
     renderAll();
+    checkEndGame();
   }else{ alert("المخزون فاضي"); }
 }
 
