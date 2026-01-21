@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino</title>
+<title>PiGameHub – Domino Clean Base</title>
 
 <style>
 body{
@@ -24,6 +24,7 @@ body{
   flex-direction:column;
   align-items:center;
   gap:6px;
+  min-height:220px;
 }
 
 .pile-tile{
@@ -90,11 +91,9 @@ button{
 
 <div id="game-layout">
   <div id="left-pile" class="outer-pile"></div>
-
   <div id="board-area">
     <div id="board"></div>
   </div>
-
   <div id="right-pile" class="outer-pile"></div>
 </div>
 
@@ -118,9 +117,6 @@ let playerHand=[];
 let computerHand=[];
 let selectedIndex=null;
 
-let playerScore=0;
-let computerScore=0;
-
 /* ===== إنشاء القطع ===== */
 for(let i=0;i<=6;i++){
   for(let j=i;j<=6;j++){
@@ -135,29 +131,6 @@ tiles.sort(()=>Math.random()-0.5);
 playerHand=tiles.splice(0,7);
 computerHand=tiles.splice(0,7);
 pile=tiles;
-
-/* ===== أدوات ===== */
-function canPlay(hand){
-  if(left===null) return hand.length>0;
-  return hand.some(([a,b]) =>
-    a===left || a===right || b===left || b===right
-  );
-}
-
-function sumHand(hand){
-  return hand.reduce((s,[a,b])=>s+a+b,0);
-}
-
-function endGame(){
-  const p=sumHand(playerHand);
-  const c=sumHand(computerHand);
-  let msg="انتهت اللعبة\n";
-  if(p<c) msg+="🎉 أنت الفائز";
-  else if(c<p) msg+="🤖 الكمبيوتر فاز";
-  else msg+="🤝 تعادل";
-  msg+=`\n\nمجموعك: ${p}\nمجموع الكمبيوتر: ${c}`;
-  alert(msg);
-}
 
 /* ===== اللعب ===== */
 function play(a,b){
@@ -181,27 +154,16 @@ function play(a,b){
 
 /* ===== دور اللاعب ===== */
 function playerTurn(){
-  if(!canPlay(playerHand)){
-    if(pile.length){
-      alert("مفيش لعب – اسحب قطعة");
-    }else{
-      alert("مفيش لعب – تمرير الدور");
-      setTimeout(computerTurn,600);
-    }
-    return;
-  }
-
   if(selectedIndex===null){
     alert("اختار قطعة");
     return;
   }
-
   let [a,b]=playerHand[selectedIndex];
   if(play(a,b)||play(b,a)){
     playerHand.splice(selectedIndex,1);
     selectedIndex=null;
     renderAll();
-    setTimeout(computerTurn,600);
+    setTimeout(computerTurn,500);
   }else{
     alert("قطعة غير مطابقة");
   }
@@ -209,35 +171,24 @@ function playerTurn(){
 
 /* ===== دور الكمبيوتر ===== */
 function computerTurn(){
-  if(canPlay(computerHand)){
-    for(let i=0;i<computerHand.length;i++){
-      let [a,b]=computerHand[i];
-      if(play(a,b)||play(b,a)){
-        computerHand.splice(i,1);
-        renderAll();
-        return;
-      }
-    }
-  }
-
-  if(pile.length){
-    computerHand.push(pile.shift());
-    renderAll();
-  }else{
-    if(!canPlay(playerHand)){
-      endGame();
+  for(let i=0;i<computerHand.length;i++){
+    let [a,b]=computerHand[i];
+    if(play(a,b)||play(b,a)){
+      computerHand.splice(i,1);
+      renderAll();
+      return;
     }
   }
 }
 
 /* ===== سحب ===== */
 function drawTile(){
-  if(!pile.length){
+  if(pile.length){
+    playerHand.push(pile.shift());
+    renderAll();
+  }else{
     alert("المخزون فاضي");
-    return;
   }
-  playerHand.push(pile.shift());
-  renderAll();
 }
 
 /* ===== رسم ===== */
