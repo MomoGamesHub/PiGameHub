@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino Pro Test</title>
+<title>PiGameHub – Domino Full Pro</title>
 <style>
 body{
   margin:0;
@@ -10,26 +10,25 @@ body{
   background:#1b1b2f;
   color:#fff;
 }
-
 .screen{display:none;text-align:center;padding:20px;}
 input,button,select{padding:10px;margin:10px;font-size:16px;cursor:pointer;}
 #game-layout{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;margin:20px;}
 .outer-pile{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:220px;}
 .pile-tile{width:40px;height:20px;background:#555;border-radius:4px;}
-#board-area{display:flex;justify-content:center;align-items:center;min-height:220px;}
-#board{display:flex;gap:8px;}
+#board-area{display:flex;justify-content:center;align-items:center;min-height:220px;flex-direction:column;}
+#board{display:flex;flex-direction:column;gap:8px;align-items:center;}
 .tile{width:40px;height:60px;background:#eee;color:#000;border-radius:6px;display:flex;flex-direction:column;justify-content:space-between;padding:4px;cursor:pointer;font-weight:bold;transition:transform 0.2s;}
 .tile.selected{outline:3px solid yellow;transform:scale(1.1);}
 .tile.hidden{background:#333;cursor:default;}
 .hand{display:flex;justify-content:center;gap:8px;margin:10px;}
-.avatar-card{display:inline-block;width:80px;height:80px;background:#444;border-radius:8px;margin:10px;cursor:pointer;transition:transform 0.2s;}
+.avatar-card{display:inline-block;width:80px;height:80px;background:#444;border-radius:8px;margin:10px;cursor:pointer;transition:transform 0.2s;display:flex;justify-content:center;align-items:center;color:#fff;font-weight:bold;}
 .avatar-card.selected{border:3px solid yellow;transform:scale(1.1);}
 button{padding:10px 20px;font-size:16px;margin:10px auto;display:block;cursor:pointer;}
 </style>
 </head>
 <body>
 
-<!-- ===== شاشة تسجيل الدخول ===== -->
+<!-- شاشة تسجيل الدخول -->
 <div id="login-screen" class="screen">
   <h2>تسجيل الدخول</h2>
   <input type="email" id="email" placeholder="Email"><br>
@@ -37,17 +36,16 @@ button{padding:10px 20px;font-size:16px;margin:10px auto;display:block;cursor:po
   <button onclick="login()">تسجيل الدخول تجريبي</button>
 </div>
 
-<!-- ===== شاشة اختيار Avatar ===== -->
+<!-- شاشة اختيار Avatar -->
 <div id="avatar-screen" class="screen">
   <h2>اختر شخصيتك</h2>
   <div id="avatar-container"></div>
   <button onclick="startGame()">ابدأ اللعبة</button>
 </div>
 
-<!-- ===== شاشة اللعبة ===== -->
+<!-- شاشة اللعبة -->
 <div id="game-screen" class="screen">
   <h2>🁫 Domino</h2>
-
   <div id="game-layout">
     <div id="left-pile" class="outer-pile"></div>
     <div id="board-area">
@@ -66,7 +64,7 @@ button{padding:10px 20px;font-size:16px;margin:10px auto;display:block;cursor:po
 </div>
 
 <script>
-/* ===== تسجيل دخول تجريبي ===== */
+// تسجيل دخول تجريبي
 function login(){
   const email=document.getElementById("email").value;
   const phone=document.getElementById("phone").value;
@@ -77,10 +75,10 @@ function login(){
   }else{alert("ادخل ايميل او رقم موبايل");}
 }
 
-/* ===== إعداد Avatars ===== */
+// إعداد Avatars واقعية
 let selectedAvatar=null;
 function setupAvatars(){
-  const avatars=["avatar1","avatar2","avatar3"];
+  const avatars=["🙂","😎","🧑"]; // رموز تمثل Avatars حقيقية
   const container=document.getElementById("avatar-container");
   container.innerHTML="";
   avatars.forEach(a=>{
@@ -96,7 +94,7 @@ function setupAvatars(){
   });
 }
 
-/* ===== بدء اللعبة ===== */
+// بدء اللعبة
 function startGame(){
   if(!selectedAvatar){alert("اختر شخصيتك");return;}
   console.log("Avatar selected:",selectedAvatar);
@@ -105,19 +103,19 @@ function startGame(){
   initGame();
 }
 
-/* ===== المتغيرات الأساسية للعبة ===== */
+// المتغيرات الأساسية
 let tiles=[],pile=[],board=[],left=null,right=null;
 let playerHand=[],computerHand=[],selectedIndex=null;
 
-/* ===== إنشاء القطع ===== */
+// إنشاء القطع
 for(let i=0;i<=6;i++){
   for(let j=i;j<=6;j++){ tiles.push([i,j]); }
 }
 
-/* ===== خلط ===== */
+// خلط
 tiles.sort(()=>Math.random()-0.5);
 
-/* ===== توزيع ===== */
+// توزيع
 function initGame(){
   playerHand=tiles.splice(0,7);
   computerHand=tiles.splice(0,7);
@@ -125,7 +123,7 @@ function initGame(){
   renderAll();
 }
 
-/* ===== أدوات ===== */
+// أدوات اللعب
 function canPlay(hand){
   if(left===null) return hand.length>0;
   return hand.some(([a,b])=> a===left || a===right || b===left || b===right );
@@ -138,7 +136,7 @@ function play(a,b){
   return false;
 }
 
-/* ===== دور اللاعب ===== */
+// دور اللاعب
 function playerTurn(idx){
   let [a,b]=playerHand[idx];
   if(play(a,b)||play(b,a)){
@@ -149,7 +147,7 @@ function playerTurn(idx){
   }else{ alert("قطعة غير مطابقة"); }
 }
 
-/* ===== دور الكمبيوتر ===== */
+// دور الكمبيوتر
 function computerTurn(){
   for(let i=0;i<computerHand.length;i++){
     let [a,b]=computerHand[i];
@@ -157,7 +155,7 @@ function computerTurn(){
   }
 }
 
-/* ===== سحب ===== */
+// سحب
 function drawTile(){
   if(pile.length){
     const t=pile.shift();
@@ -166,7 +164,7 @@ function drawTile(){
   }else{ alert("المخزون فاضي"); }
 }
 
-/* ===== رسم القطع ===== */
+// رسم القطع
 function renderTile([a,b],hidden=false){
   let d=document.createElement("div");
   d.className="tile"+(hidden?" hidden":"");
@@ -196,16 +194,15 @@ function renderAll(){
   });
 }
 
-/* ===== عناصر ===== */
+// عناصر اللعبة
 const boardDiv=document.getElementById("board");
 const playerDiv=document.getElementById("player-hand");
 const computerDiv=document.getElementById("computer-hand");
 const leftPile=document.getElementById("left-pile");
 const rightPile=document.getElementById("right-pile");
 
-/* ===== اظهار شاشة تسجيل الدخول ===== */
+// اظهار شاشة تسجيل الدخول
 document.getElementById("login-screen").style.display="block";
 </script>
-
 </body>
 </html>
