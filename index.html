@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino Basic Test</title>
+<title>PiGameHub – Domino Pro Test</title>
 <style>
 body{
   margin:0;
@@ -11,89 +11,26 @@ body{
   color:#fff;
 }
 
-#login-screen,#avatar-screen,#game-screen{
-  display:none;
-  text-align:center;
-  padding:20px;
-}
-
-input,button,select{
-  padding:10px;
-  margin:10px;
-  font-size:16px;
-}
-
-#game-layout{
-  display:grid;
-  grid-template-columns:120px 1fr 120px;
-  align-items:center;
-  margin:20px;
-}
-
-.outer-pile{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-  min-height:220px;
-}
-
-.pile-tile{
-  width:40px;
-  height:20px;
-  background:#555;
-  border-radius:4px;
-}
-
-#board-area{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:220px;
-}
-
-#board{
-  display:flex;
-  gap:8px;
-}
-
-.tile{
-  width:40px;
-  height:60px;
-  background:#eee;
-  color:#000;
-  border-radius:6px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  padding:4px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.hidden{
-  background:#333;
-  cursor:default;
-}
-
-.hand{
-  display:flex;
-  justify-content:center;
-  gap:8px;
-  margin:10px;
-}
-
-.selected{
-  outline:3px solid yellow;
-}
-
+.screen{display:none;text-align:center;padding:20px;}
+input,button,select{padding:10px;margin:10px;font-size:16px;cursor:pointer;}
+#game-layout{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;margin:20px;}
+.outer-pile{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:220px;}
+.pile-tile{width:40px;height:20px;background:#555;border-radius:4px;}
+#board-area{display:flex;justify-content:center;align-items:center;min-height:220px;}
+#board{display:flex;gap:8px;}
+.tile{width:40px;height:60px;background:#eee;color:#000;border-radius:6px;display:flex;flex-direction:column;justify-content:space-between;padding:4px;cursor:pointer;font-weight:bold;transition:transform 0.2s;}
+.tile.selected{outline:3px solid yellow;transform:scale(1.1);}
+.tile.hidden{background:#333;cursor:default;}
+.hand{display:flex;justify-content:center;gap:8px;margin:10px;}
+.avatar-card{display:inline-block;width:80px;height:80px;background:#444;border-radius:8px;margin:10px;cursor:pointer;transition:transform 0.2s;}
+.avatar-card.selected{border:3px solid yellow;transform:scale(1.1);}
+button{padding:10px 20px;font-size:16px;margin:10px auto;display:block;cursor:pointer;}
 </style>
 </head>
-
 <body>
 
 <!-- ===== شاشة تسجيل الدخول ===== -->
-<div id="login-screen">
+<div id="login-screen" class="screen">
   <h2>تسجيل الدخول</h2>
   <input type="email" id="email" placeholder="Email"><br>
   <input type="text" id="phone" placeholder="رقم الموبايل"><br>
@@ -101,18 +38,14 @@ input,button,select{
 </div>
 
 <!-- ===== شاشة اختيار Avatar ===== -->
-<div id="avatar-screen">
+<div id="avatar-screen" class="screen">
   <h2>اختر شخصيتك</h2>
-  <select id="avatar-select">
-    <option value="avatar1">Avatar 1 (مجاني)</option>
-    <option value="avatar2">Avatar 2 (مقفل)</option>
-    <option value="avatar3">Avatar 3 (مجاني)</option>
-  </select><br>
+  <div id="avatar-container"></div>
   <button onclick="startGame()">ابدأ اللعبة</button>
 </div>
 
 <!-- ===== شاشة اللعبة ===== -->
-<div id="game-screen">
+<div id="game-screen" class="screen">
   <h2>🁫 Domino</h2>
 
   <div id="game-layout">
@@ -140,15 +73,33 @@ function login(){
   if(email || phone){
     document.getElementById("login-screen").style.display="none";
     document.getElementById("avatar-screen").style.display="block";
-  }else{
-    alert("ادخل ايميل او رقم موبايل");
-  }
+    setupAvatars();
+  }else{alert("ادخل ايميل او رقم موبايل");}
 }
 
-/* ===== اختيار Avatar ===== */
+/* ===== إعداد Avatars ===== */
+let selectedAvatar=null;
+function setupAvatars(){
+  const avatars=["avatar1","avatar2","avatar3"];
+  const container=document.getElementById("avatar-container");
+  container.innerHTML="";
+  avatars.forEach(a=>{
+    let card=document.createElement("div");
+    card.className="avatar-card";
+    card.innerText=a;
+    card.onclick=()=>{
+      document.querySelectorAll(".avatar-card").forEach(c=>c.classList.remove("selected"));
+      card.classList.add("selected");
+      selectedAvatar=a;
+    };
+    container.appendChild(card);
+  });
+}
+
+/* ===== بدء اللعبة ===== */
 function startGame(){
-  const avatar=document.getElementById("avatar-select").value;
-  console.log("Avatar selected:",avatar);
+  if(!selectedAvatar){alert("اختر شخصيتك");return;}
+  console.log("Avatar selected:",selectedAvatar);
   document.getElementById("avatar-screen").style.display="none";
   document.getElementById("game-screen").style.display="block";
   initGame();
@@ -160,9 +111,7 @@ let playerHand=[],computerHand=[],selectedIndex=null;
 
 /* ===== إنشاء القطع ===== */
 for(let i=0;i<=6;i++){
-  for(let j=i;j<=6;j++){
-    tiles.push([i,j]);
-  }
+  for(let j=i;j<=6;j++){ tiles.push([i,j]); }
 }
 
 /* ===== خلط ===== */
@@ -173,7 +122,6 @@ function initGame(){
   playerHand=tiles.splice(0,7);
   computerHand=tiles.splice(0,7);
   pile=tiles;
-
   renderAll();
 }
 
@@ -191,11 +139,10 @@ function play(a,b){
 }
 
 /* ===== دور اللاعب ===== */
-function playerTurn(){
-  if(selectedIndex===null){ alert("اختر قطعة"); return; }
-  let [a,b]=playerHand[selectedIndex];
+function playerTurn(idx){
+  let [a,b]=playerHand[idx];
   if(play(a,b)||play(b,a)){
-    playerHand.splice(selectedIndex,1);
+    playerHand.splice(idx,1);
     selectedIndex=null;
     renderAll();
     setTimeout(computerTurn,500);
@@ -206,17 +153,20 @@ function playerTurn(){
 function computerTurn(){
   for(let i=0;i<computerHand.length;i++){
     let [a,b]=computerHand[i];
-    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); renderAll(); return;}
+    if(play(a,b)||play(b,a)){ computerHand.splice(i,1); renderAll(); return; }
   }
 }
 
 /* ===== سحب ===== */
 function drawTile(){
-  if(pile.length){ playerHand.push(pile.shift()); renderAll();}
-  else{ alert("المخزون فاضي"); }
+  if(pile.length){
+    const t=pile.shift();
+    playerHand.push(t);
+    renderAll();
+  }else{ alert("المخزون فاضي"); }
 }
 
-/* ===== رسم ===== */
+/* ===== رسم القطع ===== */
 function renderTile([a,b],hidden=false){
   let d=document.createElement("div");
   d.className="tile"+(hidden?" hidden":"");
@@ -231,8 +181,7 @@ function renderAll(){
   playerDiv.innerHTML="";
   playerHand.forEach((t,i)=>{
     let d=renderTile(t);
-    if(i===selectedIndex) d.classList.add("selected");
-    d.onclick=()=>{selectedIndex=i; renderAll();}
+    d.onclick=()=>playerTurn(i);
     playerDiv.appendChild(d);
   });
 
@@ -253,9 +202,8 @@ const playerDiv=document.getElementById("player-hand");
 const computerDiv=document.getElementById("computer-hand");
 const leftPile=document.getElementById("left-pile");
 const rightPile=document.getElementById("right-pile");
-</script>
 
-<script>
+/* ===== اظهار شاشة تسجيل الدخول ===== */
 document.getElementById("login-screen").style.display="block";
 </script>
 
