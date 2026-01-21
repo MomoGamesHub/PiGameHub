@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Domino Full – Chrome Test</title>
+<title>Domino Full – Integrated Version</title>
 
 <style>
 body{
@@ -24,28 +24,44 @@ body{
 #computer-zone{
   background:#1a1c2e;
   border-bottom:2px solid #333;
-  margin-bottom:30px;
 }
 
 #player-zone{
   background:#1a1c2e;
   border-top:2px solid #333;
-  margin-top:30px;
+}
+
+/* ===== منطقة الطاولة ===== */
+#table-area{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:20px;
+  margin:30px auto;
 }
 
 /* ===== الطاولة ===== */
 #board{
   min-height:180px;
-  margin:40px auto;
+  max-width:70%;
   padding:20px;
   display:flex;
-  justify-content:flex-start;
   align-items:center;
   gap:6px;
   flex-wrap:nowrap;
   overflow-x:auto;
   background:#10121f;
   border-radius:16px;
+}
+
+/* ===== مناطق السحب ===== */
+.side-pile{
+  width:70px;
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
 }
 
 /* ===== الدومينو ===== */
@@ -69,13 +85,11 @@ body{
   padding:6px;
 }
 
-/* قطعة مختارة */
 .domino.selected{
   box-shadow:0 0 15px 4px #ffd700;
   transform:scale(1.1);
 }
 
-/* كمبيوتر */
 .domino.back{
   background:linear-gradient(135deg,#555,#222);
   border:2px solid #888;
@@ -99,17 +113,29 @@ button{
 
 <body>
 
-<!-- ===== كمبيوتر ===== -->
+<!-- ===== الكمبيوتر ===== -->
 <div id="computer-zone"></div>
-<div style="padding:10px;background:#14162a">
-  🤖 الكمبيوتر | نقاط: <span id="computerScore">0</span> | 📦 Pile: <span id="pileCount">0</span>
+<div style="padding:8px;background:#14162a">
+  🤖 الكمبيوتر | نقاط: <span id="computerScore">0</span>
 </div>
 
-<!-- ===== الطاولة ===== -->
-<div id="board"></div>
+<!-- ===== الطاولة + السحب ===== -->
+<div id="table-area">
+
+  <div id="left-pile" class="side-pile"></div>
+
+  <div id="board"></div>
+
+  <div id="right-pile" class="side-pile"></div>
+
+</div>
+
+<div style="padding:8px;background:#14162a">
+  📦 Pile: <span id="pileCount">0</span>
+</div>
 
 <!-- ===== اللاعب ===== -->
-<div style="padding:10px;background:#14162a">
+<div style="padding:8px;background:#14162a">
   👤 أنت | نقاط: <span id="playerScore">0</span>
 </div>
 <div id="player-zone"></div>
@@ -150,11 +176,16 @@ function deal(){
   computerHand=deck.splice(0,7);
   pile=deck.splice(0);
   updatePile();
+  renderAll();
+}
+
+/* ===== رسم ===== */
+function renderAll(){
   renderHands();
+  renderSidePiles();
   updateScore();
 }
 
-/* ===== رسم الأيادي ===== */
 function renderHands(){
   const p=document.getElementById("player-zone");
   const c=document.getElementById("computer-zone");
@@ -164,10 +195,7 @@ function renderHands(){
   playerHand.forEach(([a,b],i)=>{
     const d=createDomino(a,b);
     if(i===selectedIndex) d.classList.add("selected");
-    d.onclick=()=>{
-      selectedIndex=i;
-      renderHands();
-    };
+    d.onclick=()=>{selectedIndex=i;renderHands();};
     p.appendChild(d);
   });
 
@@ -178,21 +206,34 @@ function renderHands(){
   });
 }
 
+function renderSidePiles(){
+  const leftPile=document.getElementById("left-pile");
+  const rightPile=document.getElementById("right-pile");
+  leftPile.innerHTML="";
+  rightPile.innerHTML="";
+
+  computerHand.slice(0,3).forEach(()=>{
+    const d=document.createElement("div");
+    d.className="domino back";
+    leftPile.appendChild(d);
+  });
+
+  playerHand.slice(0,3).forEach(()=>{
+    const d=document.createElement("div");
+    d.className="domino back";
+    rightPile.appendChild(d);
+  });
+}
+
 /* ===== دومينو ===== */
 function createDomino(a,b){
   const d=document.createElement("div");
   d.className="domino";
-  d.dataset.a=a;
-  d.dataset.b=b;
-  draw(d);
+  d.innerHTML=`<div>${a}</div><div>${b}</div>`;
   return d;
 }
 
-function draw(d){
-  d.innerHTML=`<div>${d.dataset.a}</div><div>${d.dataset.b}</div>`;
-}
-
-/* ===== اللعب على الطاولة ===== */
+/* ===== اللعب ===== */
 function play(a,b){
   const board=document.getElementById("board");
   const d=createDomino(a,b);
@@ -203,88 +244,70 @@ function play(a,b){
     return true;
   }
   if(a===right){
-    right=b;
-    board.appendChild(d);
-    return true;
+    right=b; board.appendChild(d); return true;
   }
   if(b===left){
-    left=a;
-    board.prepend(d);
-    return true;
+    left=a; board.prepend(d); return true;
   }
   return false;
 }
 
-/* ===== دور اللاعب ===== */
+/* ===== أدوار ===== */
 function playerTurn(){
-  if(selectedIndex===null){
-    alert("اختار قطعة الأول 👆");
-    return;
-  }
-
+  if(selectedIndex===null){alert("اختار قطعة");return;}
   let [a,b]=playerHand[selectedIndex];
 
   if(play(a,b)||play(b,a)){
     playerHand.splice(selectedIndex,1);
     playerScore++;
     selectedIndex=null;
-    renderHands();
-    updateScore();
+    renderAll();
     setTimeout(computerTurn,500);
-  }else{
-    alert("القطعة دي مش صالحة ❌");
-  }
+  }else alert("قطعة غير صالحة");
 }
 
-/* ===== زر السحب اليدوي ===== */
-function drawFromPile(){
-  if(pile.length>0){
-    playerHand.push(pile.shift());
-    updatePile();
-    renderHands();
-  } else {
-    alert("مفيش قطع في pile!");
-  }
-}
-
-/* ===== دور الكمبيوتر ===== */
 function computerTurn(){
   for(let i=0;i<computerHand.length;i++){
     let [a,b]=computerHand[i];
     if(play(a,b)||play(b,a)){
       computerHand.splice(i,1);
       computerScore++;
-      renderHands();
-      updateScore();
+      renderAll();
       return;
     }
   }
   if(pile.length){
     computerHand.push(pile.shift());
     updatePile();
-    renderHands();
+    renderAll();
   }
 }
 
-/* ===== pile ===== */
+/* ===== سحب ===== */
+function drawFromPile(){
+  if(pile.length){
+    playerHand.push(pile.shift());
+    updatePile();
+    renderAll();
+  }else alert("Pile فاضي");
+}
+
+/* ===== تحديث ===== */
 function updatePile(){
   document.getElementById("pileCount").textContent=pile.length;
 }
-
-/* ===== تحديث النقاط ===== */
 function updateScore(){
-  document.getElementById("playerScore").textContent = playerScore;
-  document.getElementById("computerScore").textContent = computerScore;
+  document.getElementById("playerScore").textContent=playerScore;
+  document.getElementById("computerScore").textContent=computerScore;
 }
 
-/* ===== إعادة اللعبة ===== */
+/* ===== إعادة ===== */
 function resetGame(){
   document.getElementById("board").innerHTML="";
   left=null; right=null;
   selectedIndex=null;
-  playerScore=0; computerScore=0;
-  createDeck();
-  deal();
+  playerScore=computerScore=0;
+  createDeck(); deal();
 }
 
 /* ===== تشغيل ===== */
