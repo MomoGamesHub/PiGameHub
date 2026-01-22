@@ -3,173 +3,151 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Domino Test Mode</title>
+<title>Domino Test Mode + Animation</title>
 
 <style>
-body {
-  margin: 0;
-  background: #111;
-  font-family: Arial, sans-serif;
-}
+body { margin:0; background:#111; font-family:Arial,sans-serif; }
 
 /* الطاولة */
 .table {
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(circle at center, #1f8f6f, #0f5a45);
-  position: relative;
-  overflow: hidden;
+  width:100vw;
+  height:100vh;
+  background:radial-gradient(circle at center,#1f8f6f,#0f5a45);
+  position:relative;
+  overflow:hidden;
   box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
 }
 
 /* اللاعب */
-.player {
-  position: absolute;
-  color: #fff;
-  text-align: center;
-  font-size: 14px;
-}
-
-.player img {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  border: 3px solid gold;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  transition: transform 0.2s;
-}
-
-.player img:hover {
-  transform: scale(1.1);
-}
+.player { position:absolute; color:#fff; text-align:center; font-size:14px; }
+.player img { width:55px; height:55px; border-radius:50%; border:3px solid gold; box-shadow:0 4px 8px rgba(0,0,0,0.5); transition: transform 0.2s; }
+.player img:hover { transform:scale(1.1); }
 
 /* أماكن اللاعبين */
-.top    { top: 15px; left: 50%; transform: translateX(-50%); }
-.bottom { bottom: 15px; left: 50%; transform: translateX(-50%); }
-.left   { left: 15px; top: 50%; transform: translateY(-50%); }
-.right  { right: 15px; top: 50%; transform: translateY(-50%); }
+.top{top:15px; left:50%; transform:translateX(-50%);}
+.bottom{bottom:15px; left:50%; transform:translateX(-50%);}
+.left{left:15px; top:50%; transform:translateY(-50%);}
+.right{right:15px; top:50%; transform:translateY(-50%);}
 
 /* منطقة اللعب */
 .board {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  gap: 6px;
-  padding: 10px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  display:flex;
+  gap:6px;
+  padding:10px;
+  background:rgba(0,0,0,0.2);
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  flex-wrap:wrap;
+  justify-content:center;
 }
 
 /* قطعة دومينو */
 .domino {
-  width: 42px;
-  height: 84px;
-  background: linear-gradient(145deg, #fff, #ddd);
-  border-radius: 6px;
-  border: 2px solid #ccc;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
+  width:42px;
+  height:84px;
+  background:linear-gradient(145deg,#fff,#ddd);
+  border-radius:6px;
+  border:2px solid #ccc;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  align-items:center;
+  box-shadow:0 4px 6px rgba(0,0,0,0.4);
+  transition: transform 0.5s, box-shadow 0.2s, top 0.5s, left 0.5s;
+  cursor:pointer;
+  position:relative;
 }
-
-.domino:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-}
+.domino:hover { transform:scale(1.1); box-shadow:0 8px 15px rgba(0,0,0,0.6); }
 
 /* النقاط داخل الدومينو */
-.dot {
-  width: 10px;
-  height: 10px;
-  background: #000;
-  border-radius: 50%;
-}
+.dot { width:10px; height:10px; background:#000; border-radius:50%; }
 
 /* PASS bubble */
 .pass {
-  position: absolute;
-  background: linear-gradient(145deg, #fff, #eee);
-  color: #000;
-  padding: 8px 18px;
-  border-radius: 25px;
-  font-weight: bold;
-  top: 35%;
-  left: 52%;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  transform: translate(-50%, -50%);
+  position:absolute;
+  background:linear-gradient(145deg,#fff,#eee);
+  color:#000;
+  padding:8px 18px;
+  border-radius:25px;
+  font-weight:bold;
+  top:35%;
+  left:52%;
+  box-shadow:0 4px 10px rgba(0,0,0,0.5);
+  transform:translate(-50%,-50%);
 }
 
 /* Coins / Score */
 .coins {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  background: gold;
-  color: #111;
-  font-weight: bold;
-  padding: 6px 14px;
-  border-radius: 12px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
-  font-size: 16px;
+  position:absolute;
+  top:10px;
+  right:20px;
+  background:gold;
+  color:#111;
+  font-weight:bold;
+  padding:6px 14px;
+  border-radius:12px;
+  box-shadow:0 3px 6px rgba(0,0,0,0.5);
+  font-size:16px;
 }
 </style>
 </head>
 
 <body>
-
 <div class="table">
 
   <!-- اللاعبين -->
   <div class="player top">
-    <img src="https://i.pravatar.cc/100?img=12">
-    <div>Player 1</div>
+    <img src="https://i.pravatar.cc/100?img=12"><div>Player 1</div>
   </div>
-
   <div class="player left">
-    <img src="https://i.pravatar.cc/100?img=32">
-    <div>Player 2</div>
+    <img src="https://i.pravatar.cc/100?img=32"><div>Player 2</div>
   </div>
-
   <div class="player right">
-    <img src="https://i.pravatar.cc/100?img=45">
-    <div>Player 3</div>
+    <img src="https://i.pravatar.cc/100?img=45"><div>Player 3</div>
   </div>
-
   <div class="player bottom">
-    <img src="https://i.pravatar.cc/100?img=5">
-    <div>You</div>
+    <img src="https://i.pravatar.cc/100?img=5"><div>You</div>
   </div>
 
   <!-- PASS -->
   <div class="pass">PASS</div>
-
   <!-- Coins -->
   <div class="coins">100 💰</div>
 
   <!-- الطاولة -->
-  <div class="board">
-    <div class="domino">
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-    <div class="domino">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-    <div class="domino">
-      <div class="dot"></div>
-    </div>
+  <div class="board" id="board">
+    <div class="domino"><div class="dot"></div><div class="dot"></div></div>
+    <div class="domino"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="domino"><div class="dot"></div></div>
   </div>
 
 </div>
+
+<script>
+// جلب كل القطع
+const dominos = document.querySelectorAll('.domino');
+const board = document.getElementById('board');
+
+// مركز الطاولة
+const boardRect = board.getBoundingClientRect();
+const centerX = boardRect.width/2 - 21; // نصف العرض
+const centerY = boardRect.height/2 - 42; // نصف الطول
+
+dominos.forEach(domino => {
+  domino.addEventListener('click', ()=>{
+    // تحريك القطعة إلى منتصف الطاولة
+    domino.style.position = 'absolute';
+    domino.style.top = centerY + 'px';
+    domino.style.left = centerX + 'px';
+    domino.style.transform = 'scale(1.1)';
+    domino.style.zIndex = 100; // فوق باقي القطع
+  });
+});
+</script>
 
 </body>
 </html>
