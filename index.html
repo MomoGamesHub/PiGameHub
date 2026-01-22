@@ -3,112 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domino Demo</title>
-
+<title>Domino Demo – Full Set</title>
 <style>
-body {
-  margin: 0;
-  background: #0b1220;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
-
-h1 {
-  margin-top: 20px;
-}
-
-#board {
-  margin: 30px auto;
-  min-height: 120px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  border: 2px dashed #444;
-  padding: 15px;
-  width: 90%;
-}
-
-#hand {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.domino {
-  width: 60px;
-  height: 100px;
-  background: white;
-  color: black;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-}
+body { margin:0; background:#0b1220; color:white; font-family:Arial, sans-serif; text-align:center;}
+h1 { margin-top:20px; }
+#board { margin:30px auto; min-height:120px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; border:2px dashed #444; padding:15px; width:90%; }
+#hand { margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
+.domino { width:60px; height:100px; background:white; color:black; border-radius:10px; display:flex; flex-direction:column; justify-content:space-around; align-items:center; font-size:22px; font-weight:bold; cursor:pointer; }
+.pile { display:flex; justify-content:center; gap:6px; margin-top:20px; flex-wrap:wrap;}
+.pile .domino { width:40px; height:70px; background:#555; cursor:default; }
 </style>
 </head>
-
 <body>
 
-<h1>Domino Demo</h1>
-<p>Beta version</p>
+<h1>Domino Demo – Full Set</h1>
+<p>Beta version – 28 pieces + Pile</p>
 
 <div id="board"></div>
 <div id="hand"></div>
+<h3>Stock / Pile</h3>
+<div id="pile" class="pile"></div>
 
 <script>
 const board = document.getElementById("board");
 const hand = document.getElementById("hand");
+const pileDiv = document.getElementById("pile");
 
 function generateDominoes() {
   const list = [];
-  for (let i = 0; i <= 6; i++) {
-    for (let j = i; j <= 6; j++) {
-      list.push({ left: i, right: j });
+  for(let i=0;i<=6;i++){
+    for(let j=i;j<=6;j++){
+      list.push({left:i, right:j});
     }
   }
   return list;
 }
 
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
   }
 }
 
-function createDomino(d, clickable = true) {
+// إنشاء عناصر Domino
+function createDomino(d, clickable=true){
   const el = document.createElement("div");
   el.className = "domino";
   el.innerHTML = `<span>${d.left}</span><span>${d.right}</span>`;
-
-  if (clickable) {
+  if(clickable){
     el.onclick = () => {
       board.appendChild(el);
       el.onclick = null;
-    };
+    }
   }
-
   return el;
 }
 
 // INIT
-let all = generateDominoes();
-shuffle(all);
+let allDominoes = generateDominoes();
+shuffle(allDominoes);
 
-const playerHand = all.splice(0, 7);
+const playerHand = allDominoes.splice(0,7);
+playerHand.forEach(d => hand.appendChild(createDomino(d,true)));
 
-playerHand.forEach(d => {
-  hand.appendChild(createDomino(d, true));
+// الباقي يروح Pile
+allDominoes.forEach(d => {
+  const el = createDomino(d,false);
+  pileDiv.appendChild(el);
 });
 </script>
-
 </body>
 </html>
