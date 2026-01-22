@@ -1,206 +1,136 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>PiGameHub – Domino Online</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Domino Table</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#1b1b2f;color:#fff;text-align:center}
-.screen{display:none;padding:20px}
-button,input{padding:10px;margin:10px;font-size:16px}
-#game-layout{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;margin:20px}
-.outer-pile{display:flex;flex-direction:column;gap:6px;align-items:center}
-.pile-tile{width:40px;height:20px;background:#555;border-radius:4px}
-#board{display:flex;flex-direction:column;gap:8px;align-items:center}
-.tile{width:40px;height:60px;background:#eee;color:#000;border-radius:6px;
-display:flex;flex-direction:column;justify-content:space-between;
-padding:4px;font-weight:bold;cursor:pointer}
-.tile.hidden{background:#333;cursor:default}
-.hand{display:flex;justify-content:center;gap:8px;margin:10px}
-.avatar-card{width:80px;height:80px;background:#444;border-radius:8px;
-display:inline-flex;align-items:center;justify-content:center;
-font-size:30px;margin:10px;cursor:pointer}
-.avatar-card.selected{border:3px solid yellow}
+body {
+  margin: 0;
+  background: #111;
+  font-family: Arial, sans-serif;
+}
+
+/* الطاولة */
+.table {
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #1f8f6f, #0f5a45);
+  position: relative;
+  overflow: hidden;
+}
+
+/* اللاعب */
+.player {
+  position: absolute;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+}
+
+.player img {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 2px solid gold;
+}
+
+/* أماكن اللاعبين */
+.top    { top: 15px; left: 50%; transform: translateX(-50%); }
+.bottom { bottom: 15px; left: 50%; transform: translateX(-50%); }
+.left   { left: 15px; top: 50%; transform: translateY(-50%); }
+.right  { right: 15px; top: 50%; transform: translateY(-50%); }
+
+/* منطقة اللعب */
+.board {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 6px;
+}
+
+/* قطعة دومينو */
+.domino {
+  width: 42px;
+  height: 84px;
+  background: #f4f4f4;
+  border-radius: 6px;
+  border: 2px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #000;
+  border-radius: 50%;
+}
+
+/* PASS */
+.pass {
+  position: absolute;
+  background: #fff;
+  color: #000;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  top: 35%;
+  left: 52%;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen" class="screen">
-  <h2>تسجيل الدخول</h2>
-  <input id="email" placeholder="Email">
-  <input id="phone" placeholder="رقم الموبايل">
-  <button onclick="login()">دخول</button>
-</div>
+<div class="table">
 
-<!-- AVATAR -->
-<div id="avatar-screen" class="screen">
-  <h2>اختر شخصيتك</h2>
-  <div id="avatar-container"></div>
-  <button onclick="startGame()">ابدأ اللعبة</button>
-</div>
-
-<!-- GAME -->
-<div id="game-screen" class="screen">
-  <h2>🁫 Domino Online</h2>
-
-  <button onclick="createRoom()">🎮 Create Online Room</button>
-
-  <div id="game-layout">
-    <div id="left-pile" class="outer-pile"></div>
-    <div id="board"></div>
-    <div id="right-pile" class="outer-pile"></div>
+  <!-- اللاعبين -->
+  <div class="player top">
+    <img src="https://i.pravatar.cc/100?img=12">
+    <div>Player 1</div>
   </div>
 
-  <h3>يد الكمبيوتر</h3>
-  <div id="computer-hand" class="hand"></div>
+  <div class="player left">
+    <img src="https://i.pravatar.cc/100?img=32">
+    <div>Player 2</div>
+  </div>
 
-  <h3>يدك</h3>
-  <div id="player-hand" class="hand"></div>
+  <div class="player right">
+    <img src="https://i.pravatar.cc/100?img=45">
+    <div>Player 3</div>
+  </div>
 
-  <button onclick="drawTile()">اسحب قطعة</button>
+  <div class="player bottom">
+    <img src="https://i.pravatar.cc/100?img=5">
+    <div>You</div>
+  </div>
+
+  <!-- PASS -->
+  <div class="pass">PASS</div>
+
+  <!-- الطاولة -->
+  <div class="board">
+    <div class="domino">
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="domino">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="domino">
+      <div class="dot"></div>
+    </div>
+  </div>
+
 </div>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-// ================= FIREBASE CONFIG =================
-const firebaseConfig = {
-  apiKey: "PUT_YOUR_KEY",
-  authDomain: "PUT_YOUR_DOMAIN",
-  databaseURL: "PUT_YOUR_DB_URL",
-  projectId: "PUT_YOUR_PROJECT_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ================= LOGIN =================
-function login(){
-  if(email.value || phone.value){
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("avatar-screen").style.display="block";
-    setupAvatars();
-  }else alert("ادخل بيانات");
-}
-
-// ================= AVATAR =================
-let selectedAvatar=null;
-function setupAvatars(){
-  const avatars=["🙂","😎","🧑"];
-  const c=document.getElementById("avatar-container");
-  c.innerHTML="";
-  avatars.forEach(a=>{
-    let d=document.createElement("div");
-    d.className="avatar-card";
-    d.innerText=a;
-    d.onclick=()=>{
-      document.querySelectorAll(".avatar-card").forEach(x=>x.classList.remove("selected"));
-      d.classList.add("selected");
-      selectedAvatar=a;
-    };
-    c.appendChild(d);
-  });
-}
-
-// ================= GAME VARS =================
-let tiles=[],pile=[],board=[],left=null,right=null;
-let playerHand=[],computerHand=[];
-
-// ================= START =================
-function startGame(){
-  if(!selectedAvatar) return alert("اختر شخصية");
-  document.getElementById("avatar-screen").style.display="none";
-  document.getElementById("game-screen").style.display="block";
-  initGame();
-}
-
-function initGame(){
-  tiles=[]; board=[]; left=null; right=null;
-
-  for(let i=0;i<=6;i++)
-    for(let j=i;j<=6;j++)
-      tiles.push([i,j]);
-
-  tiles.sort(()=>Math.random()-0.5);
-  playerHand=tiles.splice(0,7);
-  computerHand=tiles.splice(0,7);
-  pile=[...tiles];
-
-  renderAll();
-}
-
-// ================= ONLINE – STAGE 1 =================
-function createRoom(){
-  const roomId=Math.random().toString(36).substring(2,7);
-  db.ref("rooms/"+roomId).set({
-    created:Date.now(),
-    board:[],
-    status:"waiting"
-  });
-  alert("Room Created ✅\nRoom ID: "+roomId);
-}
-
-// ================= GAME LOGIC =================
-function play(a,b){
-  if(left===null){board.push([a,b]); left=a; right=b; return true;}
-  if(a===right){board.push([a,b]); right=b; return true;}
-  if(b===left){board.unshift([a,b]); left=a; return true;}
-  return false;
-}
-
-function playerTurn(i){
-  let [a,b]=playerHand[i];
-  if(play(a,b)||play(b,a)){
-    playerHand.splice(i,1);
-    renderAll();
-  }else alert("مش نافع");
-}
-
-function drawTile(){
-  if(pile.length){
-    playerHand.push(pile.shift());
-    renderAll();
-  }else alert("المخزون فاضي");
-}
-
-// ================= RENDER =================
-const boardDiv=document.getElementById("board");
-const playerDiv=document.getElementById("player-hand");
-const computerDiv=document.getElementById("computer-hand");
-const leftPile=document.getElementById("left-pile");
-const rightPile=document.getElementById("right-pile");
-
-function renderTile([a,b],hidden=false){
-  let d=document.createElement("div");
-  d.className="tile"+(hidden?" hidden":"");
-  if(!hidden) d.innerHTML=`<div>${a}</div><div>${b}</div>`;
-  return d;
-}
-
-function renderAll(){
-  boardDiv.innerHTML="";
-  board.forEach(t=>boardDiv.appendChild(renderTile(t)));
-
-  playerDiv.innerHTML="";
-  playerHand.forEach((t,i)=>{
-    let d=renderTile(t);
-    d.onclick=()=>playerTurn(i);
-    playerDiv.appendChild(d);
-  });
-
-  computerDiv.innerHTML="";
-  computerHand.forEach(()=>computerDiv.appendChild(renderTile([0,0],true)));
-
-  leftPile.innerHTML=rightPile.innerHTML="";
-  pile.forEach(()=>leftPile.appendChild(document.createElement("div")).className="pile-tile");
-}
-
-// ================= INIT =================
-document.getElementById("login-screen").style.display="block";
-</script>
 
 </body>
 </html>
