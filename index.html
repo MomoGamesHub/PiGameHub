@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domino – Full Game</title>
+<title>Domino – Full Game AI</title>
 <style>
 body {margin:0; background:#0b1220; color:white; font-family:Arial; text-align:center;}
 h1 {margin-top:20px;}
@@ -18,14 +18,14 @@ button {margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-
 </head>
 <body>
 
-<h1>Domino – Full Game</h1>
+<h1>Domino – AI Demo</h1>
 <p>Beta Version</p>
 
 <div id="board"></div>
 <div id="hand"></div>
 <h3>Stock / Pile</h3>
 <div id="pile" class="pile"></div>
-<div id="score">Your Score: 0 | Remaining Pieces: 0</div>
+<div id="score">Your Score: 0 | Remaining: 0</div>
 <button onclick="drawTile()">Draw from Pile</button>
 
 <script>
@@ -36,6 +36,7 @@ const scoreDiv = document.getElementById("score");
 
 let left = null, right = null;
 let playerScore = 0;
+let computerHand = [];
 
 function generateDominoes() {
   const list = [];
@@ -65,8 +66,9 @@ function createDomino(d, clickable=true){
 }
 
 function updateScore(){
-  let remaining = playerHand.reduce((sum, d)=>sum+d.left+d.right,0);
-  scoreDiv.innerText = `Your Score: ${playerScore} | Remaining Points: ${remaining}`;
+  let remaining = playerHand.reduce((sum,d)=>sum+d.left+d.right,0)
+                + computerHand.reduce((sum,d)=>sum+d.left+d.right,0);
+  scoreDiv.innerText = `Your Score: ${playerScore} | Remaining: ${remaining}`;
 }
 
 // INIT
@@ -74,8 +76,11 @@ let allDominoes = generateDominoes();
 shuffle(allDominoes);
 
 let playerHand = allDominoes.splice(0,7);
+computerHand = allDominoes.splice(0,7);
+
 playerHand.forEach(d => hand.appendChild(createDomino(d,true)));
 
+// الباقي يروح Pile
 let pile = allDominoes;
 pileDiv.innerHTML = "";
 pile.forEach(d => {
@@ -84,51 +89,69 @@ pile.forEach(d => {
 });
 
 function canPlayTile(d){
-  if(left === null) return true;
-  return d.left === left || d.right === left || d.left === right || d.right === right;
+  if(left===null) return true;
+  return d.left===left || d.right===left || d.left===right || d.right===right;
 }
 
 function playTile(d, el){
   if(!canPlayTile(d)){alert("Cannot play this tile"); return;}
   hand.removeChild(el);
-  playerHand = playerHand.filter(x => x !== d);
+  playerHand = playerHand.filter(x=>x!==d);
   
-  if(left === null){
-    left = d.left;
-    right = d.right;
+  if(left===null){
+    left=d.left; right=d.right;
     board.appendChild(createDomino(d,false));
-  } else if(d.left === right){
-    right = d.right;
-    board.appendChild(createDomino(d,false));
-  } else if(d.right === left){
-    left = d.left;
-    board.insertBefore(createDomino(d,false), board.firstChild);
-  } else if(d.left === left){
-    left = d.right;
-    board.insertBefore(createDomino(d,false), board.firstChild);
-  } else if(d.right === right){
-    right = d.left;
-    board.appendChild(createDomino(d,false));
-  }
-  
+  } else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
+  else if(d.right===left){ left=d.left; board.insertBefore(createDomino(d,false), board.firstChild); }
+  else if(d.left===left){ left=d.right; board.insertBefore(createDomino(d,false), board.firstChild); }
+  else if(d.right===right){ right=d.left; board.appendChild(createDomino(d,false)); }
+
   playerScore += 1;
   updateScore();
   
-  checkEndGame();
+  if(playerHand.length>0) setTimeout(computerTurn,500);
+  else checkEndGame();
 }
 
 function drawTile(){
-  if(pile.length === 0){alert("Pile empty"); return;}
+  if(pile.length===0){alert("Pile empty"); return;}
   const d = pile.shift();
   const el = createDomino(d,true);
   hand.appendChild(el);
   playerHand.push(d);
   pileDiv.removeChild(pileDiv.firstChild);
+  updateScore();
+}
+
+function computerTurn(){
+  let moved=false;
+  for(let i=0;i<computerHand.length;i++){
+    const d = computerHand[i];
+    if(canPlayTile(d)){
+      computerHand.splice(i,1);
+      if(left===null){ left=d.left; right=d.right; board.appendChild(createDomino(d,false)); }
+      else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
+      else if(d.right===left){ left=d.left; board.insertBefore(createDomino(d,false), board.firstChild); }
+      else if(d.left===left){ left=d.right; board.insertBefore(createDomino(d,false), board.firstChild); }
+      else if(d.right===right){ right=d.left; board.appendChild(createDomino(d,false)); }
+      moved=true;
+      break;
+    }
+  }
+  updateScore();
+  if(!moved && pile.length>0){
+    const d = pile.shift();
+    computerHand.push(d);
+    const el = createDomino(d,false);
+    pileDiv.removeChild(pileDiv.firstChild);
+    pileDiv.appendChild(el);
+  }
+  checkEndGame();
 }
 
 function checkEndGame(){
-  if(playerHand.length === 0){
-    alert("Congratulations! You played all your tiles!");
+  if(playerHand.length===0 || (pile.length===0 && !playerHand.some(canPlayTile) && !computerHand.some(canPlayTile))){
+    alert("Game Over!\nYour Score: "+playerScore);
   }
 }
 
