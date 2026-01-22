@@ -3,41 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domino – Full Game AI</title>
+<title>Domino – Multiplayer Pi</title>
 <style>
 body {margin:0; background:#0b1220; color:white; font-family:Arial; text-align:center;}
 h1 {margin-top:20px;}
 #board {margin:20px auto; min-height:120px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; border:2px dashed #444; padding:15px; width:90%;}
-#hand {margin-top:20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
+.hand {margin-top:20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
 .domino {width:60px; height:100px; background:white; color:black; border-radius:10px; display:flex; flex-direction:column; justify-content:space-around; align-items:center; font-size:22px; font-weight:bold; cursor:pointer;}
 .pile {display:flex; justify-content:center; gap:6px; margin-top:20px; flex-wrap:wrap;}
 .pile .domino {width:40px; height:70px; background:#555; cursor:pointer;}
 #score {margin-top:20px; font-size:18px;}
 button {margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-radius:8px; background:#facc15; color:black; cursor:pointer;}
+#wallet {margin-top:10px;}
 </style>
 </head>
 <body>
 
-<h1>Domino – AI Demo</h1>
-<p>Beta Version</p>
+<h1>Domino – Multiplayer Pi</h1>
+<div id="wallet">Pi Wallet Balance: 0 π</div>
 
+<h3>Board</h3>
 <div id="board"></div>
-<div id="hand"></div>
+
+<h3>Your Hand</h3>
+<div id="player-hand" class="hand"></div>
+
+<h3>Opponent Hand (Hidden)</h3>
+<div id="opponent-hand" class="hand"></div>
+
 <h3>Stock / Pile</h3>
 <div id="pile" class="pile"></div>
-<div id="score">Your Score: 0 | Remaining: 0</div>
+
+<div id="score">Your Score: 0 | Opponent Score: 0</div>
 <button onclick="drawTile()">Draw from Pile</button>
 
 <script>
+// ======== Variables ========
 const board = document.getElementById("board");
-const hand = document.getElementById("hand");
+const playerDiv = document.getElementById("player-hand");
+const opponentDiv = document.getElementById("opponent-hand");
 const pileDiv = document.getElementById("pile");
 const scoreDiv = document.getElementById("score");
+const walletDiv = document.getElementById("wallet");
 
 let left = null, right = null;
-let playerScore = 0;
-let computerHand = [];
+let playerScore = 0, opponentScore = 0;
+let playerHand = [], opponentHand = [];
+let pile = [];
 
+// ======== Domino Utils ========
 function generateDominoes() {
   const list = [];
   for(let i=0;i<=6;i++){
@@ -66,28 +80,34 @@ function createDomino(d, clickable=true){
 }
 
 function updateScore(){
-  let remaining = playerHand.reduce((sum,d)=>sum+d.left+d.right,0)
-                + computerHand.reduce((sum,d)=>sum+d.left+d.right,0);
-  scoreDiv.innerText = `Your Score: ${playerScore} | Remaining: ${remaining}`;
+  scoreDiv.innerText = `Your Score: ${playerScore} | Opponent Score: ${opponentScore}`;
 }
 
-// INIT
+// ======== INIT ========
 let allDominoes = generateDominoes();
 shuffle(allDominoes);
 
-let playerHand = allDominoes.splice(0,7);
-computerHand = allDominoes.splice(0,7);
+playerHand = allDominoes.splice(0,7);
+opponentHand = allDominoes.splice(0,7);
+pile = allDominoes;
 
-playerHand.forEach(d => hand.appendChild(createDomino(d,true)));
+// Render Player Hand
+function renderHands(){
+  playerDiv.innerHTML = "";
+  playerHand.forEach(d => playerDiv.appendChild(createDomino(d,true)));
 
-// الباقي يروح Pile
-let pile = allDominoes;
-pileDiv.innerHTML = "";
-pile.forEach(d => {
-  const el = createDomino(d,false);
-  pileDiv.appendChild(el);
-});
+  opponentDiv.innerHTML = "";
+  opponentHand.forEach(d => opponentDiv.appendChild(createDomino({left:"?", right:"?"}, false)));
 
+  pileDiv.innerHTML = "";
+  pile.forEach(d => {
+    const el = createDomino(d,false);
+    pileDiv.appendChild(el);
+  });
+}
+renderHands();
+
+// ======== Game Logic ========
 function canPlayTile(d){
   if(left===null) return true;
   return d.left===left || d.right===left || d.left===right || d.right===right;
@@ -95,68 +115,68 @@ function canPlayTile(d){
 
 function playTile(d, el){
   if(!canPlayTile(d)){alert("Cannot play this tile"); return;}
-  hand.removeChild(el);
+  playerDiv.removeChild(el);
   playerHand = playerHand.filter(x=>x!==d);
-  
-  if(left===null){
-    left=d.left; right=d.right;
-    board.appendChild(createDomino(d,false));
-  } else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
+
+  if(left===null){ left=d.left; right=d.right; board.appendChild(createDomino(d,false)); }
+  else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
   else if(d.right===left){ left=d.left; board.insertBefore(createDomino(d,false), board.firstChild); }
   else if(d.left===left){ left=d.right; board.insertBefore(createDomino(d,false), board.firstChild); }
   else if(d.right===right){ right=d.left; board.appendChild(createDomino(d,false)); }
 
   playerScore += 1;
   updateScore();
-  
-  if(playerHand.length>0) setTimeout(computerTurn,500);
-  else checkEndGame();
+
+  setTimeout(opponentTurn, 600);
 }
 
 function drawTile(){
   if(pile.length===0){alert("Pile empty"); return;}
   const d = pile.shift();
-  const el = createDomino(d,true);
-  hand.appendChild(el);
   playerHand.push(d);
-  pileDiv.removeChild(pileDiv.firstChild);
+  renderHands();
   updateScore();
 }
 
-function computerTurn(){
+// ======== Simple Opponent AI ========
+function opponentTurn(){
   let moved=false;
-  for(let i=0;i<computerHand.length;i++){
-    const d = computerHand[i];
+  for(let i=0;i<opponentHand.length;i++){
+    const d = opponentHand[i];
     if(canPlayTile(d)){
-      computerHand.splice(i,1);
+      opponentHand.splice(i,1);
       if(left===null){ left=d.left; right=d.right; board.appendChild(createDomino(d,false)); }
       else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
       else if(d.right===left){ left=d.left; board.insertBefore(createDomino(d,false), board.firstChild); }
       else if(d.left===left){ left=d.right; board.insertBefore(createDomino(d,false), board.firstChild); }
       else if(d.right===right){ right=d.left; board.appendChild(createDomino(d,false)); }
+      opponentScore += 1;
       moved=true;
       break;
     }
   }
-  updateScore();
   if(!moved && pile.length>0){
     const d = pile.shift();
-    computerHand.push(d);
-    const el = createDomino(d,false);
-    pileDiv.removeChild(pileDiv.firstChild);
-    pileDiv.appendChild(el);
+    opponentHand.push(d);
+    renderHands();
   }
+  updateScore();
   checkEndGame();
 }
 
+// ======== End Game ========
 function checkEndGame(){
-  if(playerHand.length===0 || (pile.length===0 && !playerHand.some(canPlayTile) && !computerHand.some(canPlayTile))){
-    alert("Game Over!\nYour Score: "+playerScore);
+  if(playerHand.length===0 || opponentHand.length===0 || 
+     (!playerHand.some(canPlayTile) && !opponentHand.some(canPlayTile) && pile.length===0)){
+    let winner = playerScore>=opponentScore ? "You Win!" : "Opponent Wins!";
+    alert("Game Over!\n"+winner+"\nYour Score: "+playerScore+"\nOpponent Score: "+opponentScore);
   }
 }
 
-updateScore();
-</script>
+// ======== Pi Wallet Mock ========
+let piBalance = 3.14; // Example
+walletDiv.innerText = `Pi Wallet Balance: ${piBalance} π`;
 
+</script>
 </body>
 </html>
