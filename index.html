@@ -3,31 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domino Demo – Full Set</title>
+<title>Domino – Full Game</title>
 <style>
-body { margin:0; background:#0b1220; color:white; font-family:Arial, sans-serif; text-align:center;}
-h1 { margin-top:20px; }
-#board { margin:30px auto; min-height:120px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; border:2px dashed #444; padding:15px; width:90%; }
-#hand { margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
-.domino { width:60px; height:100px; background:white; color:black; border-radius:10px; display:flex; flex-direction:column; justify-content:space-around; align-items:center; font-size:22px; font-weight:bold; cursor:pointer; }
-.pile { display:flex; justify-content:center; gap:6px; margin-top:20px; flex-wrap:wrap;}
-.pile .domino { width:40px; height:70px; background:#555; cursor:default; }
+body {margin:0; background:#0b1220; color:white; font-family:Arial; text-align:center;}
+h1 {margin-top:20px;}
+#board {margin:20px auto; min-height:120px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; border:2px dashed #444; padding:15px; width:90%;}
+#hand {margin-top:20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
+.domino {width:60px; height:100px; background:white; color:black; border-radius:10px; display:flex; flex-direction:column; justify-content:space-around; align-items:center; font-size:22px; font-weight:bold; cursor:pointer;}
+.pile {display:flex; justify-content:center; gap:6px; margin-top:20px; flex-wrap:wrap;}
+.pile .domino {width:40px; height:70px; background:#555; cursor:pointer;}
+#score {margin-top:20px; font-size:18px;}
+button {margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-radius:8px; background:#facc15; color:black; cursor:pointer;}
 </style>
 </head>
 <body>
 
-<h1>Domino Demo – Full Set</h1>
-<p>Beta version – 28 pieces + Pile</p>
+<h1>Domino – Full Game</h1>
+<p>Beta Version</p>
 
 <div id="board"></div>
 <div id="hand"></div>
 <h3>Stock / Pile</h3>
 <div id="pile" class="pile"></div>
+<div id="score">Your Score: 0 | Remaining Pieces: 0</div>
+<button onclick="drawTile()">Draw from Pile</button>
 
 <script>
 const board = document.getElementById("board");
 const hand = document.getElementById("hand");
 const pileDiv = document.getElementById("pile");
+const scoreDiv = document.getElementById("score");
+
+let left = null, right = null;
+let playerScore = 0;
 
 function generateDominoes() {
   const list = [];
@@ -46,32 +54,86 @@ function shuffle(arr){
   }
 }
 
-// إنشاء عناصر Domino
 function createDomino(d, clickable=true){
   const el = document.createElement("div");
   el.className = "domino";
   el.innerHTML = `<span>${d.left}</span><span>${d.right}</span>`;
   if(clickable){
-    el.onclick = () => {
-      board.appendChild(el);
-      el.onclick = null;
-    }
+    el.onclick = () => playTile(d, el);
   }
   return el;
+}
+
+function updateScore(){
+  let remaining = playerHand.reduce((sum, d)=>sum+d.left+d.right,0);
+  scoreDiv.innerText = `Your Score: ${playerScore} | Remaining Points: ${remaining}`;
 }
 
 // INIT
 let allDominoes = generateDominoes();
 shuffle(allDominoes);
 
-const playerHand = allDominoes.splice(0,7);
+let playerHand = allDominoes.splice(0,7);
 playerHand.forEach(d => hand.appendChild(createDomino(d,true)));
 
-// الباقي يروح Pile
-allDominoes.forEach(d => {
+let pile = allDominoes;
+pileDiv.innerHTML = "";
+pile.forEach(d => {
   const el = createDomino(d,false);
   pileDiv.appendChild(el);
 });
+
+function canPlayTile(d){
+  if(left === null) return true;
+  return d.left === left || d.right === left || d.left === right || d.right === right;
+}
+
+function playTile(d, el){
+  if(!canPlayTile(d)){alert("Cannot play this tile"); return;}
+  hand.removeChild(el);
+  playerHand = playerHand.filter(x => x !== d);
+  
+  if(left === null){
+    left = d.left;
+    right = d.right;
+    board.appendChild(createDomino(d,false));
+  } else if(d.left === right){
+    right = d.right;
+    board.appendChild(createDomino(d,false));
+  } else if(d.right === left){
+    left = d.left;
+    board.insertBefore(createDomino(d,false), board.firstChild);
+  } else if(d.left === left){
+    left = d.right;
+    board.insertBefore(createDomino(d,false), board.firstChild);
+  } else if(d.right === right){
+    right = d.left;
+    board.appendChild(createDomino(d,false));
+  }
+  
+  playerScore += 1;
+  updateScore();
+  
+  checkEndGame();
+}
+
+function drawTile(){
+  if(pile.length === 0){alert("Pile empty"); return;}
+  const d = pile.shift();
+  const el = createDomino(d,true);
+  hand.appendChild(el);
+  playerHand.push(d);
+  pileDiv.removeChild(pileDiv.firstChild);
+}
+
+function checkEndGame(){
+  if(playerHand.length === 0){
+    alert("Congratulations! You played all your tiles!");
+  }
+}
+
+updateScore();
 </script>
+
 </body>
 </html>
