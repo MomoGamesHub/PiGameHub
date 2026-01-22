@@ -1,184 +1,84 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PiGameHub | Pi Network</title>
+  <meta charset="UTF-8">
+  <title>Domino Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      background: #0b132b;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0f172a;
-  color:#fff;
-  text-align:center;
-}
-.screen{display:none;padding:30px}
-.active{display:block}
-h1,h2{margin-bottom:10px}
-button{
-  padding:12px 24px;
-  font-size:16px;
-  border:none;
-  border-radius:8px;
-  background:#facc15;
-  color:#000;
-  cursor:pointer;
-}
-input{
-  padding:12px;
-  width:80%;
-  max-width:300px;
-  margin:10px 0;
-  border-radius:6px;
-  border:none;
-}
-.avatar-box{
-  display:flex;
-  justify-content:center;
-  gap:15px;
-  margin:20px 0;
-  flex-wrap:wrap;
-}
-.avatar{
-  width:80px;height:80px;
-  font-size:40px;
-  background:#1e293b;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-.avatar.selected{outline:4px solid #facc15}
-.game-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:20px;
-  margin-top:30px;
-}
-.game-card{
-  background:#1e293b;
-  padding:20px;
-  border-radius:14px;
-}
-.footer{
-  margin-top:40px;
-  font-size:14px;
-  opacity:.7;
-}
-.domino-board{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:30px;
-  flex-wrap:wrap;
-}
-.domino{
-  width:50px;height:90px;
-  background:#fff;
-  color:#000;
-  border-radius:8px;
-  font-weight:bold;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-.domino div{flex:1;display:flex;align-items:center;justify-content:center}
-</style>
+    h1 {
+      margin-top: 30px;
+    }
+
+    #hand {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .domino {
+      width: 60px;
+      height: 100px;
+      background: white;
+      border-radius: 10px;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
 </head>
-
 <body>
 
-<!-- Landing -->
-<div id="landing" class="screen active">
-  <h1>🎮 PiGameHub</h1>
-  <p>Gaming Hub inside Pi Network</p>
-  <button onclick="go('login')">Enter App</button>
-</div>
+  <h1>Domino Demo</h1>
+  <p>Beta Version</p>
 
-<!-- Login -->
-<div id="login" class="screen">
-  <h2>Login (Beta)</h2>
-  <input placeholder="Email or Phone" id="userInput">
-  <br>
-  <button onclick="login()">Continue</button>
-</div>
+  <div id="hand"></div>
 
-<!-- Avatar -->
-<div id="avatar" class="screen">
-  <h2>Select Avatar</h2>
-  <div class="avatar-box">
-    <div class="avatar" onclick="pick(this)">🙂</div>
-    <div class="avatar" onclick="pick(this)">😎</div>
-    <div class="avatar" onclick="pick(this)">🧑</div>
-    <div class="avatar" onclick="pick(this)">🦸</div>
-  </div>
-  <button onclick="go('hub')">Continue</button>
-</div>
+  <script>
+    function generateDominoes() {
+      const dominoes = [];
+      for (let i = 0; i <= 6; i++) {
+        for (let j = i; j <= 6; j++) {
+          dominoes.push({ left: i, right: j });
+        }
+      }
+      return dominoes;
+    }
 
-<!-- Game Hub -->
-<div id="hub" class="screen">
-  <h2>Game Hub</h2>
-  <div class="game-grid">
-    <div class="game-card">
-      <h3>🁫 Domino</h3>
-      <button onclick="go('domino')">Play</button>
-    </div>
-    <div class="game-card">
-      <h3>🃏 Card Games</h3>
-      <p>Coming Soon</p>
-    </div>
-    <div class="game-card">
-      <h3>🎲 Dice Games</h3>
-      <p>Coming Soon</p>
-    </div>
-  </div>
-  <div class="footer">
-    Pi Wallet integration coming soon
-  </div>
-</div>
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
 
-<!-- Domino -->
-<div id="domino" class="screen">
-  <h2>Domino Demo</h2>
-  <p>Beta version</p>
-  <div class="domino-board" id="board"></div>
-  <br>
-  <button onclick="go('hub')">Back</button>
-</div>
+    const allDominoes = generateDominoes();
+    shuffle(allDominoes);
 
-<script>
-function go(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function login(){
-  const v=document.getElementById('userInput').value.trim();
-  if(!v){alert("Enter Email or Phone");return;}
-  localStorage.setItem("user",v);
-  go('avatar');
-}
-function pick(el){
-  document.querySelectorAll('.avatar').forEach(a=>a.classList.remove('selected'));
-  el.classList.add('selected');
-  localStorage.setItem("avatar",el.innerText);
-}
-function loadDomino(){
-  const board=document.getElementById('board');
-  board.innerHTML="";
-  for(let i=0;i<7;i++){
-    let a=Math.floor(Math.random()*7);
-    let b=Math.floor(Math.random()*7);
-    let d=document.createElement('div');
-    d.className='domino';
-    d.innerHTML=`<div>${a}</div><div>${b}</div>`;
-    board.appendChild(d);
-  }
-}
-document.getElementById('domino').addEventListener('click',loadDomino);
-</script>
+    const playerHand = allDominoes.slice(0, 7);
+
+    const handDiv = document.getElementById("hand");
+
+    playerHand.forEach(d => {
+      const tile = document.createElement("div");
+      tile.className = "domino";
+      tile.innerHTML = `<div>${d.left}</div><div>${d.right}</div>`;
+      handDiv.appendChild(tile);
+    });
+  </script>
 
 </body>
 </html>
