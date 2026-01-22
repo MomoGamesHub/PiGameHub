@@ -1,84 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Domino Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      background: #0b132b;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domino Demo</title>
 
-    h1 {
-      margin-top: 30px;
-    }
+<style>
+body {
+  margin: 0;
+  background: #0b1220;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
 
-    #hand {
-      margin-top: 40px;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+h1 {
+  margin-top: 20px;
+}
 
-    .domino {
-      width: 60px;
-      height: 100px;
-      background: white;
-      border-radius: 10px;
-      color: black;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
-  </style>
+#board {
+  margin: 30px auto;
+  min-height: 120px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border: 2px dashed #444;
+  padding: 15px;
+  width: 90%;
+}
+
+#hand {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.domino {
+  width: 60px;
+  height: 100px;
+  background: white;
+  color: black;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>Domino Demo</h1>
-  <p>Beta Version</p>
+<h1>Domino Demo</h1>
+<p>Beta version</p>
 
-  <div id="hand"></div>
+<div id="board"></div>
+<div id="hand"></div>
 
-  <script>
-    function generateDominoes() {
-      const dominoes = [];
-      for (let i = 0; i <= 6; i++) {
-        for (let j = i; j <= 6; j++) {
-          dominoes.push({ left: i, right: j });
-        }
-      }
-      return dominoes;
+<script>
+const board = document.getElementById("board");
+const hand = document.getElementById("hand");
+
+function generateDominoes() {
+  const list = [];
+  for (let i = 0; i <= 6; i++) {
+    for (let j = i; j <= 6; j++) {
+      list.push({ left: i, right: j });
     }
+  }
+  return list;
+}
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
 
-    const allDominoes = generateDominoes();
-    shuffle(allDominoes);
+function createDomino(d, clickable = true) {
+  const el = document.createElement("div");
+  el.className = "domino";
+  el.innerHTML = `<span>${d.left}</span><span>${d.right}</span>`;
 
-    const playerHand = allDominoes.slice(0, 7);
+  if (clickable) {
+    el.onclick = () => {
+      board.appendChild(el);
+      el.onclick = null;
+    };
+  }
 
-    const handDiv = document.getElementById("hand");
+  return el;
+}
 
-    playerHand.forEach(d => {
-      const tile = document.createElement("div");
-      tile.className = "domino";
-      tile.innerHTML = `<div>${d.left}</div><div>${d.right}</div>`;
-      handDiv.appendChild(tile);
-    });
-  </script>
+// INIT
+let all = generateDominoes();
+shuffle(all);
+
+const playerHand = all.splice(0, 7);
+
+playerHand.forEach(d => {
+  hand.appendChild(createDomino(d, true));
+});
+</script>
 
 </body>
 </html>
