@@ -1,16 +1,160 @@
-PiGameHub/
-│
-├─ index.html               ← شاشة تسجيل دخول + اختيار Avatar
-├─ css/
-│   └─ style.css            ← جميع التنسيقات الأساسية للألعاب
-├─ js/
-│   ├─ main.js              ← المنطق العام (Login, Avatar, Game Hub)
-│   ├─ domino.js            ← لعبة Domino 1v1 + AI
-│   ├─ cards.js             ← ألعاب الورق (Estimation, Comi, Turnip, Speed)
-│   ├─ boardgames.js        ← Ludo, Snake & Ladder, Chess
-│   └─ dice.js              ← ألعاب النرد المختلفة
-├─ assets/
-│   ├─ images/              ← صور القطع والأوراق والشخصيات
-│   └─ sounds/              ← أصوات اللعب والتأثيرات
-└─ wallet/
-    └─ pi_network.js        ← الربط بالمحفظة الرسمية
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PiGameHub – Game Hub</title>
+<style>
+body { margin:0; font-family:Arial,sans-serif; background:#111; color:#fff; overflow-x:hidden; }
+.screen { display:none; text-align:center; padding:20px; }
+input, button { padding:10px; margin:10px; font-size:16px; cursor:pointer; }
+#avatar-container { display:flex; justify-content:center; gap:20px; margin-top:20px; flex-wrap:wrap; }
+.avatar-card { width:100px; height:100px; font-size:50px; line-height:100px; background:#444; color:#fff; border-radius:12px; cursor:pointer; transition: transform 0.3s, border 0.3s; display:flex; justify-content:center; align-items:center; }
+.avatar-card:hover { transform:scale(1.2); }
+.avatar-card.selected { border:4px solid yellow; transform:scale(1.3); }
+
+.table { width:100vw; height:100vh; background:radial-gradient(circle at center,#1f8f6f,#0f5a45); position:relative; overflow:hidden; box-shadow: inset 0 0 80px rgba(0,0,0,0.7); }
+
+.player { position:absolute; color:#fff; text-align:center; font-size:14px; }
+.player img { width:55px; height:55px; border-radius:50%; border:3px solid gold; box-shadow:0 4px 8px rgba(0,0,0,0.5); transition: transform 0.2s; }
+.player img:hover { transform:scale(1.1); }
+.top{top:15px; left:50%; transform:translateX(-50%);}
+.bottom{bottom:15px; left:50%; transform:translateX(-50%);}
+
+.board { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:90vw; height:70vh; display:flex; flex-wrap:wrap; justify-content:center; align-content:center; gap:8px; perspective:1000px; }
+
+.domino { width:60px; height:120px; background:#fff; border-radius:10px; border:2px solid #ccc; display:flex; flex-direction:column; justify-content:space-around; align-items:center; box-shadow:0 8px 15px rgba(0,0,0,0.5); cursor:pointer; transition: transform 0.5s, top 0.5s, left 0.5s; transform-style: preserve-3d; position:absolute; }
+.domino:hover { transform: rotateX(15deg) rotateY(15deg) scale(1.2); }
+.dot { width:12px; height:12px; background:#000; border-radius:50%; }
+
+.coins { position:absolute; top:10px; right:20px; background:gold; color:#111; font-weight:bold; padding:6px 14px; border-radius:12px; box-shadow:0 3px 6px rgba(0,0,0,0.5); font-size:16px;}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login-screen" class="screen">
+  <h2>تسجيل الدخول</h2>
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="text" id="phone" placeholder="رقم الموبايل"><br>
+  <button onclick="login()">تسجيل الدخول</button>
+</div>
+
+<!-- Avatar -->
+<div id="avatar-screen" class="screen">
+  <h2>اختر شخصيتك</h2>
+  <div id="avatar-container"></div>
+  <button onclick="startGame()">ابدأ اللعبة</button>
+</div>
+
+<!-- Game -->
+<div id="game-screen" class="screen">
+  <div class="table">
+    <div class="player top"><img src="https://i.pravatar.cc/100?img=12"><div>AI</div></div>
+    <div class="player bottom"><img src="https://i.pravatar.cc/100?img=5"><div id="player-name">You</div></div>
+    <div class="coins" id="coins">100 💰</div>
+    <div class="board" id="board"></div>
+  </div>
+</div>
+
+<script>
+let selectedAvatar=null;
+let dominos=[];
+let playerHand=[], aiHand=[];
+let turn='player';
+let coins=100;
+const board=document.getElementById('board');
+
+// Login + Avatar
+function login(){
+  const email=document.getElementById("email").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  if(email||phone){ document.getElementById("login-screen").style.display="none"; document.getElementById("avatar-screen").style.display="block"; setupAvatars();}
+  else alert("ادخل ايميل او رقم موبايل");
+}
+function setupAvatars(){
+  const avatars=["🙂","😎","🧑","👽","🦸"];
+  const container=document.getElementById("avatar-container"); container.innerHTML="";
+  avatars.forEach(a=>{
+    let card=document.createElement("div"); card.className="avatar-card"; card.innerText=a;
+    card.onclick=()=>{ document.querySelectorAll(".avatar-card").forEach(c=>c.classList.remove("selected")); card.classList.add("selected"); selectedAvatar=a; };
+    container.appendChild(card);
+  });
+}
+
+// Generate 28 dominos
+function generateDominos(){
+  let arr=[];
+  for(let i=0;i<=6;i++){ for(let j=i;j<=6;j++){ arr.push([i,j]); } }
+  return arr;
+}
+
+// Start Game
+function startGame(){
+  if(!selectedAvatar){ alert("اختر شخصية"); return; }
+  document.getElementById("avatar-screen").style.display="none";
+  document.getElementById("game-screen").style.display="block";
+  document.getElementById("player-name").innerText=selectedAvatar;
+  dominos=generateDominos();
+  shuffle(dominos);
+  playerHand=dominos.splice(0,7);
+  aiHand=dominos.splice(0,7);
+  renderHands();
+}
+
+// Shuffle helper
+function shuffle(array){ for(let i=array.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [array[i],array[j]]=[array[j],array[i]];}}
+
+// Render hands
+function renderHands(){
+  board.innerHTML="";
+  const startX=window.innerWidth/2-250, startY=window.innerHeight/2-200;
+  playerHand.concat(aiHand).forEach((d,i)=>{
+    let div=document.createElement('div'); div.className='domino';
+    d.forEach(()=>{ let dot=document.createElement('div'); dot.className='dot'; div.appendChild(dot); });
+    div.style.top=(startY + Math.floor(i/7)*130)+'px';
+    div.style.left=(startX + (i%7)*70)+'px';
+    div.style.transform=`rotateX(${Math.random()*20-10}deg) rotateY(${Math.random()*20-10}deg) rotateZ(${Math.random()*360}deg)`;
+    if(i<7){ div.addEventListener('click', ()=> playerMove(i,div)); }
+    board.appendChild(div);
+  });
+}
+
+// Player Move
+function playerMove(index,div){
+  if(turn!=='player') return;
+  div.style.top=(window.innerHeight/2-60)+'px';
+  div.style.left=(window.innerWidth/2-30)+'px';
+  div.style.transform='rotate(0deg) scale(1.3)';
+  playerHand.splice(index,1);
+  updateCoins(-10);
+  turn='ai';
+  setTimeout(aiMove,800);
+}
+
+// AI Move
+function aiMove(){
+  if(aiHand.length===0){ checkEnd(); return; }
+  let div=board.children[7]; // أول قطعة AI
+  div.style.top=(window.innerHeight/2-60-130)+'px';
+  div.style.left=(window.innerWidth/2-30+70)+'px';
+  div.style.transform='rotate(180deg) scale(1.2)';
+  aiHand.splice(0,1);
+  updateCoins(5);
+  turn='player';
+  if(playerHand.length===0 && aiHand.length===0) checkEnd();
+}
+
+// Coins update
+function updateCoins(amount){ coins+=amount; document.getElementById('coins').innerText=coins+' 💰';}
+
+// End game
+function checkEnd(){
+  let msg=coins>=100?'🎉 انت فزت!':'😢 انتهت اللعبة!';
+  alert(msg);
+}
+
+document.getElementById("login-screen").style.display="block";
+</script>
+</body>
+</html>
