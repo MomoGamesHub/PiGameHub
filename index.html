@@ -2,14 +2,14 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Domino Pro Advanced</title>
+<title>PiGameHub – Domino Online</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#1b1b2f;color:#fff}
-.screen{display:none;text-align:center;padding:20px}
-input,button{padding:10px;margin:10px;font-size:16px}
+body{margin:0;font-family:Arial;background:#1b1b2f;color:#fff;text-align:center}
+.screen{display:none;padding:20px}
+button,input{padding:10px;margin:10px;font-size:16px}
 #game-layout{display:grid;grid-template-columns:120px 1fr 120px;align-items:center;margin:20px}
-.outer-pile{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:220px}
+.outer-pile{display:flex;flex-direction:column;gap:6px;align-items:center}
 .pile-tile{width:40px;height:20px;background:#555;border-radius:4px}
 #board{display:flex;flex-direction:column;gap:8px;align-items:center}
 .tile{width:40px;height:60px;background:#eee;color:#000;border-radius:6px;
@@ -26,7 +26,7 @@ font-size:30px;margin:10px;cursor:pointer}
 
 <body>
 
-<!-- تسجيل الدخول -->
+<!-- LOGIN -->
 <div id="login-screen" class="screen">
   <h2>تسجيل الدخول</h2>
   <input id="email" placeholder="Email">
@@ -34,25 +34,24 @@ font-size:30px;margin:10px;cursor:pointer}
   <button onclick="login()">دخول</button>
 </div>
 
-<!-- اختيار Avatar -->
+<!-- AVATAR -->
 <div id="avatar-screen" class="screen">
   <h2>اختر شخصيتك</h2>
   <div id="avatar-container"></div>
-  <button onclick="startGame()">ابدأ</button>
+  <button onclick="startGame()">ابدأ اللعبة</button>
 </div>
 
-<!-- شاشة اللعبة -->
+<!-- GAME -->
 <div id="game-screen" class="screen">
-  <h2>🁫 Domino Pro</h2>
+  <h2>🁫 Domino Online</h2>
+
+  <button onclick="createRoom()">🎮 Create Online Room</button>
 
   <div id="game-layout">
     <div id="left-pile" class="outer-pile"></div>
     <div id="board"></div>
     <div id="right-pile" class="outer-pile"></div>
   </div>
-
-  <p>نقاطك: <span id="player-score">0</span> |
-     الكمبيوتر: <span id="computer-score">0</span></p>
 
   <h3>يد الكمبيوتر</h3>
   <div id="computer-hand" class="hand"></div>
@@ -63,28 +62,31 @@ font-size:30px;margin:10px;cursor:pointer}
   <button onclick="drawTile()">اسحب قطعة</button>
 </div>
 
-<script>
-// ================== عناصر DOM ==================
-const boardDiv = document.getElementById("board");
-const playerDiv = document.getElementById("player-hand");
-const computerDiv = document.getElementById("computer-hand");
-const leftPile = document.getElementById("left-pile");
-const rightPile = document.getElementById("right-pile");
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-// ================== تسجيل الدخول ==================
+<script>
+// ================= FIREBASE CONFIG =================
+const firebaseConfig = {
+  apiKey: "PUT_YOUR_KEY",
+  authDomain: "PUT_YOUR_DOMAIN",
+  databaseURL: "PUT_YOUR_DB_URL",
+  projectId: "PUT_YOUR_PROJECT_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ================= LOGIN =================
 function login(){
   if(email.value || phone.value){
-    loginScreen(false);
+    document.getElementById("login-screen").style.display="none";
+    document.getElementById("avatar-screen").style.display="block";
     setupAvatars();
   }else alert("ادخل بيانات");
 }
 
-function loginScreen(show){
-  document.getElementById("login-screen").style.display = show?"block":"none";
-  document.getElementById("avatar-screen").style.display = show?"none":"block";
-}
-
-// ================== Avatar ==================
+// ================= AVATAR =================
 let selectedAvatar=null;
 function setupAvatars(){
   const avatars=["🙂","😎","🧑"];
@@ -103,12 +105,11 @@ function setupAvatars(){
   });
 }
 
-// ================== متغيرات اللعبة ==================
+// ================= GAME VARS =================
 let tiles=[],pile=[],board=[],left=null,right=null;
 let playerHand=[],computerHand=[];
-let playerScore=0,computerScore=0;
 
-// ================== بدء اللعبة ==================
+// ================= START =================
 function startGame(){
   if(!selectedAvatar) return alert("اختر شخصية");
   document.getElementById("avatar-screen").style.display="none";
@@ -117,31 +118,36 @@ function startGame(){
 }
 
 function initGame(){
-  tiles=[];
-  board=[];
-  left=null; right=null;
+  tiles=[]; board=[]; left=null; right=null;
 
   for(let i=0;i<=6;i++)
     for(let j=i;j<=6;j++)
       tiles.push([i,j]);
 
   tiles.sort(()=>Math.random()-0.5);
-
   playerHand=tiles.splice(0,7);
   computerHand=tiles.splice(0,7);
   pile=[...tiles];
 
   renderAll();
-  updateScore();
 }
 
-// ================== منطق اللعب ==================
+// ================= ONLINE – STAGE 1 =================
+function createRoom(){
+  const roomId=Math.random().toString(36).substring(2,7);
+  db.ref("rooms/"+roomId).set({
+    created:Date.now(),
+    board:[],
+    status:"waiting"
+  });
+  alert("Room Created ✅\nRoom ID: "+roomId);
+}
+
+// ================= GAME LOGIC =================
 function play(a,b){
-  if(left===null){
-    board.push([a,b]); left=a; right=b; return true;
-  }
-  if(a===right){ board.push([a,b]); right=b; return true; }
-  if(b===left){ board.unshift([a,b]); left=a; return true; }
+  if(left===null){board.push([a,b]); left=a; right=b; return true;}
+  if(a===right){board.push([a,b]); right=b; return true;}
+  if(b===left){board.unshift([a,b]); left=a; return true;}
   return false;
 }
 
@@ -150,23 +156,7 @@ function playerTurn(i){
   if(play(a,b)||play(b,a)){
     playerHand.splice(i,1);
     renderAll();
-    setTimeout(computerTurn,500);
   }else alert("مش نافع");
-}
-
-function computerTurn(){
-  for(let i=0;i<computerHand.length;i++){
-    let [a,b]=computerHand[i];
-    if(play(a,b)||play(b,a)){
-      computerHand.splice(i,1);
-      renderAll();
-      return;
-    }
-  }
-  if(pile.length){
-    computerHand.push(pile.shift());
-    renderAll();
-  }
 }
 
 function drawTile(){
@@ -176,7 +166,13 @@ function drawTile(){
   }else alert("المخزون فاضي");
 }
 
-// ================== عرض ==================
+// ================= RENDER =================
+const boardDiv=document.getElementById("board");
+const playerDiv=document.getElementById("player-hand");
+const computerDiv=document.getElementById("computer-hand");
+const leftPile=document.getElementById("left-pile");
+const rightPile=document.getElementById("right-pile");
+
 function renderTile([a,b],hidden=false){
   let d=document.createElement("div");
   d.className="tile"+(hidden?" hidden":"");
@@ -199,17 +195,10 @@ function renderAll(){
   computerHand.forEach(()=>computerDiv.appendChild(renderTile([0,0],true)));
 
   leftPile.innerHTML=rightPile.innerHTML="";
-  pile.forEach(()=>{
-    leftPile.appendChild(document.createElement("div")).className="pile-tile";
-  });
+  pile.forEach(()=>leftPile.appendChild(document.createElement("div")).className="pile-tile");
 }
 
-function updateScore(){
-  playerScoreSpan.innerText=playerScore;
-  computerScoreSpan.innerText=computerScore;
-}
-
-// ================== تشغيل ==================
+// ================= INIT =================
 document.getElementById("login-screen").style.display="block";
 </script>
 
