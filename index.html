@@ -2,137 +2,133 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
+  <title>PiGameHub - Basic + No Images</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PiGamesHub</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+
   <style>
     body {
       margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(180deg,#0f0f1f,#1a1a2e);
+      padding: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: radial-gradient(circle at top, #1a1a2e, #000);
       color: #fff;
       text-align: center;
     }
 
     h1 {
-      margin: 20px 0;
-      font-size: 32px;
+      margin-top: 20px;
+      font-size: 28px;
       color: #00ffcc;
     }
 
-    p {
-      color: #00ffccaa;
-      margin-bottom: 30px;
-      font-size: 16px;
+    .games {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 30px auto;
+      max-width: 900px;
+      gap: 15px;
     }
 
-    .gamesGrid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 20px;
-      max-width: 800px;
-      margin: auto;
-      padding: 0 20px 50px;
-    }
-
-    .gameCard {
-      background: #111;
-      border-radius: 15px;
-      padding: 15px;
-      cursor: pointer;
-      transition: 0.3s ease;
+    .game-card {
+      width: 100px;
+      height: 120px;
+      background: linear-gradient(145deg, #222, #111);
+      border-radius: 12px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.6);
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: 0 5px 15px rgba(0,255,204,0.2);
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
 
-    .gameCard:hover {
+    .game-card:hover {
       transform: translateY(-10px);
-      box-shadow: 0 15px 25px rgba(0,255,204,0.6);
+      box-shadow: 0 15px 25px rgba(0,255,204,0.4);
     }
 
-    .gameCard img {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
+    .game-icon {
+      width: 50px;
+      height: 50px;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
     }
 
-    .gameCard span {
-      font-size: 14px;
+    .game-label {
+      font-size: 16px;
       color: #00ffcc;
-      font-weight: bold;
-    }
-
-    footer {
-      margin-top: 50px;
-      font-size: 12px;
-      color: #00ffcc77;
     }
   </style>
 </head>
+
 <body>
+  <h1>🎮 PiGameHub (Basic)</h1>
+  <p>واجهة ألعاب بدون تحميل صور خارجية</p>
 
-  <h1>🎮 PiGamesHub</h1>
-  <p>Free Play · Mystery Points · Web3 Ready</p>
+  <div class="games">
+    <div class="game-card" onclick="startGame('Domino')">
+      <div class="game-icon">🎲</div>
+      <div class="game-label">Domino</div>
+    </div>
 
-  <div class="gamesGrid">
-    <div class="gameCard" onclick="startGame('domino')">
-      <img src="images/domino.png" alt="Domino">
-      <span>Domino</span>
+    <div class="game-card" onclick="startGame('Cards')">
+      <div class="game-icon">🃏</div>
+      <div class="game-label">Cards</div>
     </div>
-    <div class="gameCard" onclick="startGame('cards')">
-      <img src="images/cards.png" alt="Cards">
-      <span>Cards</span>
+
+    <div class="game-card" onclick="startGame('Dice')">
+      <div class="game-icon">🎲</div>
+      <div class="game-label">Dice</div>
     </div>
-    <div class="gameCard" onclick="startGame('dice')">
-      <img src="images/dice.png" alt="Dice">
-      <span>Dice</span>
+
+    <div class="game-card" onclick="startGame('Chess')">
+      <div class="game-icon">♟️</div>
+      <div class="game-label">Chess</div>
     </div>
-    <div class="gameCard" onclick="startGame('chess')">
-      <img src="images/chess.png" alt="Chess">
-      <span>Chess</span>
+
+    <div class="game-card" onclick="startGame('Ludo')">
+      <div class="game-icon">🎯</div>
+      <div class="game-label">Ludo</div>
     </div>
-    <div class="gameCard" onclick="startGame('ludo')">
-      <img src="images/ludo.png" alt="Ludo">
-      <span>Ludo</span>
-    </div>
-    <div class="gameCard" onclick="startGame('uno')">
-      <img src="images/uno.png" alt="Uno">
-      <span>Uno</span>
+
+    <div class="game-card" onclick="startGame('UNO')">
+      <div class="game-icon">🃏</div>
+      <div class="game-label">UNO</div>
     </div>
   </div>
 
-  <footer>© 2026 PiGamesHub</footer>
-
-  <!-- Firebase Setup -->
+  <!-- ================= Firebase ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
       authDomain: "pigameshub.firebaseapp.com",
       databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "pigameshub",
-      storageBucket: "pigameshub.appspot.com",
+      storageBucket: "pigameshub.firebasestorage.app",
       messagingSenderId: "977510299690",
       appId: "1:977510299690:web:2e146161feeeefb5486b53",
       measurementId: "G-CGKZZK48G4"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    console.log("🔥 Firebase Connected Successfully");
+    const analytics = getAnalytics(app);
 
-    window.startGame = function(gameName) {
-      alert("🚀 Starting " + gameName + " in free play mode!");
-      const gameRef = push(ref(db, 'gameClicks/'));
-      set(gameRef, {
-        game: gameName,
-        timestamp: new Date().toISOString()
-      });
+    console.log("🔥 Firebase Connected Successfully");
+  </script>
+
+  <!-- ================= Game Logic ================= -->
+  <script>
+    function startGame(gameName) {
+      alert(`ابدأ لعبة ${gameName}!`);
+      console.log("Starting game:", gameName);
     }
   </script>
 
