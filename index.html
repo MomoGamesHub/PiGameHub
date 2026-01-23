@@ -13,41 +13,69 @@
 
 body{
 min-height:100vh;
-background:radial-gradient(circle at top,#0f2027,#000);
+background:radial-gradient(circle at top,#0f2a30,#000);
 color:#eafff9;
 text-align:center;
 }
 
-h1{
-margin-top:20px;
-color:#3fffe0;
-font-size:2.4rem;
+/* HEADER */
+header{
+padding:20px;
 }
 
-.subtitle{
+header h1{
+color:#3fffe0;
+font-size:2.2rem;
+}
+
+header p{
 opacity:.7;
 font-size:.9rem;
-margin-bottom:25px;
+margin-top:6px;
 }
 
+/* LOGIN */
+.login-box{
+margin-top:20px;
+display:flex;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
+}
+
+.login-box button{
+padding:10px 18px;
+border:none;
+border-radius:20px;
+background:#0b2f34;
+color:#3fffe0;
+cursor:pointer;
+box-shadow:0 0 15px rgba(63,255,224,.25);
+transition:.3s;
+}
+
+.login-box button:hover{
+background:#3fffe0;
+color:#000;
+}
+
+/* GAMES */
 .games{
 display:flex;
 justify-content:center;
-margin-top:30px;
+margin-top:40px;
 }
 
 .grid{
 display:grid;
-grid-template-columns:repeat(3,140px);
-gap:25px;
+grid-template-columns:repeat(3,120px);
+gap:22px;
 }
 
-/* 🔥 3D ICON CARD */
 .card{
-height:140px;
+height:120px;
 border-radius:22px;
-background:
-linear-gradient(145deg,#061b20,#000);
+background:linear-gradient(145deg,#061b20,#000);
 box-shadow:
 8px 8px 18px #000,
 -8px -8px 18px #1a3a40;
@@ -57,60 +85,111 @@ justify-content:center;
 align-items:center;
 cursor:pointer;
 transition:.4s;
-position:relative;
-}
-
-/* glow ring */
-.card::before{
-content:"";
-position:absolute;
-inset:-2px;
-border-radius:22px;
-background:linear-gradient(120deg,#3fffe0,#00bfa5,#3fffe0);
-opacity:.25;
-filter:blur(12px);
-z-index:-1;
 }
 
 .card i{
-font-size:3.2rem;
+font-size:2.8rem;
 color:#3fffe0;
 text-shadow:0 0 12px rgba(63,255,224,.6);
-margin-bottom:8px;
+margin-bottom:6px;
 }
 
 .card span{
-font-size:.8rem;
-letter-spacing:1px;
+font-size:.75rem;
 }
 
-/* Hover = 3D pop */
 .card:hover{
-transform:translateY(-8px) scale(1.08);
-box-shadow:
-0 0 30px rgba(63,255,224,.6),
-inset 0 0 18px rgba(63,255,224,.2);
+transform:translateY(-6px) scale(1.07);
+box-shadow:0 0 25px rgba(63,255,224,.6);
+}
+
+/* MODAL */
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+display:none;
+justify-content:center;
+align-items:center;
+}
+
+.modal-content{
+background:#031417;
+padding:25px;
+border-radius:20px;
+width:90%;
+max-width:300px;
+box-shadow:0 0 30px rgba(63,255,224,.4);
+}
+
+.modal-content h3{
+margin-bottom:15px;
+color:#3fffe0;
+}
+
+.modal-content input{
+width:100%;
+padding:10px;
+border-radius:12px;
+border:none;
+margin-bottom:12px;
+outline:none;
+}
+
+.modal-content button{
+width:100%;
+padding:10px;
+border:none;
+border-radius:14px;
+background:#3fffe0;
+color:#000;
+font-weight:bold;
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
+<header>
 <h1>🎮 PiGameHub</h1>
-<p class="subtitle">Free Play • Mystery Points • Web3 Ready</p>
+<p>أهلاً بيك 👋 العب، استمتع، واكسب نقاط غامضة</p>
+
+<div class="login-box">
+<button onclick="openLogin()">تسجيل دخول</button>
+</div>
+</header>
 
 <section class="games">
 <div class="grid">
-
 <div class="card"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
 <div class="card"><i class="fa-solid fa-cards-playing"></i><span>Cards</span></div>
 <div class="card"><i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
 <div class="card"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
 <div class="card"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
 <div class="card"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
-
 </div>
 </section>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+<div class="modal-content">
+<h3>تسجيل الدخول</h3>
+<input type="text" placeholder="رقم الموبايل / Pi Account / Gmail">
+<button onclick="login()">دخول</button>
+</div>
+</div>
+
+<script>
+function openLogin(){
+document.getElementById("loginModal").style.display="flex";
+}
+
+function login(){
+document.getElementById("loginModal").style.display="none";
+alert("✅ تم تسجيل الدخول بنجاح!\nمرحباً بك في PiGameHub");
+}
+</script>
 
 </body>
 </html>
