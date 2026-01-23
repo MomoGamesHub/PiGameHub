@@ -1,109 +1,88 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>PiGameHub - Basic</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    margin:0; padding:0;
-    background: radial-gradient(circle at top, #1a1a2e, #000);
-    font-family: Arial, sans-serif;
-    color: #00ffcc;
-    text-align:center;
-  }
-  h1 {margin-top:20px; font-size:28px;}
-  p {color:#0f0; margin-top:5px;}
-  .cards {
-    display:flex; flex-wrap:wrap; justify-content:center;
-    max-width:960px; margin:30px auto;
-  }
-  .card {
-    width:70px; height:120px; background:linear-gradient(145deg,#222,#111);
-    border-radius:10px; margin:10px;
-    box-shadow:0 8px 15px rgba(0,0,0,0.6);
-    cursor:pointer; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
-    display:flex; align-items:center; justify-content:center;
-    font-size:18px; color:#00ffcc;
-  }
-  .card:hover {transform:translateY(-10px) rotateX(10deg); box-shadow:0 15px 25px rgba(0,255,204,0.4);}
-  .card.active {animation:bounce 0.5s forwards; background:linear-gradient(145deg,#0ff,#00ffcc); box-shadow:0 15px 30px rgba(0,255,204,0.7);}
-  @keyframes bounce {0%{transform:translateY(0);}50%{transform:translateY(-30px);}100%{transform:translateY(0);}}
-  #lastCard {margin-top:20px; font-size:18px; color:#0f0;}
-</style>
+  <meta charset="UTF-8" />
+  <title>PiGameHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0; padding: 0;
+      background: radial-gradient(circle at top, #1a1a2e, #000);
+      color: #fff; font-family: Tahoma, Arial; text-align: center;
+    }
+    h1 { margin-top: 20px; font-size: 28px; color: #00ffcc; }
+    .cards { display: flex; flex-wrap: wrap; justify-content: center; margin: 30px auto; max-width: 900px; }
+    .card { width: 70px; height: 120px; background: linear-gradient(145deg, #222, #111);
+      border-radius: 10px; margin: 10px; box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+      cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #00ffcc;
+    }
+    .card:hover { transform: translateY(-10px) rotateX(10deg); box-shadow: 0 15px 25px rgba(0,255,204,0.4); }
+  </style>
 </head>
-
 <body>
 
-<h1>🎮 PiGameHub</h1>
-<p>Basic Interface + Firebase + Alert</p>
+  <h1>🎮 PiGameHub</h1>
+  <p>Basic Interface + Firebase Advanced + Alert</p>
+  <div class="cards" id="cards"></div>
+  <p id="lastClick" style="color:#0f0; margin-top:20px;"></p>
 
-<div class="cards" id="cards"></div>
-<div id="lastCard">آخر كارت ضغطت عليه: -</div>
+  <!-- ================= Firebase ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-import { getDatabase, ref, set, push, get, child } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
+      authDomain: "pigameshub.firebaseapp.com",
+      databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "pigameshub",
+      storageBucket: "pigameshub.appspot.com",
+      messagingSenderId: "977510299690",
+      appId: "1:977510299690:web:2e146161feeeefb5486b53",
+      measurementId: "G-CGKZZK48G4"
+    };
 
-// ================= Firebase Config =================
-const firebaseConfig = {
-  apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
-  authDomain: "pigameshub.firebaseapp.com",
-  databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "pigameshub",
-  storageBucket: "pigameshub.firebasestorage.app",
-  messagingSenderId: "977510299690",
-  appId: "1:977510299690:web:2e146161feeeefb5486b53",
-  measurementId: "G-CGKZZK48G4"
-};
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getDatabase(app);
+    console.log("🔥 Firebase Connected Successfully");
 
-// ================= Cards UI =================
-const cardsContainer = document.getElementById("cards");
-const lastCardText = document.getElementById("lastCard");
+    const cardsContainer = document.getElementById("cards");
+    const lastClick = document.getElementById("lastClick");
 
-for(let i=1; i<=28; i++){
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerText = i;
+    for (let i = 1; i <= 28; i++) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerText = i;
 
-  card.onclick = async () => {
-    // Animation
-    card.classList.add("active");
-    setTimeout(()=>card.classList.remove("active"),500);
+      card.onclick = async () => {
+        const cardRef = ref(db, 'cards/' + i);
+        const snapshot = await get(cardRef);
 
-    // Alert
-    alert(`ضغطت على الكارت رقم: ${i}`);
+        let count = 1;
+        if(snapshot.exists()) {
+          count = snapshot.val().count + 1;
+        }
 
-    // Timestamp
-    const timestamp = new Date().toLocaleString();
+        const now = new Date().toLocaleString("ar-EG", { hour12: false });
 
-    // Save in Firebase
-    await set(ref(db, 'lastClickedCard'), { number: i, time: timestamp });
-    await push(ref(db, 'clickHistory'), { number: i, time: timestamp });
+        await set(cardRef, {
+          count: count,
+          lastClick: now
+        });
 
-    // Update UI
-    const snapshot = await get(child(ref(db), 'lastClickedCard'));
-    if(snapshot.exists()){
-      const data = snapshot.val();
-      lastCardText.innerText = `آخر كارت ضغطت عليه: ${data.number} (الوقت: ${data.time})`;
+        card.style.transform = "translateY(-30px)";
+        lastClick.innerText = `آخر كارت ضغطت عليه: ${i} (الوقت: ${now})`;
+
+        alert(`كارت ${i} تم تسجيله!\nعدد الضغطات: ${count}`);
+      };
+
+      cardsContainer.appendChild(card);
     }
-  };
-  cardsContainer.appendChild(card);
-}
-
-// Load last clicked card on page load
-(async()=>{
-  const snapshot = await get(child(ref(db),'lastClickedCard'));
-  if(snapshot.exists()){
-    const data = snapshot.val();
-    lastCardText.innerText = `آخر كارت ضغطت عليه: ${data.number} (الوقت: ${data.time})`;
-  }
-})();
-</script>
+  </script>
 </body>
 </html>
