@@ -302,6 +302,99 @@ setTimeout(()=>t.style.display="none",2000);
 
 /* بداية الصفحة */
 updatePoints();
+ <script>
+let dicePlayers=[];
+let turn=0;
+
+/* عند بدء اللعبة */
+function startGame(){
+document.getElementById("lobby").style.display="none";
+document.getElementById("games").style.display="none";
+document.getElementById("gameUI").style.display="block";
+document.getElementById("hudGame").innerText=currentGame;
+
+if(currentGame==="Dice"){
+initDice();
+}
+
+points+=10;
+savePoints();
+updatePoints();
+toast("🎮 بدأت اللعبة +10 نقاط");
+}
+
+/* تهيئة لعبة النرد */
+function initDice(){
+document.getElementById("diceArea").style.display="block";
+
+dicePlayers=[
+{name:"You",icon:"fa-user",roll:0},
+{name:"AI 1",icon:"fa-robot",roll:0},
+{name:"AI 2",icon:"fa-robot",roll:0},
+{name:"AI 3",icon:"fa-robot",roll:0}
+];
+
+turn=0;
+renderDicePlayers();
+}
+
+/* رسم اللاعبين */
+function renderDicePlayers(){
+let box=document.getElementById("dicePlayers");
+box.innerHTML="";
+dicePlayers.forEach((p,i)=>{
+box.innerHTML+=`
+<div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
+<i class="fa-solid ${p.icon}"></i>
+${p.name}
+<b>${p.roll||"-"}</b>
+</div>`;
+});
+}
+
+/* رمي النرد */
+function rollDice(){
+let dice=document.getElementById("diceBox");
+dice.classList.add("roll");
+
+setTimeout(()=>{
+dice.classList.remove("roll");
+
+let value=Math.floor(Math.random()*6)+1;
+dice.innerText=value;
+dicePlayers[turn].roll=value;
+
+turn++;
+
+if(turn<dicePlayers.length){
+renderDicePlayers();
+}else{
+endDiceRound();
+}
+},600);
+}
+
+/* نهاية الجولة */
+function endDiceRound(){
+renderDicePlayers();
+
+let winner=dicePlayers.reduce((a,b)=>a.roll>b.roll?a:b);
+
+points+=20;
+savePoints();
+updatePoints();
+
+document.getElementById("diceResult").innerText=
+"🏆 الفائز: "+winner.name+" (+20 نقطة)";
+}
+
+/* الخروج */
+function exitGame(){
+document.getElementById("gameUI").style.display="none";
+document.getElementById("games").style.display="flex";
+document.getElementById("diceArea").style.display="none";
+}
+</script>
 </script>
 
 </body>
