@@ -1,182 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domino – Multiplayer Pi</title>
-<style>
-body {margin:0; background:#0b1220; color:white; font-family:Arial; text-align:center;}
-h1 {margin-top:20px;}
-#board {margin:20px auto; min-height:120px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; border:2px dashed #444; padding:15px; width:90%;}
-.hand {margin-top:20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
-.domino {width:60px; height:100px; background:white; color:black; border-radius:10px; display:flex; flex-direction:column; justify-content:space-around; align-items:center; font-size:22px; font-weight:bold; cursor:pointer;}
-.pile {display:flex; justify-content:center; gap:6px; margin-top:20px; flex-wrap:wrap;}
-.pile .domino {width:40px; height:70px; background:#555; cursor:pointer;}
-#score {margin-top:20px; font-size:18px;}
-button {margin-top:20px; padding:10px 20px; font-size:16px; border:none; border-radius:8px; background:#facc15; color:black; cursor:pointer;}
-#wallet {margin-top:10px;}
-</style>
+  <meta charset="UTF-8" />
+  <title>PiGameHub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #1a1a2e, #000);
+      color: #fff;
+      font-family: Tahoma, Arial;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 28px;
+      color: #00ffcc;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 30px auto;
+      max-width: 900px;
+    }
+
+    .card {
+      width: 70px;
+      height: 120px;
+      background: linear-gradient(145deg, #222, #111);
+      border-radius: 10px;
+      margin: 10px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #00ffcc;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) rotateX(10deg);
+      box-shadow: 0 15px 25px rgba(0,255,204,0.4);
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>Domino – Multiplayer Pi</h1>
-<div id="wallet">Pi Wallet Balance: 0 π</div>
+  <h1>🎮 PiGameHub</h1>
+  <p>اختبار الواجهة + Firebase</p>
 
-<h3>Board</h3>
-<div id="board"></div>
+  <div class="cards" id="cards"></div>
 
-<h3>Your Hand</h3>
-<div id="player-hand" class="hand"></div>
+  <!-- ================= Firebase ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 
-<h3>Opponent Hand (Hidden)</h3>
-<div id="opponent-hand" class="hand"></div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
+      authDomain: "pigameshub.firebaseapp.com",
+      databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "pigameshub",
+      storageBucket: "pigameshub.firebasestorage.app",
+      messagingSenderId: "977510299690",
+      appId: "1:977510299690:web:2e146161feeeefb5486b53",
+      measurementId: "G-CGKZZK48G4"
+    };
 
-<h3>Stock / Pile</h3>
-<div id="pile" class="pile"></div>
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
 
-<div id="score">Your Score: 0 | Opponent Score: 0</div>
-<button onclick="drawTile()">Draw from Pile</button>
+    console.log("🔥 Firebase Connected Successfully");
+  </script>
 
-<script>
-// ======== Variables ========
-const board = document.getElementById("board");
-const playerDiv = document.getElementById("player-hand");
-const opponentDiv = document.getElementById("opponent-hand");
-const pileDiv = document.getElementById("pile");
-const scoreDiv = document.getElementById("score");
-const walletDiv = document.getElementById("wallet");
+  <!-- ================= Game UI ================= -->
+  <script>
+    const cardsContainer = document.getElementById("cards");
 
-let left = null, right = null;
-let playerScore = 0, opponentScore = 0;
-let playerHand = [], opponentHand = [];
-let pile = [];
-
-// ======== Domino Utils ========
-function generateDominoes() {
-  const list = [];
-  for(let i=0;i<=6;i++){
-    for(let j=i;j<=6;j++){
-      list.push({left:i, right:j});
+    for (let i = 1; i <= 28; i++) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerText = i;
+      card.onclick = () => {
+        card.style.transform = "translateY(-30px)";
+      };
+      cardsContainer.appendChild(card);
     }
-  }
-  return list;
-}
+  </script>
 
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-}
-
-function createDomino(d, clickable=true){
-  const el = document.createElement("div");
-  el.className = "domino";
-  el.innerHTML = `<span>${d.left}</span><span>${d.right}</span>`;
-  if(clickable){
-    el.onclick = () => playTile(d, el);
-  }
-  return el;
-}
-
-function updateScore(){
-  scoreDiv.innerText = `Your Score: ${playerScore} | Opponent Score: ${opponentScore}`;
-}
-
-// ======== INIT ========
-let allDominoes = generateDominoes();
-shuffle(allDominoes);
-
-playerHand = allDominoes.splice(0,7);
-opponentHand = allDominoes.splice(0,7);
-pile = allDominoes;
-
-// Render Player Hand
-function renderHands(){
-  playerDiv.innerHTML = "";
-  playerHand.forEach(d => playerDiv.appendChild(createDomino(d,true)));
-
-  opponentDiv.innerHTML = "";
-  opponentHand.forEach(d => opponentDiv.appendChild(createDomino({left:"?", right:"?"}, false)));
-
-  pileDiv.innerHTML = "";
-  pile.forEach(d => {
-    const el = createDomino(d,false);
-    pileDiv.appendChild(el);
-  });
-}
-renderHands();
-
-// ======== Game Logic ========
-function canPlayTile(d){
-  if(left===null) return true;
-  return d.left===left || d.right===left || d.left===right || d.right===right;
-}
-
-function playTile(d, el){
-  if(!canPlayTile(d)){alert("Cannot play this tile"); return;}
-  playerDiv.removeChild(el);
-  playerHand = playerHand.filter(x=>x!==d);
-
-  if(left===null){ left=d.left; right=d.right; board.appendChild(createDomino(d,false)); }
-  else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
-  else if(d.right===left){ left=d.left; board.insertBefore(createDomino(d,false), board.firstChild); }
-  else if(d.left===left){ left=d.right; board.insertBefore(createDomino(d,false), board.firstChild); }
-  else if(d.right===right){ right=d.left; board.appendChild(createDomino(d,false)); }
-
-  playerScore += 1;
-  updateScore();
-
-  setTimeout(opponentTurn, 600);
-}
-
-function drawTile(){
-  if(pile.length===0){alert("Pile empty"); return;}
-  const d = pile.shift();
-  playerHand.push(d);
-  renderHands();
-  updateScore();
-}
-
-// ======== Simple Opponent AI ========
-function opponentTurn(){
-  let moved=false;
-  for(let i=0;i<opponentHand.length;i++){
-    const d = opponentHand[i];
-    if(canPlayTile(d)){
-      opponentHand.splice(i,1);
-      if(left===null){ left=d.left; right=d.right; board.appendChild(createDomino(d,false)); }
-      else if(d.left===right){ right=d.right; board.appendChild(createDomino(d,false)); }
-      else if(d.right===left){ left=d.left; board.insertBefore(createDomino(d,false), board.firstChild); }
-      else if(d.left===left){ left=d.right; board.insertBefore(createDomino(d,false), board.firstChild); }
-      else if(d.right===right){ right=d.left; board.appendChild(createDomino(d,false)); }
-      opponentScore += 1;
-      moved=true;
-      break;
-    }
-  }
-  if(!moved && pile.length>0){
-    const d = pile.shift();
-    opponentHand.push(d);
-    renderHands();
-  }
-  updateScore();
-  checkEndGame();
-}
-
-// ======== End Game ========
-function checkEndGame(){
-  if(playerHand.length===0 || opponentHand.length===0 || 
-     (!playerHand.some(canPlayTile) && !opponentHand.some(canPlayTile) && pile.length===0)){
-    let winner = playerScore>=opponentScore ? "You Win!" : "Opponent Wins!";
-    alert("Game Over!\n"+winner+"\nYour Score: "+playerScore+"\nOpponent Score: "+opponentScore);
-  }
-}
-
-// ======== Pi Wallet Mock ========
-let piBalance = 3.14; // Example
-walletDiv.innerText = `Pi Wallet Balance: ${piBalance} π`;
-
-</script>
 </body>
 </html>
