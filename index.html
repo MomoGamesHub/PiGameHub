@@ -21,24 +21,21 @@ text-align:center;
 /* HEADER */
 header{padding:18px}
 header h1{color:#3fffe0;font-size:2.2rem}
-header p{opacity:.7;font-size:.9rem;margin-top:6px}
 
 /* LOGIN */
-.login-box{margin-top:12px}
 .login-box button{
 padding:10px 24px;border:none;border-radius:22px;
 background:#0b2f34;color:#3fffe0;
-box-shadow:0 0 15px rgba(63,255,224,.3);
 cursor:pointer;
 }
 
 /* GAMES */
-#games{display:none;justify-content:center;margin-top:35px}
-
+#games{display:none;margin-top:30px}
 .grid{
 display:grid;
 grid-template-columns:repeat(3,130px);
-gap:22px;
+gap:20px;
+justify-content:center;
 }
 
 .card{
@@ -49,38 +46,11 @@ justify-content:center;align-items:center;
 cursor:pointer;transition:.3s;
 }
 
-.card i{font-size:3rem;color:#3fffe0;margin-bottom:8px}
+.card i{font-size:3rem;color:#3fffe0}
 .card:hover{transform:scale(1.08)}
 
-/* MODAL */
-.modal{
-position:fixed;inset:0;
-background:rgba(0,0,0,.75);
-display:none;justify-content:center;align-items:center;
-z-index:10;
-}
-
-.box{
-background:#031417;padding:22px;
-border-radius:22px;width:90%;max-width:350px;
-}
-
-/* PLAYERS */
-.players{display:flex;justify-content:center;gap:12px;margin:15px 0}
-
-.player{
-width:65px;height:65px;border-radius:50%;
-background:#052027;
-display:flex;flex-direction:column;
-justify-content:center;align-items:center;
-font-size:.7rem;
-}
-
-/* BUTTON */
-.btn{
-padding:10px 18px;border:none;border-radius:18px;
-background:#3fffe0;color:#000;font-weight:bold;
-cursor:pointer;margin-top:10px;
+.card.locked{
+opacity:.35;filter:grayscale(1);cursor:not-allowed;
 }
 
 /* GAME UI */
@@ -93,21 +63,42 @@ border-radius:20px;
 }
 
 .game-area{
-margin-top:30px;
+margin-top:25px;
 padding:30px;
 border-radius:25px;
 background:linear-gradient(145deg,#021012,#000);
 }
 
-/* DICE */
-.roll{animation:shake .6s}
+/* PLAYERS */
+.players{display:flex;justify-content:center;gap:12px;margin:15px 0}
+.player{
+width:70px;height:70px;border-radius:50%;
+background:#052027;
+display:flex;flex-direction:column;
+justify-content:center;align-items:center;
+font-size:.7rem;
+}
+.player.active{box-shadow:0 0 15px #3fffe0}
 
+/* BUTTON */
+.btn{
+padding:10px 18px;border:none;border-radius:18px;
+background:#3fffe0;color:#000;font-weight:bold;
+cursor:pointer;margin:8px;
+}
+
+/* DICE */
+#diceBox{
+font-size:4rem;margin:20px;
+}
+
+.roll{animation:shake .6s}
 @keyframes shake{
-0%{transform:rotate(0deg)}
+0%{transform:rotate(0)}
 25%{transform:rotate(20deg)}
 50%{transform:rotate(-20deg)}
 75%{transform:rotate(10deg)}
-100%{transform:rotate(0deg)}
+100%{transform:rotate(0)}
 }
 
 /* TOAST */
@@ -125,7 +116,6 @@ display:none;
 
 <header>
 <h1>🎮 PiGameHub</h1>
-<p>Free Play • Mystery Points • Web3 Ready</p>
 <div class="login-box">
 <button onclick="login()">تسجيل الدخول</button>
 </div>
@@ -133,20 +123,20 @@ display:none;
 
 <section id="games">
 <div class="grid">
-<div class="card" onclick="openLobby('Dice')">
-<i class="fa-solid fa-dice-five"></i><span>Dice</span>
-</div>
+  <div class="card" onclick="openLobby('Dice')">
+    <i class="fa-solid fa-dice-five"></i>
+    <span>Dice</span>
+  </div>
+
+  <div class="card locked" onclick="toast('🚧 قريبًا')">
+    <i class="fa-solid fa-chess"></i><span>Chess</span>
+  </div>
+
+  <div class="card locked" onclick="toast('🚧 قريبًا')">
+    <i class="fa-solid fa-gamepad"></i><span>Ludo</span>
+  </div>
 </div>
 </section>
-
-<!-- LOBBY -->
-<div class="modal" id="lobby">
-<div class="box">
-<h3 id="gameTitle"></h3>
-<div class="players" id="players"></div>
-<button class="btn" onclick="startGame()">Start Game</button>
-</div>
-</div>
 
 <!-- GAME -->
 <div id="gameUI">
@@ -156,11 +146,16 @@ display:none;
 <button class="btn" onclick="exitGame()">Exit</button>
 </div>
 
-<div class="game-area" id="diceArea" style="display:none">
+<div class="game-area">
 <h3>🎲 Dice Game</h3>
+
 <div class="players" id="dicePlayers"></div>
-<div id="diceBox" style="font-size:4rem;margin:20px">🎲</div>
+
+<div id="diceBox">🎲</div>
+
 <button class="btn" onclick="rollDice()">Roll Dice</button>
+<button class="btn" onclick="resetRound()">🔁 New Round</button>
+
 <h4 id="diceResult"></h4>
 </div>
 </div>
@@ -168,67 +163,86 @@ display:none;
 <div class="toast" id="toast"></div>
 
 <script>
-let loggedIn=false, points=0, currentGame="";
-let dicePlayers=[], turn=0;
+let loggedIn=false;
+let points=0;
+let dicePlayers=[];
+let turn=0;
 
 function login(){
 loggedIn=true;
-points+=5;
 document.querySelector(".login-box").style.display="none";
-document.getElementById("games").style.display="flex";
-toast("تم تسجيل الدخول");
+document.getElementById("games").style.display="block";
+toast("✅ تم تسجيل الدخول");
 updatePoints();
 }
 
 function openLobby(game){
-currentGame=game;
-document.getElementById("gameTitle").innerText=game+" Lobby";
-document.getElementById("lobby").style.display="flex";
-document.getElementById("players").innerHTML="<div class='player'>You</div>";
-}
-
-function startGame(){
-document.getElementById("lobby").style.display="none";
 document.getElementById("games").style.display="none";
 document.getElementById("gameUI").style.display="block";
-document.getElementById("hudGame").innerText=currentGame;
+document.getElementById("hudGame").innerText=game;
 initDice();
 }
 
 function initDice(){
-document.getElementById("diceArea").style.display="block";
 dicePlayers=[
 {name:"You",roll:0},
-{name:"AI",roll:0}
+{name:"AI 1",roll:0},
+{name:"AI 2",roll:0},
+{name:"AI 3",roll:0}
 ];
 turn=0;
 renderDicePlayers();
+document.getElementById("diceResult").innerText="";
 }
 
 function renderDicePlayers(){
-document.getElementById("dicePlayers").innerHTML=
-dicePlayers.map(p=>`<div class="player">${p.name}<b>${p.roll||"-"}</b></div>`).join("");
+let box=document.getElementById("dicePlayers");
+box.innerHTML="";
+dicePlayers.forEach((p,i)=>{
+box.innerHTML+=`
+<div class="player ${i===turn?'active':''}">
+${p.name}<b>${p.roll||"-"}</b>
+</div>`;
+});
 }
 
 function rollDice(){
+if(turn>=dicePlayers.length) return;
+
 let dice=document.getElementById("diceBox");
 dice.classList.add("roll");
+
 setTimeout(()=>{
 dice.classList.remove("roll");
 let v=Math.floor(Math.random()*6)+1;
 dice.innerText=v;
 dicePlayers[turn].roll=v;
 turn++;
-if(turn>=dicePlayers.length){
-document.getElementById("diceResult").innerText="🎉 الجولة انتهت";
-}
 renderDicePlayers();
+
+if(turn<dicePlayers.length){
+setTimeout(rollDice,800); // AI تلقائي
+}else{
+endRound();
+}
 },600);
+}
+
+function endRound(){
+let winner=dicePlayers.reduce((a,b)=>a.roll>b.roll?a:b);
+points+=20;
+updatePoints();
+document.getElementById("diceResult").innerText=
+"🏆 الفائز: "+winner.name+" (+20 نقطة)";
+}
+
+function resetRound(){
+initDice();
 }
 
 function exitGame(){
 document.getElementById("gameUI").style.display="none";
-document.getElementById("games").style.display="flex";
+document.getElementById("games").style.display="block";
 }
 
 function updatePoints(){
