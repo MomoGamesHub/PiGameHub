@@ -1,138 +1,140 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>PiGamesHub - Game Hub</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{
-  margin:0;
-  font-family:Tahoma,Arial;
-  background:radial-gradient(circle at top,#1a1a2e,#000);
-  color:#fff;
-  text-align:center;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PiGamesHub</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(180deg,#0f0f1f,#1a1a2e);
+      color: #fff;
+      text-align: center;
+    }
 
-h1{
-  margin:20px 0 5px;
-  color:#00ffcc;
-}
+    h1 {
+      margin: 20px 0;
+      font-size: 32px;
+      color: #00ffcc;
+    }
 
-p{
-  margin-bottom:30px;
-  color:#0ff;
-}
+    p {
+      color: #00ffccaa;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
 
-/* Grid for games */
-.gamesGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-  gap:20px;
-  max-width:700px;
-  margin:0 auto;
-}
+    .gamesGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: auto;
+      padding: 0 20px 50px;
+    }
 
-.gameCard{
-  background:#111;
-  border:2px solid #00ffcc;
-  border-radius:15px;
-  padding:20px;
-  cursor:pointer;
-  transition:transform 0.3s, box-shadow 0.3s;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-}
+    .gameCard {
+      background: #111;
+      border-radius: 15px;
+      padding: 15px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 5px 15px rgba(0,255,204,0.2);
+    }
 
-.gameCard:hover{
-  transform:translateY(-10px);
-  box-shadow:0 10px 20px rgba(0,255,204,0.5);
-}
+    .gameCard:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 25px rgba(0,255,204,0.6);
+    }
 
-.gameCard img{
-  width:60px;
-  height:60px;
-  margin-bottom:10px;
-}
+    .gameCard img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
 
-.playBtn{
-  margin-top:30px;
-  padding:10px 30px;
-  background:#ff0;
-  color:#111;
-  font-weight:bold;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  transition:transform 0.2s;
-}
+    .gameCard span {
+      font-size: 14px;
+      color: #00ffcc;
+      font-weight: bold;
+    }
 
-.playBtn:hover{
-  transform:scale(1.1);
-}
-</style>
+    footer {
+      margin-top: 50px;
+      font-size: 12px;
+      color: #00ffcc77;
+    }
+  </style>
 </head>
-
 <body>
-<h1>🎮 PiGamesHub</h1>
-<p>Free Play · Mystery Points · Web3 Ready</p>
 
-<div class="gamesGrid">
-  <div class="gameCard" onclick="startGame('domino')">
-    <img src="https://cdn-icons-png.flaticon.com/512/105/105223.png" alt="Domino">
-    <span>Domino</span>
-  </div>
-  <div class="gameCard" onclick="startGame('cards')">
-    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Cards">
-    <span>Cards</span>
-  </div>
-  <div class="gameCard" onclick="startGame('dice')">
-    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921823.png" alt="Dice">
-    <span>Dice</span>
-  </div>
-  <div class="gameCard" onclick="startGame('chess')">
-    <img src="https://cdn-icons-png.flaticon.com/512/821/821064.png" alt="Chess">
-    <span>Chess</span>
-  </div>
-  <div class="gameCard" onclick="startGame('ludo')">
-    <img src="https://cdn-icons-png.flaticon.com/512/2099/2099695.png" alt="Ludo">
-    <span>Ludo</span>
-  </div>
-  <div class="gameCard" onclick="startGame('uno')">
-    <img src="https://cdn-icons-png.flaticon.com/512/1035/1035411.png" alt="Uno">
-    <span>Uno</span>
-  </div>
-</div>
+  <h1>🎮 PiGamesHub</h1>
+  <p>Free Play · Mystery Points · Web3 Ready</p>
 
-<script type="module">
-  // ================= Firebase =================
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+  <div class="gamesGrid">
+    <div class="gameCard" onclick="startGame('domino')">
+      <img src="images/domino.png" alt="Domino">
+      <span>Domino</span>
+    </div>
+    <div class="gameCard" onclick="startGame('cards')">
+      <img src="images/cards.png" alt="Cards">
+      <span>Cards</span>
+    </div>
+    <div class="gameCard" onclick="startGame('dice')">
+      <img src="images/dice.png" alt="Dice">
+      <span>Dice</span>
+    </div>
+    <div class="gameCard" onclick="startGame('chess')">
+      <img src="images/chess.png" alt="Chess">
+      <span>Chess</span>
+    </div>
+    <div class="gameCard" onclick="startGame('ludo')">
+      <img src="images/ludo.png" alt="Ludo">
+      <span>Ludo</span>
+    </div>
+    <div class="gameCard" onclick="startGame('uno')">
+      <img src="images/uno.png" alt="Uno">
+      <span>Uno</span>
+    </div>
+  </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
-    authDomain: "pigameshub.firebaseapp.com",
-    databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "pigameshub",
-    storageBucket: "pigameshub.firebasestorage.app",
-    messagingSenderId: "977510299690",
-    appId: "1:977510299690:web:2e146161feeeefb5486b53",
-    measurementId: "G-CGKZZK48G4"
-  };
+  <footer>© 2026 PiGamesHub</footer>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-  function startGame(game){
-    set(ref(db, 'lastPlayed'), {
-      game: game,
-      time: new Date().toLocaleString()
-    });
-    alert("🚀 بدأت اللعبة: " + game);
-    // هنا نقدر نعمل redirect لكل لعبة
-    // window.location.href = game+'.html';
-  }
-</script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
+      authDomain: "pigameshub.firebaseapp.com",
+      databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "pigameshub",
+      storageBucket: "pigameshub.appspot.com",
+      messagingSenderId: "977510299690",
+      appId: "1:977510299690:web:2e146161feeeefb5486b53",
+      measurementId: "G-CGKZZK48G4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    console.log("🔥 Firebase Connected Successfully");
+
+    window.startGame = function(gameName) {
+      alert("🚀 Starting " + gameName + " in free play mode!");
+      const gameRef = push(ref(db, 'gameClicks/'));
+      set(gameRef, {
+        game: gameName,
+        timestamp: new Date().toISOString()
+      });
+    }
+  </script>
+
 </body>
 </html>
