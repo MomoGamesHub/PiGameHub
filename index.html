@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGamesHub Web3 Platform</title>
+<title>PiGamesHub Animated Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -18,7 +18,7 @@ body{
 /* HEADER */
 header{padding:20px;}
 header h1{color:#3fffe0;font-size:2.5rem;}
-header p{color:#b0fff5; font-size:1rem; margin-top:6px; opacity:0.8;}
+header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 
 /* LOGIN BOX */
 .login-box{margin:20px auto;}
@@ -78,6 +78,23 @@ header p{color:#b0fff5; font-size:1rem; margin-top:6px; opacity:0.8;}
   100%{transform:translateY(0);}
 }
 
+/* DICE ANIMATION */
+@keyframes rollDice{
+  0%{transform:rotate(0deg);}
+  25%{transform:rotate(30deg);}
+  50%{transform:rotate(-30deg);}
+  75%{transform:rotate(20deg);}
+  100%{transform:rotate(0deg);}
+}
+
+/* DICE BOX */
+#diceBox{
+  font-size:4rem;
+  margin:15px auto;
+  display:inline-block;
+  transition:transform 0.6s ease;
+}
+
 /* TOAST */
 .toast{
   position:fixed;
@@ -91,6 +108,51 @@ header p{color:#b0fff5; font-size:1rem; margin-top:6px; opacity:0.8;}
   display:none;
   white-space:pre-wrap;
 }
+
+/* GAME MODAL */
+.modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.75);
+  display:none; justify-content:center; align-items:center;
+  z-index:10;
+}
+.box{
+  background:#031417; padding:22px;
+  border-radius:22px; width:90%;
+  max-width:350px;
+  box-shadow:0 0 30px rgba(63,255,224,.4);
+}
+
+/* PLAYERS */
+.players{display:flex; justify-content:center; gap:12px; margin:15px 0;}
+.player{
+  width:65px; height:65px;
+  border-radius:50%;
+  background:#052027;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  font-size:.7rem;
+  box-shadow:0 0 10px rgba(63,255,224,.3);
+}
+.player i{font-size:1.4rem; color:#3fffe0;}
+.player b{font-size:0.8rem; margin-top:2px;}
+
+/* GAME UI */
+#gameUI{display:none; padding:15px;}
+.hud{
+  display:flex; justify-content:space-between; align-items:center;
+  background:#031417;
+  padding:12px 16px;
+  border-radius:20px;
+  box-shadow:0 0 20px rgba(63,255,224,.4);
+}
+.game-area{
+  margin-top:20px;
+  padding:20px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#021012,#000);
+}
+.btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin-top:10px;}
 </style>
 </head>
 
@@ -117,10 +179,31 @@ header p{color:#b0fff5; font-size:1rem; margin-top:6px; opacity:0.8;}
 </div>
 </section>
 
+<!-- GAME UI -->
+<div id="gameUI">
+<div class="hud">
+<span id="hudGame"></span>
+<span>⭐ <b id="points">0</b></span>
+<button class="btn" onclick="exitGame()">Exit</button>
+</div>
+
+<div class="game-area" id="diceArea" style="display:none">
+<h3>🎲 Dice Game</h3>
+<div class="players" id="dicePlayers"></div>
+<div id="diceBox">🎲</div>
+<button class="btn" onclick="rollDice()">Roll Dice</button>
+<h4 id="diceResult"></h4>
+</div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 let loggedIn=false;
+let points=0;
+let currentGame="";
+let dicePlayers=[];
+let turn=0;
 
 /* تسجيل الدخول */
 function login(){
@@ -135,8 +218,70 @@ function login(){
 /* فتح لعبة */
 function openGame(game){
   if(!loggedIn){toast("❌ سجل الدخول أولاً"); return;}
+  currentGame=game;
   toast(`🎮 تم اختيار اللعبة: ${game}`);
-  // هنا لاحقاً نضيف كود فتح اللعبة نفسها
+
+  if(game==="Dice"){initDice();}
+  // لاحقاً يمكن إضافة Domino, Chess animations
+}
+
+/* تهيئة النرد */
+function initDice(){
+  document.getElementById("gameUI").style.display="block";
+  document.getElementById("diceArea").style.display="block";
+  dicePlayers=[
+    {name:"You",icon:"fa-user",roll:0},
+    {name:"AI 1",icon:"fa-robot",roll:0},
+    {name:"AI 2",icon:"fa-robot",roll:0},
+    {name:"AI 3",icon:"fa-robot",roll:0}
+  ];
+  turn=0;
+  renderDicePlayers();
+}
+
+/* رسم اللاعبين */
+function renderDicePlayers(){
+  const box=document.getElementById("dicePlayers");
+  box.innerHTML="";
+  dicePlayers.forEach((p,i)=>{
+    box.innerHTML+=`
+      <div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
+        <i class="fa-solid ${p.icon}"></i>
+        ${p.name}<b>${p.roll||"-"}</b>
+      </div>`;
+  });
+}
+
+/* رمي النرد */
+function rollDice(){
+  const dice=document.getElementById("diceBox");
+  dice.style.transform="rotate(0deg)";
+  dice.style.transition="transform 0.6s";
+  dice.style.transform="rotate(720deg)";
+  setTimeout(()=>{
+    const value=Math.floor(Math.random()*6)+1;
+    dice.innerText=value;
+    dicePlayers[turn].roll=value;
+    turn++;
+    renderDicePlayers();
+    if(turn>=dicePlayers.length){
+      document.getElementById("diceResult").innerText="🎉 الجولة انتهت";
+      points+=20;
+      updatePoints();
+    }
+  },600);
+}
+
+/* الخروج */
+function exitGame(){
+  document.getElementById("gameUI").style.display="none";
+  document.getElementById("games").style.display="grid";
+  document.getElementById("diceArea").style.display="none";
+}
+
+/* النقاط */
+function updatePoints(){
+  document.getElementById("points").innerText=points;
 }
 
 /* Toast */
