@@ -19,166 +19,96 @@ text-align:center;
 overflow:hidden;
 }
 
-/* HEADER */
 header{padding:20px}
 header h1{color:#3fffe0;font-size:2.2rem}
-header p{opacity:.75;font-size:.9rem;margin-top:6px}
+header p{opacity:.7;font-size:.9rem;margin-top:6px}
 
 /* LOGIN */
-.login-box{
-margin-top:18px;
-display:flex;
-justify-content:center;
-gap:12px;
-flex-wrap:wrap;
-}
-
+.login-box{margin-top:15px}
 .login-box button{
-padding:10px 20px;
-border:none;
-border-radius:22px;
-background:#0b2f34;
-color:#3fffe0;
+padding:10px 20px;border:none;border-radius:22px;
+background:#0b2f34;color:#3fffe0;
+box-shadow:0 0 15px rgba(63,255,224,.3);
 cursor:pointer;
-box-shadow:0 0 15px rgba(63,255,224,.25);
-transition:.3s;
-}
-
-.login-box button:hover{
-background:#3fffe0;
-color:#000;
 }
 
 /* GAMES */
-.games{
-display:flex;
-justify-content:center;
-margin-top:45px;
-}
-
+.games{display:flex;justify-content:center;margin-top:35px}
 .grid{
 display:grid;
 grid-template-columns:repeat(3,130px);
-gap:26px;
+gap:24px;
 }
 
 .card{
-height:130px;
-border-radius:26px;
+height:130px;border-radius:26px;
 background:linear-gradient(145deg,#061b20,#000);
-box-shadow:
-10px 10px 20px #000,
--10px -10px 20px #1a3a40;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-cursor:pointer;
-transition:.35s;
-position:relative;
+box-shadow:0 0 25px rgba(0,0,0,.8);
+display:flex;flex-direction:column;
+justify-content:center;align-items:center;
+cursor:pointer;transition:.3s;
 }
 
-.card i{
-font-size:3rem;
-color:#3fffe0;
-text-shadow:0 0 14px rgba(63,255,224,.6);
-margin-bottom:8px;
-}
+.card i{font-size:3rem;color:#3fffe0;margin-bottom:8px}
+.card span{font-size:.8rem}
 
-.card span{
-font-size:.8rem;
-letter-spacing:.5px;
-}
+.card:hover{transform:scale(1.08)}
+.card.active{box-shadow:0 0 30px #3fffe0}
 
-/* HOVER + ACTIVE */
-.card:hover{
-transform:translateY(-6px) scale(1.08);
-box-shadow:0 0 30px rgba(63,255,224,.7);
-}
-
-.card:active{
-transform:scale(.95);
-}
-
-/* Pulse effect */
-.card::after{
-content:"";
-position:absolute;
-inset:0;
-border-radius:26px;
-box-shadow:0 0 30px rgba(63,255,224,.6);
-opacity:0;
-transition:.4s;
-}
-
-.card.active::after{
-opacity:1;
-animation:pulse 1s infinite;
-}
-
-@keyframes pulse{
-0%{box-shadow:0 0 10px rgba(63,255,224,.4)}
-50%{box-shadow:0 0 35px rgba(63,255,224,.9)}
-100%{box-shadow:0 0 10px rgba(63,255,224,.4)}
-}
-
-/* MODAL */
+/* MODALS */
 .modal{
-position:fixed;
-inset:0;
+position:fixed;inset:0;
 background:rgba(0,0,0,.75);
-display:none;
-justify-content:center;
-align-items:center;
+display:none;justify-content:center;align-items:center;
 z-index:10;
 }
 
-.modal-content{
-background:#031417;
-padding:25px;
-border-radius:22px;
-width:90%;
-max-width:320px;
+.box{
+background:#031417;padding:22px;
+border-radius:22px;width:90%;
+max-width:340px;
 box-shadow:0 0 30px rgba(63,255,224,.4);
 }
 
-.modal-content h3{
-margin-bottom:15px;
-color:#3fffe0;
+.box h3{color:#3fffe0;margin-bottom:15px}
+
+/* PLAYERS */
+.players{
+display:flex;justify-content:center;
+gap:12px;margin:15px 0;
 }
 
-.modal-content input{
-width:100%;
-padding:11px;
-border-radius:14px;
-border:none;
-margin-bottom:12px;
-outline:none;
+.player{
+width:65px;height:65px;
+border-radius:50%;
+background:#052027;
+display:flex;flex-direction:column;
+justify-content:center;align-items:center;
+font-size:.7rem;
+box-shadow:0 0 10px rgba(63,255,224,.3);
 }
 
-.modal-content button{
-width:100%;
-padding:11px;
-border:none;
-border-radius:16px;
-background:#3fffe0;
-color:#000;
-font-weight:bold;
-cursor:pointer;
+.player i{font-size:1.4rem;color:#3fffe0}
+
+/* BUTTONS */
+.btn{
+padding:10px 18px;border:none;
+border-radius:18px;
+background:#3fffe0;color:#000;
+font-weight:bold;cursor:pointer;
+margin-top:10px;
 }
 
 /* TOAST */
 .toast{
-position:fixed;
-bottom:25px;
-left:50%;
-transform:translateX(-50%);
+position:fixed;bottom:25px;
+left:50%;transform:translateX(-50%);
 background:#0b2f34;
 padding:12px 22px;
 border-radius:18px;
 color:#3fffe0;
-box-shadow:0 0 20px rgba(63,255,224,.5);
 display:none;
+box-shadow:0 0 20px rgba(63,255,224,.6);
 }
 </style>
 </head>
@@ -188,62 +118,88 @@ display:none;
 <header>
 <h1>🎮 PiGameHub</h1>
 <p>Free Play • Mystery Points • Web3 Ready</p>
-
 <div class="login-box">
-<button onclick="openLogin()">تسجيل دخول</button>
+<button onclick="login()">تسجيل دخول</button>
 </div>
 </header>
 
 <section class="games">
 <div class="grid">
-<div class="card" onclick="selectGame(this,'Domino')">
+<div class="card" onclick="chooseGame('Domino')">
 <i class="fa-solid fa-dice"></i><span>Domino</span></div>
 
-<div class="card" onclick="selectGame(this,'Cards')">
+<div class="card" onclick="chooseGame('Cards')">
 <i class="fa-solid fa-cards-playing"></i><span>Cards</span></div>
 
-<div class="card" onclick="selectGame(this,'Dice')">
+<div class="card" onclick="chooseGame('Dice')">
 <i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
 
-<div class="card" onclick="selectGame(this,'Chess')">
+<div class="card" onclick="chooseGame('Chess')">
 <i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
 
-<div class="card" onclick="selectGame(this,'Ludo')">
+<div class="card" onclick="chooseGame('Ludo')">
 <i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
 
-<div class="card" onclick="selectGame(this,'UNO')">
+<div class="card" onclick="chooseGame('UNO')">
 <i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
 </div>
 </section>
 
-<!-- LOGIN MODAL -->
-<div class="modal" id="loginModal">
-<div class="modal-content">
-<h3>تسجيل الدخول</h3>
-<input type="text" placeholder="رقم الموبايل / Pi / Gmail">
-<button onclick="login()">دخول</button>
+<!-- LOBBY -->
+<div class="modal" id="lobby">
+<div class="box">
+<h3 id="gameTitle">Lobby</h3>
+
+<p>عدد اللاعبين</p>
+<div class="players" id="playerSlots"></div>
+
+<div>
+<button class="btn" onclick="setPlayers(1)">1</button>
+<button class="btn" onclick="setPlayers(2)">2</button>
+<button class="btn" onclick="setPlayers(3)">3</button>
+<button class="btn" onclick="setPlayers(4)">4</button>
+</div>
+
+<button class="btn" onclick="startGame()">Start Game</button>
 </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* LOGIN */
-function openLogin(){
-document.getElementById("loginModal").style.display="flex";
-}
+let currentGame="";
+let playersCount=1;
 
 function login(){
-document.getElementById("loginModal").style.display="none";
-showToast("✅ تم تسجيل الدخول بنجاح");
+showToast("✅ تم تسجيل الدخول");
 }
 
-/* GAME SELECT */
-function selectGame(card,name){
-document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
-card.classList.add("active");
-playSound();
-showToast("🎮 تم اختيار لعبة " + name);
+function chooseGame(name){
+currentGame=name;
+document.getElementById("gameTitle").innerText=name+" Lobby";
+document.getElementById("lobby").style.display="flex";
+setPlayers(1);
+}
+
+function setPlayers(n){
+playersCount=n;
+let box=document.getElementById("playerSlots");
+box.innerHTML="";
+for(let i=1;i<=4;i++){
+let div=document.createElement("div");
+div.className="player";
+if(i<=n){
+div.innerHTML='<i class="fa-solid fa-user"></i>You';
+}else{
+div.innerHTML='<i class="fa-solid fa-robot"></i>AI';
+}
+box.appendChild(div);
+}
+}
+
+function startGame(){
+document.getElementById("lobby").style.display="none";
+showToast("🚀 "+currentGame+" ستبدأ قريباً");
 }
 
 /* TOAST */
@@ -251,18 +207,7 @@ function showToast(msg){
 let t=document.getElementById("toast");
 t.innerText=msg;
 t.style.display="block";
-setTimeout(()=>t.style.display="none",2000);
-}
-
-/* SOUND */
-function playSound(){
-let ctx=new (window.AudioContext||window.webkitAudioContext)();
-let osc=ctx.createOscillator();
-osc.type="sine";
-osc.frequency.value=600;
-osc.connect(ctx.destination);
-osc.start();
-osc.stop(ctx.currentTime+0.08);
+setTimeout(()=>t.style.display="none",2200);
 }
 </script>
 
