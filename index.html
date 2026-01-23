@@ -2,155 +2,207 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub – Free Play</title>
+<title>PiGamesHub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-  body {margin:0; padding:0; font-family:'Comic Sans MS', cursive, sans-serif;
-        background: linear-gradient(160deg,#1a1a2e,#000); color:#fff; text-align:center;}
-  h1 {margin-top:20px; font-size:32px; color:#0ff; animation: glow 2s ease-in-out infinite alternate;}
-  @keyframes glow {0%{text-shadow:0 0 5px #0ff;}100%{text-shadow:0 0 25px #0ff,0 0 50px #0ff;}}
-  .login {margin:20px;}
-  input {padding:10px; font-size:16px; border-radius:8px; border:none; margin-right:10px;}
-  button {padding:10px 20px; font-size:16px; border-radius:8px; border:none; cursor:pointer; background:#0ff; color:#000;}
-  .avatars {display:flex; justify-content:center; flex-wrap:wrap; gap:15px; margin:20px auto;}
-  .avatar {width:80px; height:80px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:36px; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s;}
-  .avatar:hover {transform:scale(1.2); box-shadow:0 0 15px #0ff;}
-  .cards {display:flex; flex-wrap:wrap; justify-content:center; margin:20px auto; max-width:900px;}
-  .card {width:70px; height:120px; background:#333; margin:10px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:18px; color:#0ff; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;}
-  .card:hover {transform:translateY(-10px); box-shadow:0 10px 20px rgba(0,255,255,0.6);}
-  .count {font-size:12px; color:#0f0;} .points {font-size:14px; color:#ff0; font-weight:bold;}
+body{
+  margin:0;
+  font-family:Tahoma,Arial;
+  background:radial-gradient(circle at top,#1a1a2e,#000);
+  color:#fff;
+  text-align:center;
+}
+
+/* ====== HEADER ====== */
+h1{
+  margin:15px 0;
+  color:#00ffcc;
+}
+
+/* ====== LOGIN ====== */
+#loginBox{
+  background:#111;
+  width:90%;
+  max-width:400px;
+  margin:20px auto;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,255,204,.3);
+}
+#loginBox input{
+  width:90%;
+  padding:10px;
+  margin:10px 0;
+  border-radius:8px;
+  border:none;
+}
+#loginBox button{
+  padding:10px 20px;
+  border:none;
+  border-radius:20px;
+  background:#00ffcc;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* ====== TABLE ====== */
+#table{
+  position:relative;
+  width:320px;
+  height:320px;
+  margin:30px auto;
+  background:#111;
+  border-radius:50%;
+  border:4px solid #00ffcc;
+  display:none;
+}
+
+.player{
+  position:absolute;
+  text-align:center;
+  font-size:12px;
+}
+
+.avatar{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#222;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  margin:auto;
+}
+
+.score{
+  margin-top:5px;
+  color:#0f0;
+}
+
+/* positions */
+.p1{top:-10px;left:50%;transform:translateX(-50%)}
+.p2{right:-10px;top:50%;transform:translateY(-50%)}
+.p3{bottom:-10px;left:50%;transform:translateX(-50%)}
+.p4{left:-10px;top:50%;transform:translateY(-50%)}
+
+/* ====== ACTION ====== */
+#playBtn{
+  display:none;
+  margin-top:20px;
+  padding:12px 30px;
+  background:#ff0;
+  border:none;
+  border-radius:30px;
+  font-weight:bold;
+  cursor:pointer;
+}
 </style>
 </head>
+
 <body>
 
-<h1>🎮 PiGameHub – Free Play</h1>
-<p>اختر تسجيل الدخول بالـ Wallet أو رقمك/محفظة عشوائية</p>
+<h1>🎮 PiGamesHub</h1>
+<p>Free Play · Mystery Points · Web3 Ready</p>
 
-<div class="login">
-  <input type="text" id="userInput" placeholder="اكتب عنوان محفظة أو رقم موبايل">
-  <button id="loginBtn">دخول</button>
-  <button id="metaMaskBtn">Connect MetaMask</button>
+<!-- LOGIN -->
+<div id="loginBox">
+  <p>اكتب محفظة أو رقم موبايل</p>
+  <input id="userId" placeholder="Wallet / Phone">
+  <button onclick="login()">دخول</button>
 </div>
 
-<div class="avatars" id="avatars">
-  <div class="avatar">🙂</div>
-  <div class="avatar">😎</div>
-  <div class="avatar">🧑</div>
-  <div class="avatar">🧙‍♂️</div>
-  <div class="avatar">👾</div>
+<!-- TABLE -->
+<div id="table">
+  <div class="player p1">
+    <div class="avatar">🙂</div>
+    <div class="score" id="s1">0</div>
+  </div>
+  <div class="player p2">
+    <div class="avatar">😎</div>
+    <div class="score">AI</div>
+  </div>
+  <div class="player p3">
+    <div class="avatar">🧙‍♂️</div>
+    <div class="score">AI</div>
+  </div>
+  <div class="player p4">
+    <div class="avatar">👾</div>
+    <div class="score">AI</div>
+  </div>
 </div>
 
-<div class="cards" id="cards"></div>
+<button id="playBtn" onclick="play()">🎲 Play</button>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.umd.min.js"></script>
+<!-- ===== FIREBASE ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
   authDomain: "pigameshub.firebaseapp.com",
   databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "pigameshub",
-  storageBucket: "pigameshub.appspot.com",
+  storageBucket: "pigameshub.firebasestorage.app",
   messagingSenderId: "977510299690",
-  appId: "1:977510299690:web:2e146161feeeefb5486b53",
-  measurementId: "G-CGKZZK48G4"
+  appId: "1:977510299690:web:2e146161feeeefb5486b53"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+window.db = db;
+window.ref = ref;
+window.set = set;
+window.get = get;
 
-// Web3 & Flexible Login
-let userId = null; // معرف المستخدم
-let provider = null;
+console.log("🔥 Firebase Connected");
+</script>
 
-async function connectMetaMask() {
-  if(typeof window.ethereum!=='undefined'){
-    provider = new ethers.BrowserProvider(window.ethereum);
-    try{
-      const accounts = await provider.send("eth_requestAccounts", []);
-      userId = accounts[0];
-      const network = await provider.getNetwork();
-      alert(`تم الاتصال بالمحفظة: ${userId}\nالشبكة: ${network.name}`);
-    } catch(e){alert("فشل الاتصال بالمحفظة"); console.error(e);}
-  } else alert("الرجاء تثبيت MetaMask");
+<!-- ===== GAME LOGIC ===== -->
+<script>
+let currentUser="";
+let points=0;
+
+function login(){
+  const val=document.getElementById("userId").value.trim();
+  if(!val){alert("اكتب معرف");return;}
+
+  currentUser=val;
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("table").style.display="block";
+  document.getElementById("playBtn").style.display="inline-block";
+
+  loadUser();
 }
 
-// زر MetaMask
-document.getElementById('metaMaskBtn').onclick = connectMetaMask;
-
-// زر Login مرن
-document.getElementById('loginBtn').onclick = ()=>{
-  const input = document.getElementById('userInput').value.trim();
-  if(!input){alert("اكتب محفظة أو رقم موبايل!"); return;}
-  userId = input;
-  alert(`تم تسجيل الدخول كـ: ${userId}`);
-};
-
-// اختيار الافاتار
-const avatars = document.querySelectorAll('.avatar');
-let selectedAvatar = null;
-avatars.forEach(av=>{
-  av.onclick=()=>{
-    avatars.forEach(a=>a.style.border="");
-    av.style.border="3px solid #0ff";
-    selectedAvatar = av.innerText;
-    alert(`اخترت شخصيتك: ${selectedAvatar}`);
-  }
-});
-
-// Cards Free Play
-const cardsContainer = document.getElementById("cards");
-for(let i=1;i<=28;i++){
-  const card = document.createElement("div");
-  card.className="card";
-  card.innerHTML=`<div>${i}</div><div class="count">0</div><div class="points">0</div>`;
-  const countDiv = card.querySelector(".count");
-  const pointsDiv = card.querySelector(".points");
-
-  const updateColor=(points)=>{
-    if(points<5) card.style.background="#1a8";
-    else if(points<15) card.style.background="#fa0";
-    else card.style.background="#f33";
-  }
-
-  card.onclick = async ()=>{
-    if(!userId){alert("سجّل دخول أولاً!"); return;}
-    if(!selectedAvatar){alert("اختر شخصية أولاً"); return;}
-
-    const cardRef = ref(db,'cards/'+i+'/'+userId);
-    const snapshot = await get(cardRef);
-
-    let count=1, totalPoints=0;
-    if(snapshot.exists()){
-      const data = snapshot.val();
-      count = data.count+1;
-      totalPoints = data.points;
+function loadUser(){
+  const userRef=ref(db,"users/"+currentUser);
+  get(userRef).then(snap=>{
+    if(snap.exists()){
+      points=snap.val().points||0;
+      document.getElementById("s1").innerText=points;
+    }else{
+      save();
     }
+  });
+}
 
-    // نقاط عشوائية بين 1 و10
-    const earnedPoints = Math.floor(Math.random()*10)+1;
-    totalPoints += earnedPoints;
+function play(){
+  const add=Math.floor(Math.random()*10)+1;
+  points+=add;
+  document.getElementById("s1").innerText=points;
+  save();
+}
 
-    const now = new Date().toLocaleString("ar-EG",{hour12:false});
-
-    await set(cardRef,{
-      count: count,
-      points: totalPoints,
-      lastClick: now,
-      avatar: selectedAvatar
-    });
-
-    countDiv.innerText = count;
-    pointsDiv.innerText = totalPoints;
-    updateColor(totalPoints);
-
-    alert(`كارت ${i} ضغطت!\nعدد الضغطات: ${count}\nنقاط مكتسبة: ${earnedPoints}\nإجمالي النقاط: ${totalPoints}\nالوقت: ${now}`);
-  }
-
-  cardsContainer.appendChild(card);
+function save(){
+  set(ref(db,"users/"+currentUser),{
+    points:points,
+    lastPlay:Date.now()
+  });
 }
 </script>
+
 </body>
 </html>
