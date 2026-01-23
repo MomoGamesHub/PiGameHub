@@ -52,6 +52,7 @@ cursor:pointer;transition:.3s;
 .card.locked{
 opacity:.35;filter:grayscale(1);cursor:not-allowed;
 }
+.card.locked:hover{transform:none}
 
 /* GAME UI */
 #gameUI{display:none;padding:15px}
@@ -91,7 +92,6 @@ cursor:pointer;margin:8px;
 #diceBox{
 font-size:4rem;margin:20px;
 }
-
 .roll{animation:shake .6s}
 @keyframes shake{
 0%{transform:rotate(0)}
@@ -121,24 +121,44 @@ display:none;
 </div>
 </header>
 
+<!-- GAMES -->
 <section id="games">
 <div class="grid">
+
   <div class="card" onclick="openLobby('Dice')">
     <i class="fa-solid fa-dice-five"></i>
     <span>Dice</span>
   </div>
 
-  <div class="card locked" onclick="toast('🚧 قريبًا')">
-    <i class="fa-solid fa-chess"></i><span>Chess</span>
+  <div class="card locked" onclick="toast('🚧 Domino قريبًا')">
+    <i class="fa-solid fa-dice"></i>
+    <span>Domino</span>
   </div>
 
-  <div class="card locked" onclick="toast('🚧 قريبًا')">
-    <i class="fa-solid fa-gamepad"></i><span>Ludo</span>
+  <div class="card locked" onclick="toast('🚧 Cards قريبًا')">
+    <i class="fa-solid fa-cards-playing"></i>
+    <span>Cards</span>
   </div>
+
+  <div class="card locked" onclick="toast('🚧 Chess قريبًا')">
+    <i class="fa-solid fa-chess-knight"></i>
+    <span>Chess</span>
+  </div>
+
+  <div class="card locked" onclick="toast('🚧 Ludo قريبًا')">
+    <i class="fa-solid fa-gamepad"></i>
+    <span>Ludo</span>
+  </div>
+
+  <div class="card locked" onclick="toast('🚧 UNO قريبًا')">
+    <i class="fa-solid fa-layer-group"></i>
+    <span>UNO</span>
+  </div>
+
 </div>
 </section>
 
-<!-- GAME -->
+<!-- GAME UI -->
 <div id="gameUI">
 <div class="hud">
 <span id="hudGame"></span>
@@ -148,14 +168,10 @@ display:none;
 
 <div class="game-area">
 <h3>🎲 Dice Game</h3>
-
 <div class="players" id="dicePlayers"></div>
-
 <div id="diceBox">🎲</div>
-
 <button class="btn" onclick="rollDice()">Roll Dice</button>
 <button class="btn" onclick="resetRound()">🔁 New Round</button>
-
 <h4 id="diceResult"></h4>
 </div>
 </div>
@@ -168,6 +184,7 @@ let points=0;
 let dicePlayers=[];
 let turn=0;
 
+/* LOGIN */
 function login(){
 loggedIn=true;
 document.querySelector(".login-box").style.display="none";
@@ -176,13 +193,15 @@ toast("✅ تم تسجيل الدخول");
 updatePoints();
 }
 
+/* OPEN LOBBY & INIT GAME */
 function openLobby(game){
 document.getElementById("games").style.display="none";
 document.getElementById("gameUI").style.display="block";
 document.getElementById("hudGame").innerText=game;
-initDice();
+if(game==='Dice') initDice();
 }
 
+/* INIT DICE */
 function initDice(){
 dicePlayers=[
 {name:"You",roll:0},
@@ -195,6 +214,7 @@ renderDicePlayers();
 document.getElementById("diceResult").innerText="";
 }
 
+/* RENDER PLAYERS */
 function renderDicePlayers(){
 let box=document.getElementById("dicePlayers");
 box.innerHTML="";
@@ -206,6 +226,7 @@ ${p.name}<b>${p.roll||"-"}</b>
 });
 }
 
+/* ROLL DICE */
 function rollDice(){
 if(turn>=dicePlayers.length) return;
 
@@ -221,13 +242,14 @@ turn++;
 renderDicePlayers();
 
 if(turn<dicePlayers.length){
-setTimeout(rollDice,800); // AI تلقائي
+setTimeout(rollDice,800); // AI turn automatic
 }else{
 endRound();
 }
 },600);
 }
 
+/* END ROUND */
 function endRound(){
 let winner=dicePlayers.reduce((a,b)=>a.roll>b.roll?a:b);
 points+=20;
@@ -236,19 +258,23 @@ document.getElementById("diceResult").innerText=
 "🏆 الفائز: "+winner.name+" (+20 نقطة)";
 }
 
+/* RESET ROUND */
 function resetRound(){
 initDice();
 }
 
+/* EXIT GAME */
 function exitGame(){
 document.getElementById("gameUI").style.display="none";
 document.getElementById("games").style.display="block";
 }
 
+/* UPDATE POINTS */
 function updatePoints(){
 document.getElementById("points").innerText=points;
 }
 
+/* TOAST */
 function toast(msg){
 let t=document.getElementById("toast");
 t.innerText=msg;
