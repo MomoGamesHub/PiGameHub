@@ -12,26 +12,30 @@
     }
     h1 { margin-top: 20px; font-size: 28px; color: #00ffcc; }
     .cards { display: flex; flex-wrap: wrap; justify-content: center; margin: 30px auto; max-width: 900px; }
-    .card { width: 70px; height: 120px; background: linear-gradient(145deg, #222, #111);
-      border-radius: 10px; margin: 10px; box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-      cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+    .card {
+      width: 70px; height: 120px;
+      border-radius: 10px; margin: 10px;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+      cursor: pointer; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: #00ffcc;
+      font-size: 18px; color: #fff; background: #222;
+      flex-direction: column; text-align: center;
     }
     .card:hover { transform: translateY(-10px) rotateX(10deg); box-shadow: 0 15px 25px rgba(0,255,204,0.4); }
+    .count { font-size: 12px; margin-top: 5px; color: #0f0; }
+    .time { font-size: 10px; margin-top: 2px; color: #aaa; }
   </style>
 </head>
 <body>
 
   <h1>🎮 PiGameHub</h1>
-  <p>Basic Interface + Firebase Advanced + Alert</p>
+  <p>Firebase Advanced + Card Color + Alert + Web3 Ready</p>
   <div class="cards" id="cards"></div>
-  <p id="lastClick" style="color:#0f0; margin-top:20px;"></p>
 
-  <!-- ================= Firebase ================= -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 
     const firebaseConfig = {
@@ -49,24 +53,28 @@
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
 
-    console.log("🔥 Firebase Connected Successfully");
-
     const cardsContainer = document.getElementById("cards");
-    const lastClick = document.getElementById("lastClick");
 
     for (let i = 1; i <= 28; i++) {
       const card = document.createElement("div");
       card.className = "card";
-      card.innerText = i;
+      card.innerHTML = `<div>${i}</div><div class="count">0</div><div class="time">---</div>`;
+
+      const countDiv = card.querySelector(".count");
+      const timeDiv = card.querySelector(".time");
+
+      const updateCardStyle = (count) => {
+        if(count < 5) card.style.background = "#1a8";        // أخضر
+        else if(count < 15) card.style.background = "#fa0";  // أصفر
+        else card.style.background = "#f33";                 // أحمر
+      };
 
       card.onclick = async () => {
         const cardRef = ref(db, 'cards/' + i);
         const snapshot = await get(cardRef);
 
         let count = 1;
-        if(snapshot.exists()) {
-          count = snapshot.val().count + 1;
-        }
+        if(snapshot.exists()) count = snapshot.val().count + 1;
 
         const now = new Date().toLocaleString("ar-EG", { hour12: false });
 
@@ -75,11 +83,23 @@
           lastClick: now
         });
 
-        card.style.transform = "translateY(-30px)";
-        lastClick.innerText = `آخر كارت ضغطت عليه: ${i} (الوقت: ${now})`;
+        countDiv.innerText = count;
+        timeDiv.innerText = now;
+        updateCardStyle(count);
 
-        alert(`كارت ${i} تم تسجيله!\nعدد الضغطات: ${count}`);
+        alert(`كارت ${i} تم تسجيله!\nعدد الضغطات: ${count}\nالوقت: ${now}`);
       };
+
+      // تحميل بيانات موجودة مسبقاً من Firebase
+      (async () => {
+        const snapshot = await get(ref(db, 'cards/' + i));
+        if(snapshot.exists()) {
+          const data = snapshot.val();
+          countDiv.innerText = data.count;
+          timeDiv.innerText = data.lastClick;
+          updateCardStyle(data.count);
+        }
+      })();
 
       cardsContainer.appendChild(card);
     }
