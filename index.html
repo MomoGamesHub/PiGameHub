@@ -5,32 +5,18 @@
 <title>PiGameHub – Free Play</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body {
-    margin:0; padding:0;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: linear-gradient(160deg,#1a1a2e,#000);
-    color:#fff; text-align:center;
-  }
-  h1 {
-    margin-top:20px; font-size:32px; color:#0ff;
-    animation: glow 2s ease-in-out infinite alternate;
-  }
+  body {margin:0; padding:0; font-family:'Comic Sans MS', cursive, sans-serif;
+        background: linear-gradient(160deg,#1a1a2e,#000); color:#fff; text-align:center;}
+  h1 {margin-top:20px; font-size:32px; color:#0ff; animation: glow 2s ease-in-out infinite alternate;}
   @keyframes glow {0%{text-shadow:0 0 5px #0ff;}100%{text-shadow:0 0 25px #0ff,0 0 50px #0ff;}}
-  
-  .avatars { display:flex; justify-content:center; flex-wrap:wrap; gap:15px; margin:20px auto; }
-  .avatar {
-    width:80px; height:80px; border-radius:50%;
-    background:#222; display:flex; align-items:center; justify-content:center;
-    font-size:36px; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s;
-  }
+  .login {margin:20px;}
+  input {padding:10px; font-size:16px; border-radius:8px; border:none; margin-right:10px;}
+  button {padding:10px 20px; font-size:16px; border-radius:8px; border:none; cursor:pointer; background:#0ff; color:#000;}
+  .avatars {display:flex; justify-content:center; flex-wrap:wrap; gap:15px; margin:20px auto;}
+  .avatar {width:80px; height:80px; border-radius:50%; background:#222; display:flex; align-items:center; justify-content:center; font-size:36px; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s;}
   .avatar:hover {transform:scale(1.2); box-shadow:0 0 15px #0ff;}
-  
-  .cards { display:flex; flex-wrap:wrap; justify-content:center; margin:20px auto; max-width:900px;}
-  .card {
-    width:70px; height:120px; background:#333; margin:10px; border-radius:10px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    font-size:18px; color:#0ff; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
-  }
+  .cards {display:flex; flex-wrap:wrap; justify-content:center; margin:20px auto; max-width:900px;}
+  .card {width:70px; height:120px; background:#333; margin:10px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:18px; color:#0ff; cursor:pointer; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;}
   .card:hover {transform:translateY(-10px); box-shadow:0 10px 20px rgba(0,255,255,0.6);}
   .count {font-size:12px; color:#0f0;} .points {font-size:14px; color:#ff0; font-weight:bold;}
 </style>
@@ -38,7 +24,13 @@
 <body>
 
 <h1>🎮 PiGameHub – Free Play</h1>
-<p>اختر شخصية ثم استمتع باللعب وجمع النقاط!</p>
+<p>اختر تسجيل الدخول بالـ Wallet أو رقمك/محفظة عشوائية</p>
+
+<div class="login">
+  <input type="text" id="userInput" placeholder="اكتب عنوان محفظة أو رقم موبايل">
+  <button id="loginBtn">دخول</button>
+  <button id="metaMaskBtn">Connect MetaMask</button>
+</div>
 
 <div class="avatars" id="avatars">
   <div class="avatar">🙂</div>
@@ -55,7 +47,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
-// ================= Firebase =================
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
   authDomain: "pigameshub.firebaseapp.com",
@@ -66,46 +58,50 @@ const firebaseConfig = {
   appId: "1:977510299690:web:2e146161feeeefb5486b53",
   measurementId: "G-CGKZZK48G4"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ================= Web3 =================
-let userAddress = null;
+// Web3 & Flexible Login
+let userId = null; // معرف المستخدم
 let provider = null;
 
-async function connectWallet() {
-  if(typeof window.ethereum !== 'undefined'){
+async function connectMetaMask() {
+  if(typeof window.ethereum!=='undefined'){
     provider = new ethers.BrowserProvider(window.ethereum);
     try{
       const accounts = await provider.send("eth_requestAccounts", []);
-      userAddress = accounts[0];
+      userId = accounts[0];
       const network = await provider.getNetwork();
-      alert(`تم الاتصال بالمحفظة: ${userAddress}\nالشبكة: ${network.name}`);
+      alert(`تم الاتصال بالمحفظة: ${userId}\nالشبكة: ${network.name}`);
     } catch(e){alert("فشل الاتصال بالمحفظة"); console.error(e);}
   } else alert("الرجاء تثبيت MetaMask");
 }
 
-// زر الاتصال بالمحفظة
-const connectBtn = document.createElement('button');
-connectBtn.innerText = "Connect Wallet";
-connectBtn.style.margin="20px"; connectBtn.onclick=connectWallet;
-document.body.insertBefore(connectBtn, document.getElementById("cards"));
+// زر MetaMask
+document.getElementById('metaMaskBtn').onclick = connectMetaMask;
 
-// ================= اختيار الافاتار =================
+// زر Login مرن
+document.getElementById('loginBtn').onclick = ()=>{
+  const input = document.getElementById('userInput').value.trim();
+  if(!input){alert("اكتب محفظة أو رقم موبايل!"); return;}
+  userId = input;
+  alert(`تم تسجيل الدخول كـ: ${userId}`);
+};
+
+// اختيار الافاتار
 const avatars = document.querySelectorAll('.avatar');
 let selectedAvatar = null;
 avatars.forEach(av=>{
   av.onclick=()=>{
-    avatars.forEach(a=>a.style.border=""); av.style.border="3px solid #0ff";
+    avatars.forEach(a=>a.style.border="");
+    av.style.border="3px solid #0ff";
     selectedAvatar = av.innerText;
     alert(`اخترت شخصيتك: ${selectedAvatar}`);
   }
 });
 
-// ================= Cards =================
+// Cards Free Play
 const cardsContainer = document.getElementById("cards");
-
 for(let i=1;i<=28;i++){
   const card = document.createElement("div");
   card.className="card";
@@ -120,10 +116,10 @@ for(let i=1;i<=28;i++){
   }
 
   card.onclick = async ()=>{
-    if(!userAddress){alert("الرجاء توصيل المحفظة أولاً"); return;}
+    if(!userId){alert("سجّل دخول أولاً!"); return;}
     if(!selectedAvatar){alert("اختر شخصية أولاً"); return;}
 
-    const cardRef = ref(db,'cards/'+i+'/'+userAddress);
+    const cardRef = ref(db,'cards/'+i+'/'+userId);
     const snapshot = await get(cardRef);
 
     let count=1, totalPoints=0;
