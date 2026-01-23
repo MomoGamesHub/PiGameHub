@@ -185,9 +185,16 @@ display:none;
 <button class="btn" onclick="exitGame()">Exit</button>
 </div>
 
-<div class="game-area">
-<h3>Game UI (Demo)</h3>
-<button class="btn" onclick="finishRound()">Finish Round</button>
+<div class="game-area" id="diceArea" style="display:none">
+<h3>🎲 Dice Game</h3>
+
+<div class="players" id="dicePlayers"></div>
+
+<div id="diceBox" style="font-size:4rem;margin:20px">🎲</div>
+
+<button class="btn" onclick="rollDice()">Roll Dice</button>
+
+<h4 id="diceResult" style="margin-top:15px"></h4>
 </div>
 </div>
 
