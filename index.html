@@ -1,175 +1,116 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>PiGameHub (Basic)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>PiGameHub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ===== CSS (2) ===== -->
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-    }
+<link rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    body {
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #0f2027, #000);
-      color: #e0fff7;
-      text-align: center;
-    }
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma}
 
-    .header {
-      padding: 20px;
-    }
+body{
+min-height:100vh;
+background:radial-gradient(circle at top,#0f2027,#000);
+color:#eafff9;
+text-align:center;
+}
 
-    .header h1 {
-      font-size: 2.2rem;
-      color: #3fffe0;
-    }
+h1{
+margin-top:20px;
+color:#3fffe0;
+font-size:2.4rem;
+}
 
-    .header p {
-      opacity: 0.8;
-      font-size: 0.9rem;
-    }
+.subtitle{
+opacity:.7;
+font-size:.9rem;
+margin-bottom:25px;
+}
 
-    .welcome {
-      margin-top: 20px;
-    }
+.games{
+display:flex;
+justify-content:center;
+margin-top:30px;
+}
 
-    .welcome h2 {
-      margin-bottom: 8px;
-    }
+.grid{
+display:grid;
+grid-template-columns:repeat(3,140px);
+gap:25px;
+}
 
-    .hint {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
+/* 🔥 3D ICON CARD */
+.card{
+height:140px;
+border-radius:22px;
+background:
+linear-gradient(145deg,#061b20,#000);
+box-shadow:
+8px 8px 18px #000,
+-8px -8px 18px #1a3a40;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+transition:.4s;
+position:relative;
+}
 
-    .login-box {
-      margin-top: 15px;
-    }
+/* glow ring */
+.card::before{
+content:"";
+position:absolute;
+inset:-2px;
+border-radius:22px;
+background:linear-gradient(120deg,#3fffe0,#00bfa5,#3fffe0);
+opacity:.25;
+filter:blur(12px);
+z-index:-1;
+}
 
-    .login-box input {
-      padding: 10px;
-      width: 220px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-    }
+.card i{
+font-size:3.2rem;
+color:#3fffe0;
+text-shadow:0 0 12px rgba(63,255,224,.6);
+margin-bottom:8px;
+}
 
-    .login-box button {
-      padding: 10px 16px;
-      margin-left: 6px;
-      border: none;
-      border-radius: 8px;
-      background: #3fffe0;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.card span{
+font-size:.8rem;
+letter-spacing:1px;
+}
 
-    .games {
-      margin-top: 40px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 110px);
-      gap: 20px;
-    }
-
-    .game-card {
-      height: 110px;
-      background: rgba(0,0,0,0.6);
-      border: 2px solid #3fffe0;
-      border-radius: 16px;
-      font-size: 2.4rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .game-card span {
-      font-size: 0.75rem;
-      margin-top: 6px;
-      color: #3fffe0;
-    }
-
-    .game-card:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 15px #3fffe0;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+/* Hover = 3D pop */
+.card:hover{
+transform:translateY(-8px) scale(1.08);
+box-shadow:
+0 0 30px rgba(63,255,224,.6),
+inset 0 0 18px rgba(63,255,224,.2);
+}
+</style>
 </head>
 
 <body>
 
-  <!-- ===== HTML (1) ===== -->
-  <header class="header">
-    <h1>🎮 PiGameHub</h1>
-    <p>Free Play • Mystery Points • Web3 Ready</p>
-  </header>
+<h1>🎮 PiGameHub</h1>
+<p class="subtitle">Free Play • Mystery Points • Web3 Ready</p>
 
-  <section class="welcome">
-    <h2 id="welcomeText">👋 مرحبًا بك</h2>
-    <p class="hint">ادخل أي محفظة Pi أو رقم موبايل أو ID</p>
+<section class="games">
+<div class="grid">
 
-    <div class="login-box">
-      <input type="text" id="userId" placeholder="Pi Wallet / Phone / ID">
-      <button onclick="login()">دخول</button>
-    </div>
-  </section>
+<div class="card"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
+<div class="card"><i class="fa-solid fa-cards-playing"></i><span>Cards</span></div>
+<div class="card"><i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
+<div class="card"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
+<div class="card"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
+<div class="card"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
 
-  <main class="games hidden" id="games">
-    <div class="games-grid">
-
-      <div class="game-card">🎲<span>Domino</span></div>
-      <div class="game-card">🃏<span>Cards</span></div>
-      <div class="game-card">🎯<span>Dice</span></div>
-      <div class="game-card">♟️<span>Chess</span></div>
-      <div class="game-card">🎮<span>Ludo</span></div>
-      <div class="game-card">🟦🟥🟩🟨<span>UNO</span></div>
-
-    </div>
-  </main>
-
-  <!-- ===== JavaScript (3) ===== -->
-  <script>
-    function login() {
-      const userId = document.getElementById("userId").value.trim();
-
-      if (!userId) {
-        alert("من فضلك ادخل أي ID");
-        return;
-      }
-
-      localStorage.setItem("PiGameHubUser", userId);
-
-      document.getElementById("welcomeText").innerText =
-        "🚀 أهلاً " + userId;
-
-      document.getElementById("games").classList.remove("hidden");
-    }
-
-    const savedUser = localStorage.getItem("PiGameHubUser");
-    if (savedUser) {
-      document.getElementById("welcomeText").innerText =
-        "🚀 أهلاً " + savedUser;
-      document.getElementById("games").classList.remove("hidden");
-    }
-  </script>
+</div>
+</section>
 
 </body>
 </html>
