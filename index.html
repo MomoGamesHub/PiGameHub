@@ -1,108 +1,80 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8" />
-  <title>PiGameHub</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      margin: 0; padding: 0;
-      background: radial-gradient(circle at top, #1a1a2e, #000);
-      color: #fff; font-family: Tahoma, Arial; text-align: center;
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.9.1/dist/ethers.umd.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+  // ================= Firebase Config =================
+  const firebaseConfig = {
+    apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
+    authDomain: "pigameshub.firebaseapp.com",
+    databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "pigameshub",
+    storageBucket: "pigameshub.firebasestorage.app",
+    messagingSenderId: "977510299690",
+    appId: "1:977510299690:web:2e146161feeeefb5486b53",
+    measurementId: "G-CGKZZK48G4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ================= Connect Wallet =================
+  let userAddress = null;
+  let provider = null;
+
+  async function connectWallet() {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        userAddress = accounts[0];
+
+        const network = await provider.getNetwork();
+        alert(`تم الاتصال بالمحفظة: ${userAddress}\nالشبكة: ${network.name} (${network.chainId})`);
+      } catch(err) {
+        alert('فشل الاتصال بالمحفظة');
+        console.error(err);
+      }
+    } else {
+      alert('الرجاء تثبيت MetaMask أو أي محفظة EVM');
     }
-    h1 { margin-top: 20px; font-size: 28px; color: #00ffcc; }
-    .cards { display: flex; flex-wrap: wrap; justify-content: center; margin: 30px auto; max-width: 900px; }
-    .card {
-      width: 70px; height: 120px;
-      border-radius: 10px; margin: 10px;
-      box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-      cursor: pointer; transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: #fff; background: #222;
-      flex-direction: column; text-align: center;
+  }
+
+  // زر الاتصال بالمحفظة
+  const connectBtn = document.createElement('button');
+  connectBtn.innerText = "Connect Wallet";
+  connectBtn.style.margin = "20px";
+  connectBtn.onclick = connectWallet;
+  document.body.insertBefore(connectBtn, document.getElementById("cards"));
+
+  // ================= Game Cards Click =================
+  const cards = document.querySelectorAll('.card');
+  cards.forEach((card, i) => {
+    card.onclick = async () => {
+      if(!userAddress) { alert('الرجاء توصيل المحفظة أولاً'); return; }
+
+      const cardRef = ref(db, 'cards/' + (i+1));
+      const snapshot = await get(cardRef);
+      let count = 1;
+      let users = [];
+      if(snapshot.exists()) {
+        const data = snapshot.val();
+        count = data.count + 1;
+        users = data.users || [];
+      }
+
+      const now = new Date().toLocaleString("ar-EG", { hour12: false });
+      if(!users.includes(userAddress)) users.push(userAddress);
+
+      await set(cardRef, {
+        count: count,
+        lastClick: now,
+        users: users,
+        network: provider ? (await provider.getNetwork()).name : "unknown"
+      });
+
+      card.style.transform = "translateY(-30px)";
+      alert(`كارت ${i+1} تم تسجيله!\nعدد الضغطات: ${count}\nالمستخدمين: ${users.length}\nالشبكة: ${(await provider.getNetwork()).name}\nالوقت: ${now}`);
     }
-    .card:hover { transform: translateY(-10px) rotateX(10deg); box-shadow: 0 15px 25px rgba(0,255,204,0.4); }
-    .count { font-size: 12px; margin-top: 5px; color: #0f0; }
-    .time { font-size: 10px; margin-top: 2px; color: #aaa; }
-  </style>
-</head>
-<body>
-
-  <h1>🎮 PiGameHub</h1>
-  <p>Firebase Advanced + Card Color + Alert + Web3 Ready</p>
-  <div class="cards" id="cards"></div>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
-      authDomain: "pigameshub.firebaseapp.com",
-      databaseURL: "https://pigameshub-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "pigameshub",
-      storageBucket: "pigameshub.appspot.com",
-      messagingSenderId: "977510299690",
-      appId: "1:977510299690:web:2e146161feeeefb5486b53",
-      measurementId: "G-CGKZZK48G4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getDatabase(app);
-
-    const cardsContainer = document.getElementById("cards");
-
-    for (let i = 1; i <= 28; i++) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `<div>${i}</div><div class="count">0</div><div class="time">---</div>`;
-
-      const countDiv = card.querySelector(".count");
-      const timeDiv = card.querySelector(".time");
-
-      const updateCardStyle = (count) => {
-        if(count < 5) card.style.background = "#1a8";        // أخضر
-        else if(count < 15) card.style.background = "#fa0";  // أصفر
-        else card.style.background = "#f33";                 // أحمر
-      };
-
-      card.onclick = async () => {
-        const cardRef = ref(db, 'cards/' + i);
-        const snapshot = await get(cardRef);
-
-        let count = 1;
-        if(snapshot.exists()) count = snapshot.val().count + 1;
-
-        const now = new Date().toLocaleString("ar-EG", { hour12: false });
-
-        await set(cardRef, {
-          count: count,
-          lastClick: now
-        });
-
-        countDiv.innerText = count;
-        timeDiv.innerText = now;
-        updateCardStyle(count);
-
-        alert(`كارت ${i} تم تسجيله!\nعدد الضغطات: ${count}\nالوقت: ${now}`);
-      };
-
-      // تحميل بيانات موجودة مسبقاً من Firebase
-      (async () => {
-        const snapshot = await get(ref(db, 'cards/' + i));
-        if(snapshot.exists()) {
-          const data = snapshot.val();
-          countDiv.innerText = data.count;
-          timeDiv.innerText = data.lastClick;
-          updateCardStyle(data.count);
-        }
-      })();
-
-      cardsContainer.appendChild(card);
-    }
-  </script>
-</body>
-</html>
+  });
+</script>
