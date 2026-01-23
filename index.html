@@ -49,12 +49,6 @@
       transform: translateY(-10px) rotateX(10deg);
       box-shadow: 0 15px 25px rgba(0,255,204,0.4);
     }
-
-    #lastCard {
-      color: #0f0;
-      font-size: 22px;
-      margin-top: 20px;
-    }
   </style>
 </head>
 
@@ -64,13 +58,11 @@
   <p>اختبار الواجهة + Firebase</p>
 
   <div class="cards" id="cards"></div>
-  <div id="lastCard">آخر كارت ضغطت عليه: -</div>
 
   <!-- ================= Firebase ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCn581B_OaIYc7crz3V2Lrjf9WOtJdRe60",
@@ -85,31 +77,24 @@
 
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
-    const database = getDatabase(app);
 
     console.log("🔥 Firebase Connected Successfully");
+    alert("🔥 Firebase Connected Successfully ✅"); // هتظهر على الموبايل
+  </script>
 
-    // ================= Game UI =================
+  <!-- ================= Game UI ================= -->
+  <script>
     const cardsContainer = document.getElementById("cards");
 
     for (let i = 1; i <= 28; i++) {
       const card = document.createElement("div");
       card.className = "card";
       card.innerText = i;
-
       card.onclick = () => {
-        // حركة الكارت
         card.style.transform = "translateY(-30px)";
-
-        // عرض الرقم على الصفحة
-        document.getElementById("lastCard").textContent = 'آخر كارت ضغطت عليه: ' + i;
-
-        // تسجيل على Firebase
-        set(ref(database, 'clickedCards/lastClicked'), i)
-          .then(() => console.log('تم تسجيل الكارت:', i))
-          .catch(err => console.error(err));
+        console.log("ضغطت على الكارت رقم: " + i);
+        alert("ضغطت على الكارت رقم: " + i); // لتأكيد الضغط على الموبايل
       };
-
       cardsContainer.appendChild(card);
     }
   </script>
