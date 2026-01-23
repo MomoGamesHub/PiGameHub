@@ -2,12 +2,12 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub - Web3 Ready</title>
+<title>PiGameHub - Basic</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   body {
     margin:0; padding:0;
-    background: radial-gradient(circle at top, #0a0a1e, #000);
+    background: radial-gradient(circle at top, #1a1a2e, #000);
     font-family: Arial, sans-serif;
     color: #00ffcc;
     text-align:center;
@@ -32,10 +32,11 @@
   #lastCard {margin-top:20px; font-size:18px; color:#0f0;}
 </style>
 </head>
+
 <body>
 
 <h1>🎮 PiGameHub</h1>
-<p>واجهة احترافية + Firebase + Web3 Ready</p>
+<p>Basic Interface + Firebase + Alert</p>
 
 <div class="cards" id="cards"></div>
 <div id="lastCard">آخر كارت ضغطت عليه: -</div>
@@ -60,7 +61,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getDatabase(app);
-console.log("🔥 Firebase Connected Successfully");
 
 // ================= Cards UI =================
 const cardsContainer = document.getElementById("cards");
