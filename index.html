@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub Web3 Dice</title>
+<title>PiGameHub Web3 Dice 2.1</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -22,13 +22,14 @@ header h1{color:#3fffe0;font-size:2.2rem;margin-bottom:6px;}
 .card.locked{opacity:.35;filter:grayscale(1);cursor:not-allowed;}
 .card.locked:hover{transform:none}
 #gameUI{display:none;padding:15px;}
-.hud{display:flex;justify-content:space-between;align-items:center;background:#031417;padding:12px 16px;border-radius:20px;}
+.hud{display:flex;justify-content:space-between;align-items:center;background:#031417;padding:12px 16px;border-radius:20px;box-shadow:0 0 20px #3fffe0;}
 .game-area{margin-top:25px;padding:30px;border-radius:25px;background:linear-gradient(145deg,#021012,#000);}
 .players{display:flex;justify-content:center;gap:12px;margin:15px 0;}
-.player{width:70px;height:70px;border-radius:50%;background:#052027;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:.7rem;}
-.player.active{box-shadow:0 0 15px #3fffe0;}
+.player{width:70px;height:70px;border-radius:50%;background:#052027;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:.8rem;transition:0.3s;}
+.player.active{box-shadow:0 0 15px #3fffe0;transform:scale(1.1);}
+.player.winner{box-shadow:0 0 25px gold;transform:scale(1.2);}
 .btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin:8px;}
-#diceBox{font-size:4rem;margin:20px;}
+#diceBox{font-size:5rem;margin:20px;transition:0.3s;}
 .roll{animation:shake .6s}
 @keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}75%{transform:rotate(10deg)}100%{transform:rotate(0)}}
 .toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#0b2f34;padding:12px 22px;border-radius:18px;color:#3fffe0;display:none;white-space:pre-wrap;}
@@ -37,7 +38,7 @@ header h1{color:#3fffe0;font-size:2.2rem;margin-bottom:6px;}
 <body>
 
 <header>
-<h1>🎮 PiGameHub Web3</h1>
+<h1>🎮 PiGameHub Web3 Dice 2.1</h1>
 <div class="login-box">
 <input type="text" id="userInput" placeholder="رقم موبايل / Pi / Gmail">
 <button onclick="login()">تسجيل الدخول</button>
@@ -126,11 +127,13 @@ box.innerHTML+=`<div class="player ${i===turn?'active':''}">${p.name}<b>${p.roll
 });
 }
 
-/* رمي النرد */
+/* رمي النرد مع صوت */
 function rollDice(){
 if(turn>=dicePlayers.length) return;
 let dice=document.getElementById("diceBox");
 dice.classList.add("roll");
+let audio=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+audio.play();
 setTimeout(()=>{
 dice.classList.remove("roll");
 let v=Math.floor(Math.random()*6)+1;
@@ -148,6 +151,10 @@ function endRound(){
 dicePlayers.forEach(p=>p.total+=p.roll);
 let winner=dicePlayers.reduce((a,b)=>a.total>b.total?a:b);
 points+=10; updatePoints();
+dicePlayers.forEach(p=>{
+let idx=dicePlayers.indexOf(p);
+if(p===winner) document.querySelectorAll(".player")[idx].classList.add("winner");
+});
 document.getElementById("diceResult").innerText=
 `🎉 الجولة ${currentRound} انتهت. الفائز الحالي: ${winner.name}`;
 if(currentRound<maxRounds){
