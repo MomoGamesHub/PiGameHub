@@ -88,6 +88,30 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
   transition:transform 0.6s ease;
 }
 
+/* DOMINO BOARD */
+#dominoBoard{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:20px;
+  gap:8px;
+}
+.dominoTile{
+  width:60px;
+  height:30px;
+  background:#3fffe0;
+  color:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+  border-radius:6px;
+  cursor:pointer;
+  user-select:none;
+  transition:transform 0.2s;
+}
+.dominoTile:hover{transform:scale(1.1);}
+
 /* TOAST */
 .toast{
   position:fixed;
@@ -101,34 +125,6 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
   display:none;
   white-space:pre-wrap;
 }
-
-/* GAME MODAL */
-.modal{
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.75);
-  display:none; justify-content:center; align-items:center;
-  z-index:10;
-}
-.box{
-  background:#031417; padding:22px;
-  border-radius:22px; width:90%;
-  max-width:350px;
-  box-shadow:0 0 30px rgba(63,255,224,.4);
-}
-
-/* PLAYERS */
-.players{display:flex; justify-content:center; gap:12px; margin:15px 0;}
-.player{
-  width:65px; height:65px;
-  border-radius:50%;
-  background:#052027;
-  display:flex; flex-direction:column;
-  justify-content:center; align-items:center;
-  font-size:.7rem;
-  box-shadow:0 0 10px rgba(63,255,224,.3);
-}
-.player i{font-size:1.4rem; color:#3fffe0;}
-.player b{font-size:0.8rem; margin-top:2px;}
 
 /* GAME UI */
 #gameUI{display:none; padding:15px;}
@@ -180,6 +176,7 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 <button class="btn" onclick="exitGame()">Exit</button>
 </div>
 
+<!-- Dice Area -->
 <div class="game-area" id="diceArea" style="display:none">
 <h3>🎲 Dice Game</h3>
 <div class="players" id="dicePlayers"></div>
@@ -188,25 +185,17 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 <h4 id="diceResult"></h4>
 </div>
 
+<!-- Domino Area -->
 <div class="game-area" id="dominoArea" style="display:none">
-<h3>🁢 Domino Game (Demo)</h3>
-<p>واجهة مصغرة للقطع، تطوير لاحق.</p>
+<h3>🁢 Domino Game</h3>
+<div id="dominoBoard"></div>
+<h4 id="dominoResult"></h4>
 </div>
 
-<div class="game-area" id="chessArea" style="display:none">
-<h3>♞ Chess Game (Demo)</h3>
-<p>واجهة مصغرة للشطرنج، تطوير لاحق.</p>
-</div>
-
-<div class="game-area" id="ludoArea" style="display:none">
-<h3>🎲 Ludo Game (Demo)</h3>
-<p>لوحة مصغرة للقطع، تطوير لاحق.</p>
-</div>
-
-<div class="game-area" id="unoArea" style="display:none">
-<h3>🂡 UNO Game (Demo)</h3>
-<p>بطاقات مصغرة، تطوير لاحق.</p>
-</div>
+<!-- Other placeholders -->
+<div class="game-area" id="chessArea" style="display:none"><h3>♞ Chess Game (Demo)</h3></div>
+<div class="game-area" id="ludoArea" style="display:none"><h3>🎲 Ludo Game (Demo)</h3></div>
+<div class="game-area" id="unoArea" style="display:none"><h3>🂡 UNO Game (Demo)</h3></div>
 
 <div class="toast" id="toast"></div>
 
@@ -217,7 +206,15 @@ let currentGame="";
 let dicePlayers=[];
 let turn=0;
 
-/* تسجيل الدخول */
+/* DOMINO STATE */
+let dominoTiles = [];
+let dominoPlayers = [
+  {name:"You", points:0},
+  {name:"AI 1", points:0}
+];
+let dominoTurn = 0;
+
+/* LOGIN */
 function login(){
   const user=document.getElementById("userInput").value.trim();
   if(!user){toast("❌ اكتب اسم أو محفظة"); return;}
@@ -227,29 +224,27 @@ function login(){
   toast(`✅ مرحبا بك ${user}`);
 }
 
-/* فتح لعبة */
+/* OPEN GAME */
 function openGame(game){
   if(!loggedIn){toast("❌ سجل الدخول أولاً"); return;}
   currentGame=game;
   toast(`🎮 تم اختيار اللعبة: ${game}`);
   
-  // إخفاء كل مناطق الألعاب
   document.getElementById("gameUI").style.display="block";
   ["diceArea","dominoArea","chessArea","ludoArea","unoArea"].forEach(id=>{
     document.getElementById(id).style.display="none";
   });
   
-  // عرض اللعبة المحددة
   switch(game){
     case "Dice": initDice(); break;
-    case "Domino": document.getElementById("dominoArea").style.display="block"; break;
+    case "Domino": initDomino(); break;
     case "Chess": document.getElementById("chessArea").style.display="block"; break;
     case "Ludo": document.getElementById("ludoArea").style.display="block"; break;
     case "UNO": document.getElementById("unoArea").style.display="block"; break;
   }
 }
 
-/* تهيئة النرد */
+/* Dice Functions */
 function initDice(){
   document.getElementById("diceArea").style.display="block";
   dicePlayers=[
@@ -261,8 +256,6 @@ function initDice(){
   turn=0;
   renderDicePlayers();
 }
-
-/* رسم اللاعبين */
 function renderDicePlayers(){
   const box=document.getElementById("dicePlayers");
   box.innerHTML="";
@@ -274,8 +267,6 @@ function renderDicePlayers(){
       </div>`;
   });
 }
-
-/* رمي النرد */
 function rollDice(){
   const dice=document.getElementById("diceBox");
   dice.style.transform="rotate(0deg)";
@@ -295,18 +286,61 @@ function rollDice(){
   },600);
 }
 
-/* الخروج */
+/* DOMINO FUNCTIONS */
+function initDomino(){
+  document.getElementById("dominoArea").style.display="block";
+  dominoTiles = [];
+  dominoPlayers.forEach(p=>p.points=0);
+  dominoTurn = 0;
+  // Generate simple domino tiles (double 0 to 6)
+  for(let i=0;i<=6;i++){
+    for(let j=i;j<=6;j++){
+      dominoTiles.push({id:`${i}-${j}`,value:[i,j]});
+    }
+  }
+  renderDominoBoard();
+  updateDominoResult();
+}
+
+function renderDominoBoard(){
+  const board=document.getElementById("dominoBoard");
+  board.innerHTML="";
+  dominoTiles.forEach(tile=>{
+    board.innerHTML+=`<div class="dominoTile" onclick="playDomino('${tile.id}')">${tile.value[0]}|${tile.value[1]}</div>`;
+  });
+}
+
+function playDomino(id){
+  const tileIndex = dominoTiles.findIndex(t=>t.id===id);
+  if(tileIndex===-1) return;
+  // Assign points to current player
+  dominoPlayers[dominoTurn].points += dominoTiles[tileIndex].value[0]+dominoTiles[tileIndex].value[1];
+  dominoTiles.splice(tileIndex,1);
+  dominoTurn = (dominoTurn+1)%dominoPlayers.length;
+  renderDominoBoard();
+  updateDominoResult();
+}
+
+function updateDominoResult(){
+  const res=document.getElementById("dominoResult");
+  res.innerText = dominoPlayers.map(p=>`${p.name}: ${p.points} pts`).join(" | ");
+}
+
+/* EXIT */
 function exitGame(){
   document.getElementById("gameUI").style.display="none";
   document.getElementById("games").style.display="grid";
+  ["diceArea","dominoArea","chessArea","ludoArea","unoArea"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
 }
 
-/* النقاط */
+/* POINTS */
 function updatePoints(){
   document.getElementById("points").innerText=points;
 }
 
-/* Toast */
+/* TOAST */
 function toast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
