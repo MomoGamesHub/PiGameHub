@@ -129,6 +129,17 @@ padding:12px 22px;
 border-radius:18px;
 color:#3fffe0;
 display:none;
+ /* Dice Animation */
+.roll{
+animation:shake .6s;
+}
+
+@keyframes shake{
+0%{transform:rotate(0deg)}
+25%{transform:rotate(20deg)}
+50%{transform:rotate(-20deg)}
+75%{transform:rotate(10deg)}
+100%{transform:rotate(0deg)}
 }
 </style>
 </head>
