@@ -2,43 +2,104 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGameHub Web3 Dice 2.1</title>
+<title>PiGamesHub Web3 Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma}
-body{min-height:100vh;background:radial-gradient(circle at top,#0f2a30,#000);color:#eafff9;text-align:center;}
-header{padding:18px;}
-header h1{color:#3fffe0;font-size:2.2rem;margin-bottom:6px;}
-.login-box{margin-top:12px;}
-.login-box input, .login-box button{padding:10px 14px;border:none;border-radius:22px;margin:5px;}
-.login-box button{background:#0b2f34;color:#3fffe0;cursor:pointer;}
-#games{display:none;margin-top:30px;}
-.grid{display:grid;grid-template-columns:repeat(3,130px);gap:20px;justify-content:center;}
-.card{height:130px;border-radius:26px;background:linear-gradient(145deg,#061b20,#000);display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;transition:.3s;}
-.card i{font-size:3rem;color:#3fffe0}
-.card:hover{transform:scale(1.08)}
-.card.locked{opacity:.35;filter:grayscale(1);cursor:not-allowed;}
-.card.locked:hover{transform:none}
-#gameUI{display:none;padding:15px;}
-.hud{display:flex;justify-content:space-between;align-items:center;background:#031417;padding:12px 16px;border-radius:20px;box-shadow:0 0 20px #3fffe0;}
-.game-area{margin-top:25px;padding:30px;border-radius:25px;background:linear-gradient(145deg,#021012,#000);}
-.players{display:flex;justify-content:center;gap:12px;margin:15px 0;}
-.player{width:70px;height:70px;border-radius:50%;background:#052027;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:.8rem;transition:0.3s;}
-.player.active{box-shadow:0 0 15px #3fffe0;transform:scale(1.1);}
-.player.winner{box-shadow:0 0 25px gold;transform:scale(1.2);}
-.btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin:8px;}
-#diceBox{font-size:5rem;margin:20px;transition:0.3s;}
-.roll{animation:shake .6s}
-@keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(20deg)}50%{transform:rotate(-20deg)}75%{transform:rotate(10deg)}100%{transform:rotate(0)}}
-.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#0b2f34;padding:12px 22px;border-radius:18px;color:#3fffe0;display:none;white-space:pre-wrap;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma;}
+body{
+  min-height:100vh;
+  background:radial-gradient(circle at top,#0f2a30,#000);
+  color:#eafff9;
+  text-align:center;
+}
+
+/* HEADER */
+header{padding:20px;}
+header h1{color:#3fffe0;font-size:2.5rem;}
+header p{color:#b0fff5; font-size:1rem; margin-top:6px; opacity:0.8;}
+
+/* LOGIN BOX */
+.login-box{margin:20px auto;}
+.login-box input, .login-box button{
+  padding:10px 14px;
+  border:none;
+  border-radius:22px;
+  margin:5px;
+  font-size:1rem;
+}
+.login-box input{width:180px;}
+.login-box button{
+  background:#0b2f34;
+  color:#3fffe0;
+  cursor:pointer;
+  box-shadow:0 0 15px rgba(63,255,224,0.3);
+}
+
+/* GAMES GRID */
+#games{
+  display:none;
+  margin-top:30px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:20px;
+  justify-items:center;
+}
+.card{
+  width:120px;
+  height:120px;
+  border-radius:25px;
+  background:linear-gradient(145deg,#061b20,#000);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  transition:0.3s;
+}
+.card i{
+  font-size:3rem;
+  margin-bottom:8px;
+  animation:float 2s infinite alternate;
+  color:#3fffe0;
+}
+.card span{font-size:0.9rem; color:#b0fff5;}
+.card:hover{transform:scale(1.1); box-shadow:0 0 20px #3fffe0;}
+.locked{opacity:0.4; filter:grayscale(1); cursor:not-allowed;}
+.locked:hover{transform:none; box-shadow:none;}
+
+/* FLOAT ANIMATION */
+@keyframes float{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-8px);}
+  100%{transform:translateY(0);}
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:25px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#0b2f34;
+  padding:12px 22px;
+  border-radius:18px;
+  color:#3fffe0;
+  display:none;
+  white-space:pre-wrap;
+}
 </style>
 </head>
+
 <body>
 
 <header>
-<h1>🎮 PiGameHub Web3 Dice 2.1</h1>
+<h1>🎮 PiGamesHub</h1>
+<p>مرحبا بك في منصة الألعاب Web3 • Free Play & Mystery Points</p>
+
 <div class="login-box">
 <input type="text" id="userInput" placeholder="رقم موبايل / Pi / Gmail">
 <button onclick="login()">تسجيل الدخول</button>
@@ -47,143 +108,45 @@ header h1{color:#3fffe0;font-size:2.2rem;margin-bottom:6px;}
 
 <section id="games">
 <div class="grid">
-  <div class="card" onclick="openLobby('Dice')"><i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
-  <div class="card locked" onclick="toast('🚧 Domino قريبًا')"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
-  <div class="card locked" onclick="toast('🚧 Cards قريبًا')"><i class="fa-solid fa-cards-playing"></i><span>Cards</span></div>
-  <div class="card locked" onclick="toast('🚧 Chess قريبًا')"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
-  <div class="card locked" onclick="toast('🚧 Ludo قريبًا')"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
-  <div class="card locked" onclick="toast('🚧 UNO قريبًا')"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
+  <div class="card" onclick="openGame('Dice')"><i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
+  <div class="card" onclick="openGame('Domino')"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
+  <div class="card" onclick="openGame('Chess')"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
+  <div class="card" onclick="openGame('Ludo')"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
+  <div class="card" onclick="openGame('UNO')"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
+  <div class="card locked" onclick="toast('🚧 Coming Soon!')"><i class="fa-solid fa-star"></i><span>More</span></div>
 </div>
 </section>
-
-<div id="gameUI">
-<div class="hud">
-<span id="hudGame"></span>
-<span>⭐ <b id="points">0</b></span>
-<button class="btn" onclick="exitGame()">Exit</button>
-</div>
-
-<div class="game-area">
-<h3>🎲 Dice Game</h3>
-<div class="players" id="dicePlayers"></div>
-<div id="diceBox">🎲</div>
-<button class="btn" onclick="rollDice()">Roll Dice</button>
-<button class="btn" onclick="resetRound()">🔁 New Round</button>
-<h4 id="diceResult"></h4>
-</div>
-</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 let loggedIn=false;
-let points=0;
-let dicePlayers=[];
-let turn=0;
-let currentRound=1;
-const maxRounds=3;
-let currentGame="";
 
 /* تسجيل الدخول */
 function login(){
-let user=document.getElementById("userInput").value.trim();
-if(!user){toast("❌ اكتب اسم أو محفظة"); return;}
-loggedIn=true;
-document.querySelector(".login-box").style.display="none";
-document.getElementById("games").style.display="block";
-toast(`✅ تم تسجيل الدخول: ${user}`);
-updatePoints();
+  const user=document.getElementById("userInput").value.trim();
+  if(!user){toast("❌ اكتب اسم أو محفظة"); return;}
+  loggedIn=true;
+  document.querySelector(".login-box").style.display="none";
+  document.getElementById("games").style.display="grid";
+  toast(`✅ مرحبا بك ${user}`);
 }
 
 /* فتح لعبة */
-function openLobby(game){
-currentGame=game;
-document.getElementById("games").style.display="none";
-document.getElementById("gameUI").style.display="block";
-document.getElementById("hudGame").innerText=game;
-if(game==='Dice') initDice();
+function openGame(game){
+  if(!loggedIn){toast("❌ سجل الدخول أولاً"); return;}
+  toast(`🎮 تم اختيار اللعبة: ${game}`);
+  // هنا لاحقاً نضيف كود فتح اللعبة نفسها
 }
-
-/* تهيئة النرد */
-function initDice(){
-dicePlayers=[
-{name:"You",roll:0,total:0},
-{name:"AI 1",roll:0,total:0},
-{name:"AI 2",roll:0,total:0},
-{name:"AI 3",roll:0,total:0}
-];
-turn=0; currentRound=1;
-document.getElementById("diceResult").innerText="";
-document.getElementById("diceBox").innerText="🎲";
-renderDicePlayers();
-}
-
-/* رسم اللاعبين */
-function renderDicePlayers(){
-let box=document.getElementById("dicePlayers");
-box.innerHTML="";
-dicePlayers.forEach((p,i)=>{
-box.innerHTML+=`<div class="player ${i===turn?'active':''}">${p.name}<b>${p.roll||"-"}</b></div>`;
-});
-}
-
-/* رمي النرد مع صوت */
-function rollDice(){
-if(turn>=dicePlayers.length) return;
-let dice=document.getElementById("diceBox");
-dice.classList.add("roll");
-let audio=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-audio.play();
-setTimeout(()=>{
-dice.classList.remove("roll");
-let v=Math.floor(Math.random()*6)+1;
-dice.innerText=v;
-dicePlayers[turn].roll=v;
-turn++;
-renderDicePlayers();
-if(turn<dicePlayers.length){setTimeout(rollDice,800);}
-else{endRound();}
-},600);
-}
-
-/* نهاية الجولة */
-function endRound(){
-dicePlayers.forEach(p=>p.total+=p.roll);
-let winner=dicePlayers.reduce((a,b)=>a.total>b.total?a:b);
-points+=10; updatePoints();
-dicePlayers.forEach(p=>{
-let idx=dicePlayers.indexOf(p);
-if(p===winner) document.querySelectorAll(".player")[idx].classList.add("winner");
-});
-document.getElementById("diceResult").innerText=
-`🎉 الجولة ${currentRound} انتهت. الفائز الحالي: ${winner.name}`;
-if(currentRound<maxRounds){
-currentRound++; turn=0; dicePlayers.forEach(p=>p.roll=0);
-setTimeout(()=>{document.getElementById("diceBox").innerText="🎲"; renderDicePlayers(); toast(`🎮 الجولة ${currentRound} بدأت`);},1200);
-}else{
-document.getElementById("diceResult").innerText+=`\n🏆 اللعبة انتهت! الفائز النهائي: ${winner.name} (+${points} نقاط)`;
-}
-}
-
-/* إعادة اللعبة */
-function resetRound(){initDice();}
-
-/* الخروج */
-function exitGame(){
-document.getElementById("gameUI").style.display="none";
-document.getElementById("games").style.display="block";
-}
-
-/* تحديث النقاط */
-function updatePoints(){document.getElementById("points").innerText=points;}
 
 /* Toast */
 function toast(msg){
-let t=document.getElementById("toast");
-t.innerText=msg;
-t.style.display="block";
-setTimeout(()=>t.style.display="none",2000);
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
 }
 </script>
+
 </body>
 </html>
