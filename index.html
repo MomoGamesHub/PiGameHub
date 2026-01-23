@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGamesHub Animated Platform</title>
+<title>PiGamesHub Interactive Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -35,7 +35,9 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
   color:#3fffe0;
   cursor:pointer;
   box-shadow:0 0 15px rgba(63,255,224,0.3);
+  transition:0.3s;
 }
+.login-box button:hover{transform:scale(1.05);}
 
 /* GAMES GRID */
 #games{
@@ -78,16 +80,7 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
   100%{transform:translateY(0);}
 }
 
-/* DICE ANIMATION */
-@keyframes rollDice{
-  0%{transform:rotate(0deg);}
-  25%{transform:rotate(30deg);}
-  50%{transform:rotate(-30deg);}
-  75%{transform:rotate(20deg);}
-  100%{transform:rotate(0deg);}
-}
-
-/* DICE BOX */
+/* DICE BOX ANIMATION */
 #diceBox{
   font-size:4rem;
   margin:15px auto;
@@ -155,6 +148,7 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 .btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin-top:10px;}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -186,7 +180,6 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 <button class="btn" onclick="exitGame()">Exit</button>
 </div>
 
-<!-- Dice -->
 <div class="game-area" id="diceArea" style="display:none">
 <h3>🎲 Dice Game</h3>
 <div class="players" id="dicePlayers"></div>
@@ -195,25 +188,26 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 <h4 id="diceResult"></h4>
 </div>
 
-<!-- Domino placeholder -->
 <div class="game-area" id="dominoArea" style="display:none">
-<h3>🁢 Domino Game</h3>
-<p>Coming soon...</p>
+<h3>🁢 Domino Game (Demo)</h3>
+<p>واجهة مصغرة للقطع، تطوير لاحق.</p>
 </div>
 
-<!-- Chess -->
 <div class="game-area" id="chessArea" style="display:none">
-<h3>♞ Chess Game</h3>
-<div id="chessBoard" style="display:grid; grid-template-columns:repeat(8,50px); gap:0;"></div>
+<h3>♞ Chess Game (Demo)</h3>
+<p>واجهة مصغرة للشطرنج، تطوير لاحق.</p>
 </div>
 
-<!-- Ludo -->
 <div class="game-area" id="ludoArea" style="display:none">
-<h3>🎲 Ludo Game</h3>
-<div id="ludoBoard" style="position:relative; width:320px; height:320px; margin:0 auto; background:#ccc; border-radius:15px;"></div>
+<h3>🎲 Ludo Game (Demo)</h3>
+<p>لوحة مصغرة للقطع، تطوير لاحق.</p>
 </div>
 
+<div class="game-area" id="unoArea" style="display:none">
+<h3>🂡 UNO Game (Demo)</h3>
+<p>بطاقات مصغرة، تطوير لاحق.</p>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -238,21 +232,24 @@ function openGame(game){
   if(!loggedIn){toast("❌ سجل الدخول أولاً"); return;}
   currentGame=game;
   toast(`🎮 تم اختيار اللعبة: ${game}`);
-  // اخفاء جميع المناطق
-  document.getElementById("diceArea").style.display="none";
-  document.getElementById("dominoArea").style.display="none";
-  document.getElementById("chessArea").style.display="none";
-  document.getElementById("ludoArea").style.display="none";
-
+  
+  // إخفاء كل مناطق الألعاب
   document.getElementById("gameUI").style.display="block";
-  document.getElementById("hudGame").innerText=game;
-
-  if(game==="Dice"){initDice();}
-  if(game==="Chess"){initChess();}
-  if(game==="Ludo"){initLudo();}
+  ["diceArea","dominoArea","chessArea","ludoArea","unoArea"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+  
+  // عرض اللعبة المحددة
+  switch(game){
+    case "Dice": initDice(); break;
+    case "Domino": document.getElementById("dominoArea").style.display="block"; break;
+    case "Chess": document.getElementById("chessArea").style.display="block"; break;
+    case "Ludo": document.getElementById("ludoArea").style.display="block"; break;
+    case "UNO": document.getElementById("unoArea").style.display="block"; break;
+  }
 }
 
-/* Dice */
+/* تهيئة النرد */
 function initDice(){
   document.getElementById("diceArea").style.display="block";
   dicePlayers=[
@@ -264,6 +261,8 @@ function initDice(){
   turn=0;
   renderDicePlayers();
 }
+
+/* رسم اللاعبين */
 function renderDicePlayers(){
   const box=document.getElementById("dicePlayers");
   box.innerHTML="";
@@ -275,8 +274,12 @@ function renderDicePlayers(){
       </div>`;
   });
 }
+
+/* رمي النرد */
 function rollDice(){
   const dice=document.getElementById("diceBox");
+  dice.style.transform="rotate(0deg)";
+  dice.style.transition="transform 0.6s";
   dice.style.transform="rotate(720deg)";
   setTimeout(()=>{
     const value=Math.floor(Math.random()*6)+1;
@@ -286,62 +289,22 @@ function rollDice(){
     renderDicePlayers();
     if(turn>=dicePlayers.length){
       document.getElementById("diceResult").innerText="🎉 الجولة انتهت";
-      points+=20; updatePoints();
+      points+=20;
+      updatePoints();
     }
   },600);
-}
-
-/* Chess */
-function initChess(){
-  const board=document.getElementById("chessBoard");
-  board.innerHTML="";
-  const blackSquares=[1,3,5,7,8,10,12,14,17,19,21,23,24,26,28,30,33,35,37,39,40,42,44,46,49,51,53,55,56,58,60,62];
-  for(let i=0;i<64;i++){
-    const sq=document.createElement("div");
-    sq.style.width="50px"; sq.style.height="50px";
-    sq.style.background=(blackSquares.includes(i+1))?"#769656":"#eeeed2";
-    sq.style.display="flex"; sq.style.alignItems="center"; sq.style.justifyContent="center";
-    sq.style.fontSize="1.5rem";
-    board.appendChild(sq);
-  }
-  const pieces=["♜","♞","♝","♛","♚","♝","♞","♜"];
-  for(let i=0;i<8;i++){
-    board.children[i].innerText=pieces[i];           
-    board.children[i+56].innerText=pieces[i].toLowerCase();
-  }
-}
-
-/* Ludo */
-function initLudo(){
-  const board=document.getElementById("ludoBoard");
-  board.innerHTML="";
-  const colors=["red","green","yellow","blue"];
-  colors.forEach((c,index)=>{
-    for(let i=0;i<4;i++){
-      const piece=document.createElement("div");
-      piece.style.width="30px"; piece.style.height="30px";
-      piece.style.background=c;
-      piece.style.borderRadius="50%";
-      piece.style.position="absolute";
-      piece.style.top=(index*70)+"px";
-      piece.style.left=(i*40)+"px";
-      board.appendChild(piece);
-    }
-  });
 }
 
 /* الخروج */
 function exitGame(){
   document.getElementById("gameUI").style.display="none";
   document.getElementById("games").style.display="grid";
-  document.getElementById("diceArea").style.display="none";
-  document.getElementById("chessArea").style.display="none";
-  document.getElementById("ludoArea").style.display="none";
-  document.getElementById("dominoArea").style.display="none";
 }
 
 /* النقاط */
-function updatePoints(){document.getElementById("points").innerText=points;}
+function updatePoints(){
+  document.getElementById("points").innerText=points;
+}
 
 /* Toast */
 function toast(msg){
