@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGamesHub Advanced UX</title>
+<title>PiGamesHub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -13,13 +13,12 @@ body{
   background:radial-gradient(circle at top,#0f2a30,#000);
   color:#eafff9;
   text-align:center;
-  overflow-x:hidden;
 }
 
 /* HEADER */
 header{padding:20px;}
 header h1{color:#3fffe0;font-size:2.5rem;}
-header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
+header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.8;}
 
 /* LOGIN BOX */
 .login-box{margin:20px auto;}
@@ -36,9 +35,7 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
   color:#3fffe0;
   cursor:pointer;
   box-shadow:0 0 15px rgba(63,255,224,0.3);
-  transition:0.3s;
 }
-.login-box button:hover{transform:scale(1.05);}
 
 /* GAMES GRID */
 #games{
@@ -52,8 +49,8 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
   justify-items:center;
 }
 .card{
-  width:130px;
-  height:130px;
+  width:120px;
+  height:120px;
   border-radius:25px;
   background:linear-gradient(145deg,#061b20,#000);
   display:flex;
@@ -62,7 +59,6 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
   align-items:center;
   cursor:pointer;
   transition:0.3s;
-  box-shadow:0 0 15px rgba(63,255,224,.2);
 }
 .card i{
   font-size:3rem;
@@ -71,65 +67,18 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
   color:#3fffe0;
 }
 .card span{font-size:0.9rem; color:#b0fff5;}
-.card:hover{transform:scale(1.12); box-shadow:0 0 25px #3fffe0;}
+.card:hover{transform:scale(1.1); box-shadow:0 0 20px #3fffe0;}
 .locked{opacity:0.4; filter:grayscale(1); cursor:not-allowed;}
+.locked:hover{transform:none; box-shadow:none;}
 
 /* FLOAT ANIMATION */
 @keyframes float{
   0%{transform:translateY(0);}
-  50%{transform:translateY(-10px);}
+  50%{transform:translateY(-8px);}
   100%{transform:translateY(0);}
 }
 
-/* GAME MODAL */
-.modal{
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.75);
-  display:none; justify-content:center; align-items:center;
-  z-index:10;
-  backdrop-filter:blur(3px);
-}
-.box{
-  background:#031417; padding:22px;
-  border-radius:22px; width:90%;
-  max-width:350px;
-  box-shadow:0 0 30px rgba(63,255,224,.4);
-  animation:fadeIn 0.4s ease;
-}
-@keyframes fadeIn{0%{opacity:0;transform:scale(0.9);}100%{opacity:1;transform:scale(1);}}
-
-.players{display:flex; justify-content:center; gap:12px; margin:15px 0;}
-.player{
-  width:65px; height:65px;
-  border-radius:50%;
-  background:#052027;
-  display:flex; flex-direction:column;
-  justify-content:center; align-items:center;
-  font-size:.7rem;
-  box-shadow:0 0 10px rgba(63,255,224,.3);
-}
-.player i{font-size:1.4rem; color:#3fffe0;}
-.player b{font-size:0.8rem; margin-top:2px;}
-
-/* GAME UI */
-#gameUI{display:none; padding:15px;}
-.hud{
-  display:flex; justify-content:space-between; align-items:center;
-  background:#031417;
-  padding:12px 16px;
-  border-radius:20px;
-  box-shadow:0 0 20px rgba(63,255,224,.4);
-}
-.game-area{
-  margin-top:20px;
-  padding:20px;
-  border-radius:20px;
-  background:linear-gradient(145deg,#021012,#000);
-}
-.btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin-top:10px;transition:0.3s;}
-.btn:hover{transform:scale(1.05);}
-
-/* DICE ANIMATION */
+/* DICE BOX */
 #diceBox{
   font-size:4rem;
   margin:15px auto;
@@ -149,8 +98,38 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
   color:#3fffe0;
   display:none;
   white-space:pre-wrap;
-  z-index:99;
 }
+
+/* GAME UI */
+#gameUI{display:none; padding:15px;}
+.hud{
+  display:flex; justify-content:space-between; align-items:center;
+  background:#031417;
+  padding:12px 16px;
+  border-radius:20px;
+  box-shadow:0 0 20px rgba(63,255,224,.4);
+}
+.game-area{
+  margin-top:20px;
+  padding:20px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#021012,#000);
+}
+.btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin-top:10px;}
+
+/* PLAYERS */
+.players{display:flex; justify-content:center; gap:12px; margin:15px 0;}
+.player{
+  width:65px; height:65px;
+  border-radius:50%;
+  background:#052027;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  font-size:.7rem;
+  box-shadow:0 0 10px rgba(63,255,224,.3);
+}
+.player i{font-size:1.4rem; color:#3fffe0;}
+.player b{font-size:0.8rem; margin-top:2px;}
 </style>
 </head>
 
@@ -177,7 +156,6 @@ header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
 </div>
 </section>
 
-<!-- GAME UI -->
 <div id="gameUI">
 <div class="hud">
 <span id="hudGame"></span>
@@ -213,22 +191,18 @@ function login(){
   toast(`✅ مرحبا بك ${user}`);
 }
 
-/* فتح اللعبة */
+/* فتح لعبة */
 function openGame(game){
   if(!loggedIn){toast("❌ سجل الدخول أولاً"); return;}
   currentGame=game;
   toast(`🎮 تم اختيار اللعبة: ${game}`);
 
-  document.getElementById("gameUI").style.display="block";
   if(game==="Dice"){initDice();}
-  else{
-    document.getElementById("diceArea").style.display="none";
-    // يمكن اضافة واجهة Domino, Chess, Ludo لاحقا
-  }
 }
 
 /* تهيئة النرد */
 function initDice(){
+  document.getElementById("gameUI").style.display="block";
   document.getElementById("diceArea").style.display="block";
   dicePlayers=[
     {name:"You",icon:"fa-user",roll:0},
@@ -292,9 +266,6 @@ function toast(msg){
   t.style.display="block";
   setTimeout(()=>t.style.display="none",2000);
 }
-
-/* بدء الصفحة */
-updatePoints();
 </script>
 
 </body>
