@@ -2,315 +2,299 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGamesHub • Web3 Gaming Platform</title>
+<title>PiGamesHub Advanced UX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma;}
 body{
   min-height:100vh;
-  background:radial-gradient(circle at top,#0f3b42,#000);
+  background:radial-gradient(circle at top,#0f2a30,#000);
   color:#eafff9;
   text-align:center;
   overflow-x:hidden;
 }
-.hidden{display:none}
 
-/* ================= FREEZE EFFECT ================= */
-.platform-freeze{
-  filter:blur(6px) brightness(.5);
-  pointer-events:none;
-  user-select:none;
-  transition:.4s;
-}
-#overlay-lock{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(2px);
-  z-index:5;
-  display:none;
-}
+/* HEADER */
+header{padding:20px;}
+header h1{color:#3fffe0;font-size:2.5rem;}
+header p{color:#b0fff5;font-size:1rem;margin-top:6px;opacity:0.85;}
 
-/* ================= HEADER ================= */
-header{padding:25px 15px}
-header h1{font-size:2.6rem;color:#3fffe0}
-header p{margin-top:6px;color:#b0fff5;opacity:.85}
-
-/* ================= LOGIN ================= */
-.login-box{margin-top:18px}
-.login-box input{
-  padding:12px 16px;
-  width:200px;
-  border-radius:25px;
+/* LOGIN BOX */
+.login-box{margin:20px auto;}
+.login-box input, .login-box button{
+  padding:10px 14px;
   border:none;
+  border-radius:22px;
+  margin:5px;
+  font-size:1rem;
 }
+.login-box input{width:180px;}
 .login-box button{
-  padding:12px 20px;
-  border:none;
-  border-radius:25px;
-  background:#062f33;
+  background:#0b2f34;
   color:#3fffe0;
   cursor:pointer;
-  box-shadow:0 0 18px rgba(63,255,224,.35);
-  margin-left:6px;
+  box-shadow:0 0 15px rgba(63,255,224,0.3);
+  transition:0.3s;
 }
+.login-box button:hover{transform:scale(1.05);}
 
-/* ================= PLATFORM ================= */
-#platform{padding:20px;transition:.4s}
-
-/* ================= GRID ================= */
-.games-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-  gap:22px;
+/* GAMES GRID */
+#games{
+  display:none;
   margin-top:30px;
 }
-.game-card{
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:20px;
+  justify-items:center;
+}
+.card{
+  width:130px;
   height:130px;
-  border-radius:26px;
-  background:linear-gradient(145deg,#041b20,#000);
+  border-radius:25px;
+  background:linear-gradient(145deg,#061b20,#000);
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   cursor:pointer;
-  transition:.3s;
+  transition:0.3s;
+  box-shadow:0 0 15px rgba(63,255,224,.2);
 }
-.game-card i{
-  font-size:3.1rem;
+.card i{
+  font-size:3rem;
+  margin-bottom:8px;
+  animation:float 2s infinite alternate;
   color:#3fffe0;
-  animation:float 2.2s infinite;
 }
-.game-card span{margin-top:8px;color:#b0fff5}
-.game-card:hover{
-  transform:scale(1.12);
-  box-shadow:0 0 25px #3fffe0;
-}
+.card span{font-size:0.9rem; color:#b0fff5;}
+.card:hover{transform:scale(1.12); box-shadow:0 0 25px #3fffe0;}
+.locked{opacity:0.4; filter:grayscale(1); cursor:not-allowed;}
+
+/* FLOAT ANIMATION */
 @keyframes float{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-10px)}
-  100%{transform:translateY(0)}
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-10px);}
+  100%{transform:translateY(0);}
 }
 
-/* ================= GAME UI ================= */
-#gameUI{
-  position:fixed;
-  inset:0;
+/* GAME MODAL */
+.modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.75);
+  display:none; justify-content:center; align-items:center;
   z-index:10;
-  padding:20px;
+  backdrop-filter:blur(3px);
 }
-.hud{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 18px;
-  background:#031417;
-  border-radius:22px;
-  box-shadow:0 0 20px rgba(63,255,224,.35);
+.box{
+  background:#031417; padding:22px;
+  border-radius:22px; width:90%;
+  max-width:350px;
+  box-shadow:0 0 30px rgba(63,255,224,.4);
+  animation:fadeIn 0.4s ease;
 }
-.hud b{color:#3fffe0}
+@keyframes fadeIn{0%{opacity:0;transform:scale(0.9);}100%{opacity:1;transform:scale(1);}}
 
-.game-container{
+.players{display:flex; justify-content:center; gap:12px; margin:15px 0;}
+.player{
+  width:65px; height:65px;
+  border-radius:50%;
+  background:#052027;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  font-size:.7rem;
+  box-shadow:0 0 10px rgba(63,255,224,.3);
+}
+.player i{font-size:1.4rem; color:#3fffe0;}
+.player b{font-size:0.8rem; margin-top:2px;}
+
+/* GAME UI */
+#gameUI{display:none; padding:15px;}
+.hud{
+  display:flex; justify-content:space-between; align-items:center;
+  background:#031417;
+  padding:12px 16px;
+  border-radius:20px;
+  box-shadow:0 0 20px rgba(63,255,224,.4);
+}
+.game-area{
   margin-top:20px;
   padding:20px;
-  border-radius:24px;
-  background:linear-gradient(145deg,#021113,#000);
+  border-radius:20px;
+  background:linear-gradient(145deg,#021012,#000);
+}
+.btn{padding:10px 18px;border:none;border-radius:18px;background:#3fffe0;color:#000;font-weight:bold;cursor:pointer;margin-top:10px;transition:0.3s;}
+.btn:hover{transform:scale(1.05);}
+
+/* DICE ANIMATION */
+#diceBox{
+  font-size:4rem;
+  margin:15px auto;
+  display:inline-block;
+  transition:transform 0.6s ease;
 }
 
-/* ================= DICE ================= */
-#diceBox{font-size:4.5rem;margin:18px 0;transition:.6s}
-.players{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-}
-.player{
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  background:#05252b;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  font-size:.7rem;
-}
-.player i{color:#3fffe0}
-
-.btn{
-  margin-top:15px;
-  padding:12px 22px;
-  border:none;
-  border-radius:22px;
-  background:#3fffe0;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-/* ================= TOAST ================= */
+/* TOAST */
 .toast{
   position:fixed;
   bottom:25px;
   left:50%;
   transform:translateX(-50%);
-  background:#062f33;
+  background:#0b2f34;
   padding:12px 22px;
-  border-radius:20px;
+  border-radius:18px;
   color:#3fffe0;
   display:none;
-  z-index:20;
+  white-space:pre-wrap;
+  z-index:99;
 }
 </style>
 </head>
 
 <body>
 
-<div id="overlay-lock"></div>
-
 <header>
-  <h1>🎮 PiGamesHub</h1>
-  <p>Web3 Gaming Platform • Play • Earn • Build</p>
+<h1>🎮 PiGamesHub</h1>
+<p>مرحبا بك في منصة الألعاب Web3 • Free Play & Mystery Points</p>
 
-  <div class="login-box" id="loginBox">
-    <input id="userInput" placeholder="Pi / Gmail / Phone">
-    <button onclick="login()">تسجيل الدخول</button>
-  </div>
+<div class="login-box">
+<input type="text" id="userInput" placeholder="رقم موبايل / Pi / Gmail">
+<button onclick="login()">تسجيل الدخول</button>
+</div>
 </header>
 
-<section id="platform" class="hidden">
-  <div class="games-grid" id="gamesGrid"></div>
+<section id="games">
+<div class="grid">
+  <div class="card" onclick="openGame('Dice')"><i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
+  <div class="card" onclick="openGame('Domino')"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
+  <div class="card" onclick="openGame('Chess')"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
+  <div class="card" onclick="openGame('Ludo')"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
+  <div class="card" onclick="openGame('UNO')"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
+  <div class="card locked" onclick="toast('🚧 Coming Soon!')"><i class="fa-solid fa-star"></i><span>More</span></div>
+</div>
 </section>
 
-<section id="gameUI" class="hidden">
-  <div class="hud">
-    <span id="currentGameName"></span>
-    <span>⭐ <b id="points">0</b></span>
-    <button class="btn" onclick="exitGame()">Exit</button>
-  </div>
+<!-- GAME UI -->
+<div id="gameUI">
+<div class="hud">
+<span id="hudGame"></span>
+<span>⭐ <b id="points">0</b></span>
+<button class="btn" onclick="exitGame()">Exit</button>
+</div>
 
-  <div class="game-container">
-    <div id="diceGame" class="hidden">
-      <h3>🎲 Dice Game</h3>
-      <div class="players" id="dicePlayers"></div>
-      <div id="diceBox">🎲</div>
-      <button class="btn" onclick="rollDice()">Roll Dice</button>
-      <h4 id="diceResult"></h4>
-    </div>
-
-    <div id="placeholderGame" class="hidden">
-      <h3>🚧 Game Under Development</h3>
-      <p>المحرّك جاهز – التطوير جاري</p>
-    </div>
-  </div>
-</section>
+<div class="game-area" id="diceArea" style="display:none">
+<h3>🎲 Dice Game</h3>
+<div class="players" id="dicePlayers"></div>
+<div id="diceBox">🎲</div>
+<button class="btn" onclick="rollDice()">Roll Dice</button>
+<h4 id="diceResult"></h4>
+</div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let loggedIn=false,points=0,currentGame=null;
-const GAMES={
-  Dice:{icon:"fa-dice-five",play:openDice},
-  Domino:{icon:"fa-dice",play:()=>openPlaceholder("Domino")},
-  Chess:{icon:"fa-chess-knight",play:()=>openPlaceholder("Chess")},
-  Ludo:{icon:"fa-gamepad",play:()=>openPlaceholder("Ludo")},
-  UNO:{icon:"fa-layer-group",play:()=>openPlaceholder("UNO")}
-};
+let loggedIn=false;
+let points=0;
+let currentGame="";
+let dicePlayers=[];
+let turn=0;
 
+/* تسجيل الدخول */
 function login(){
-  if(!userInput.value.trim()){toast("❌ أدخل اسم");return}
-  loginBox.style.display="none";
-  platform.classList.remove("hidden");
-  renderGames();
-  toast("✅ تم تسجيل الدخول");
+  const user=document.getElementById("userInput").value.trim();
+  if(!user){toast("❌ اكتب اسم أو محفظة"); return;}
+  loggedIn=true;
+  document.querySelector(".login-box").style.display="none";
+  document.getElementById("games").style.display="grid";
+  toast(`✅ مرحبا بك ${user}`);
 }
 
-function renderGames(){
-  gamesGrid.innerHTML="";
-  Object.keys(GAMES).forEach(g=>{
-    gamesGrid.innerHTML+=`
-    <div class="game-card" onclick="openGame('${g}')">
-      <i class="fa-solid ${GAMES[g].icon}"></i>
-      <span>${g}</span>
-    </div>`;
-  });
+/* فتح اللعبة */
+function openGame(game){
+  if(!loggedIn){toast("❌ سجل الدخول أولاً"); return;}
+  currentGame=game;
+  toast(`🎮 تم اختيار اللعبة: ${game}`);
+
+  document.getElementById("gameUI").style.display="block";
+  if(game==="Dice"){initDice();}
+  else{
+    document.getElementById("diceArea").style.display="none";
+    // يمكن اضافة واجهة Domino, Chess, Ludo لاحقا
+  }
 }
 
-function openGame(name){
-  currentGame=name;
-  freezePlatform(true);
-  gameUI.classList.remove("hidden");
-  currentGameName.innerText="🎮 "+name;
-  GAMES[name].play();
-}
-
-function freezePlatform(state){
-  platform.classList.toggle("platform-freeze",state);
-  overlay-lock.style.display=state?"block":"none";
-}
-
-function openPlaceholder(){
-  hideAllGames();
-  placeholderGame.classList.remove("hidden");
-}
-
-/* ===== Dice ===== */
-let dicePlayers=[],turn=0;
-function openDice(){
-  hideAllGames();
-  diceGame.classList.remove("hidden");
+/* تهيئة النرد */
+function initDice(){
+  document.getElementById("diceArea").style.display="block";
   dicePlayers=[
-    {name:"You",icon:"fa-user",roll:"-"},
-    {name:"AI 1",icon:"fa-robot",roll:"-"},
-    {name:"AI 2",icon:"fa-robot",roll:"-"}
+    {name:"You",icon:"fa-user",roll:0},
+    {name:"AI 1",icon:"fa-robot",roll:0},
+    {name:"AI 2",icon:"fa-robot",roll:0},
+    {name:"AI 3",icon:"fa-robot",roll:0}
   ];
   turn=0;
   renderDicePlayers();
 }
+
+/* رسم اللاعبين */
 function renderDicePlayers(){
-  dicePlayersEl.innerHTML="";
+  const box=document.getElementById("dicePlayers");
+  box.innerHTML="";
   dicePlayers.forEach((p,i)=>{
-    dicePlayersEl.innerHTML+=`
-    <div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
-      <i class="fa-solid ${p.icon}"></i>
-      ${p.name}<b>${p.roll}</b>
-    </div>`;
+    box.innerHTML+=`
+      <div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
+        <i class="fa-solid ${p.icon}"></i>
+        ${p.name}<b>${p.roll||"-"}</b>
+      </div>`;
   });
 }
+
+/* رمي النرد */
 function rollDice(){
-  diceBox.style.transform="rotate(720deg)";
+  const dice=document.getElementById("diceBox");
+  dice.style.transform="rotate(0deg)";
+  dice.style.transition="transform 0.6s";
+  dice.style.transform="rotate(720deg)";
   setTimeout(()=>{
-    let v=Math.floor(Math.random()*6)+1;
-    diceBox.innerText=v;
-    dicePlayers[turn].roll=v;
+    const value=Math.floor(Math.random()*6)+1;
+    dice.innerText=value;
+    dicePlayers[turn].roll=value;
     turn++;
     renderDicePlayers();
     if(turn>=dicePlayers.length){
-      diceResult.innerText="🎉 الجولة انتهت";
-      points+=10;
-      document.getElementById("points").innerText=points;
+      document.getElementById("diceResult").innerText="🎉 الجولة انتهت";
+      points+=20;
+      updatePoints();
     }
   },600);
 }
 
+/* الخروج */
 function exitGame(){
-  gameUI.classList.add("hidden");
-  freezePlatform(false);
-  hideAllGames();
+  document.getElementById("gameUI").style.display="none";
+  document.getElementById("games").style.display="grid";
+  document.getElementById("diceArea").style.display="none";
 }
 
-function hideAllGames(){
-  diceGame.classList.add("hidden");
-  placeholderGame.classList.add("hidden");
+/* النقاط */
+function updatePoints(){
+  document.getElementById("points").innerText=points;
 }
 
+/* Toast */
 function toast(msg){
-  toastEl.innerText=msg;
-  toastEl.style.display="block";
-  setTimeout(()=>toastEl.style.display="none",2000);
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
 }
+
+/* بدء الصفحة */
+updatePoints();
 </script>
 
 </body>
