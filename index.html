@@ -9,20 +9,16 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma}
-
 body{
 min-height:100vh;
 background:radial-gradient(circle at top,#0f2a30,#000);
 color:#eafff9;
 text-align:center;
 }
-
-/* HEADER */
 header{padding:20px}
 header h1{color:#3fffe0;font-size:2.6rem}
 header p{opacity:.85;margin-top:6px}
 
-/* LOGIN */
 .login-box{margin-top:20px}
 .login-box input{
 padding:10px 14px;border-radius:20px;border:none;width:200px
@@ -48,22 +44,16 @@ height:130px;border-radius:26px;
 background:linear-gradient(145deg,#061b20,#000);
 display:flex;flex-direction:column;
 justify-content:center;align-items:center;
-cursor:pointer;
-transition:.3s;
+cursor:pointer;transition:.3s;
 }
-
 .card i{
 font-size:3rem;color:#3fffe0;margin-bottom:8px;
 animation:float 2s infinite;
 }
-
 .card span{font-size:.9rem}
-
 .card:hover{transform:scale(1.08);box-shadow:0 0 25px #3fffe0}
-
 .locked{opacity:.4;filter:grayscale(1)}
 
-/* FLOAT */
 @keyframes float{
 0%{transform:translateY(0)}
 50%{transform:translateY(-8px)}
@@ -71,7 +61,7 @@ animation:float 2s infinite;
 }
 
 /* GAME UI */
-#gameUI{display:none;padding:15px}
+#gameUI,#leaderboardUI{display:none;padding:15px}
 
 .hud{
 display:flex;justify-content:space-between;
@@ -92,34 +82,34 @@ background:linear-gradient(145deg,#021012,#000);
 /* PLAYERS */
 .players{display:flex;justify-content:center;gap:12px;margin:15px 0}
 .player{
-width:72px;height:72px;
-border-radius:50%;
+width:72px;height:72px;border-radius:50%;
 background:#052027;
 display:flex;flex-direction:column;
 justify-content:center;align-items:center;
 font-size:.75rem;
 box-shadow:0 0 10px rgba(63,255,224,.4);
-transition:.3s;
 }
 .player i{font-size:1.5rem;color:#3fffe0}
-.player.win{
-box-shadow:0 0 22px gold;
-background:#2a2500;
-}
+.player.win{box-shadow:0 0 22px gold;background:#2a2500}
 
 /* BUTTON */
 .btn{
 padding:10px 20px;border:none;
 border-radius:18px;
 background:#3fffe0;color:#000;
-font-weight:bold;cursor:pointer;
-margin-top:10px;
+font-weight:bold;cursor:pointer;margin-top:10px;
 }
 
-/* DICE */
-#diceBox{
-font-size:4rem;margin:15px;
-transition:transform .6s;
+#diceBox{font-size:4rem;margin:15px;transition:transform .6s}
+
+/* LEADERBOARD */
+.table{
+margin-top:20px;
+}
+.table div{
+display:flex;justify-content:space-between;
+padding:10px 14px;
+border-bottom:1px solid #123;
 }
 
 /* TOAST */
@@ -130,8 +120,7 @@ background:#0b2f34;
 padding:12px 22px;
 border-radius:18px;
 color:#3fffe0;
-display:none;
-z-index:50;
+display:none;z-index:50;
 }
 </style>
 </head>
@@ -140,7 +129,7 @@ z-index:50;
 
 <header>
 <h1>🎮 PiGamesHub</h1>
-<p>Web3 Gaming Platform • Dice Tournament</p>
+<p>Web3 Gaming Platform</p>
 
 <div class="login-box">
 <input id="user" placeholder="Mobile / Pi / Gmail">
@@ -153,6 +142,9 @@ z-index:50;
 <div class="card" onclick="startDice()">
 <i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
 
+<div class="card" onclick="openLeaderboard()">
+<i class="fa-solid fa-trophy"></i><span>Leaderboard</span></div>
+
 <div class="card locked"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
 <div class="card locked"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
 <div class="card locked"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
@@ -163,63 +155,63 @@ z-index:50;
 <!-- GAME -->
 <div id="gameUI">
 <div class="hud">
-<span>🎲 Dice Game</span>
+<span>🎲 Dice</span>
 <span>⭐ <b id="points">0</b></span>
 <button class="btn" onclick="exitGame()">Exit</button>
 </div>
 
 <div class="game-area">
 <h3>Round <span id="round">1</span></h3>
-
 <div class="players" id="dicePlayers"></div>
-
 <div id="diceBox">🎲</div>
-
 <button class="btn" onclick="rollDice()" id="rollBtn">Roll Dice</button>
-<button class="btn" onclick="newRound()" style="display:none" id="newRoundBtn">New Round</button>
-
+<button class="btn" onclick="newRound()" id="newRoundBtn" style="display:none">New Round</button>
 <h4 id="diceResult"></h4>
 </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="leaderboardUI">
+<div class="hud">
+<span>🏆 Leaderboard</span>
+<button class="btn" onclick="closeLeaderboard()">Back</button>
+</div>
+<div class="game-area table" id="leaderboardList"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let logged=false;
+let username="";
 let points=0;
-let dicePlayers=[];
-let turn=0;
-let round=1;
-let roundFinished=false;
+let leaderboard=JSON.parse(localStorage.getItem("leaderboard"))||[];
+let dicePlayers=[],turn=0,round=1,roundFinished=false;
 
 /* LOGIN */
 function login(){
-const u=document.getElementById("user").value.trim();
-if(!u){toast("❌ أدخل بيانات");return;}
-logged=true;
+username=document.getElementById("user").value.trim();
+if(!username){toast("❌ أدخل بيانات");return;}
 document.querySelector(".login-box").style.display="none";
 document.getElementById("platform").style.display="block";
-toast("✅ مرحبا بك "+u);
+toast("✅ مرحبا "+username);
 updatePoints();
 }
 
-/* START DICE */
+/* DICE */
 function startDice(){
 document.getElementById("platform").style.display="none";
 document.getElementById("gameUI").style.display="block";
 initRound();
 }
 
-/* INIT ROUND */
 function initRound(){
 dicePlayers=[
-{name:"You",icon:"fa-user",roll:0},
+{name:username,icon:"fa-user",roll:0},
 {name:"AI 1",icon:"fa-robot",roll:0},
 {name:"AI 2",icon:"fa-robot",roll:0},
 {name:"AI 3",icon:"fa-robot",roll:0}
 ];
-turn=0;
-roundFinished=false;
+turn=0;roundFinished=false;
 document.getElementById("diceResult").innerText="";
 document.getElementById("rollBtn").style.display="inline-block";
 document.getElementById("newRoundBtn").style.display="none";
@@ -227,78 +219,78 @@ document.getElementById("round").innerText=round;
 renderPlayers();
 }
 
-/* RENDER */
-function renderPlayers(winnerIndex=null){
+function renderPlayers(win=null){
 const box=document.getElementById("dicePlayers");
 box.innerHTML="";
 dicePlayers.forEach((p,i)=>{
 box.innerHTML+=`
-<div class="player ${winnerIndex===i?'win':''}" 
-style="${i===turn&&!roundFinished?'box-shadow:0 0 18px #3fffe0':''}">
+<div class="player ${win===i?'win':''}">
 <i class="fa-solid ${p.icon}"></i>
 ${p.name}<b>${p.roll||"-"}</b>
 </div>`;
 });
 }
 
-/* ROLL */
 function rollDice(){
 if(roundFinished) return;
 const dice=document.getElementById("diceBox");
 dice.style.transform="rotate(720deg)";
 setTimeout(()=>{
-let v=Math.floor(Math.random()*6)+1;
-dice.innerText=v;
-dicePlayers[turn].roll=v;
-turn++;
 dice.style.transform="rotate(0deg)";
+dicePlayers[turn].roll=Math.floor(Math.random()*6)+1;
+turn++;
 renderPlayers();
-if(turn===dicePlayers.length){
-endRound();
-}
+if(turn===dicePlayers.length) endRound();
 },600);
 }
 
-/* END ROUND */
 function endRound(){
 roundFinished=true;
-let winIndex=0;
-dicePlayers.forEach((p,i)=>{
-if(p.roll>dicePlayers[winIndex].roll) winIndex=i;
-});
+let win=0;
+dicePlayers.forEach((p,i)=>{if(p.roll>dicePlayers[win].roll) win=i;});
 points+=20;
 updatePoints();
-renderPlayers(winIndex);
-document.getElementById("diceResult").innerText=
-"🏆 الفائز: "+dicePlayers[winIndex].name+" (+20 نقطة)";
+saveLeaderboard();
+renderPlayers(win);
+document.getElementById("diceResult").innerText="🏆 الفائز: "+dicePlayers[win].name;
 document.getElementById("rollBtn").style.display="none";
 document.getElementById("newRoundBtn").style.display="inline-block";
 }
 
-/* NEW ROUND */
-function newRound(){
-round++;
-initRound();
+function newRound(){round++;initRound();}
+function exitGame(){document.getElementById("gameUI").style.display="none";document.getElementById("platform").style.display="block";}
+
+/* LEADERBOARD */
+function saveLeaderboard(){
+let player=leaderboard.find(p=>p.name===username);
+if(!player){leaderboard.push({name:username,points:points});}
+else{player.points=points;}
+leaderboard.sort((a,b)=>b.points-a.points);
+localStorage.setItem("leaderboard",JSON.stringify(leaderboard));
 }
 
-/* EXIT */
-function exitGame(){
-document.getElementById("gameUI").style.display="none";
+function openLeaderboard(){
+document.getElementById("platform").style.display="none";
+document.getElementById("leaderboardUI").style.display="block";
+renderLeaderboard();
+}
+
+function closeLeaderboard(){
+document.getElementById("leaderboardUI").style.display="none";
 document.getElementById("platform").style.display="block";
 }
 
-/* POINTS */
-function updatePoints(){
-document.getElementById("points").innerText=points;
+function renderLeaderboard(){
+const box=document.getElementById("leaderboardList");
+box.innerHTML="";
+leaderboard.forEach((p,i)=>{
+box.innerHTML+=`<div><span>#${i+1} ${p.name}</span><b>${p.points} ⭐</b></div>`;
+});
 }
 
-/* TOAST */
-function toast(msg){
-const t=document.getElementById("toast");
-t.innerText=msg;
-t.style.display="block";
-setTimeout(()=>t.style.display="none",2200);
-}
+/* UTIL */
+function updatePoints(){document.getElementById("points").innerText=points;}
+function toast(m){const t=document.getElementById("toast");t.innerText=m;t.style.display="block";setTimeout(()=>t.style.display="none",2200);}
 </script>
 
 </body>
