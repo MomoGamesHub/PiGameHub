@@ -2,125 +2,178 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>PiGamesHub</title>
+<title>PiGamesHub • Web3 Gaming Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
+/* ================= CORE ================= */
 *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma}
 body{
-min-height:100vh;
-background:radial-gradient(circle at top,#0f2a30,#000);
-color:#eafff9;
-text-align:center;
+  min-height:100vh;
+  background:radial-gradient(circle at top,#0f3b42,#000);
+  color:#eafff9;
+  text-align:center;
+  overflow-x:hidden;
 }
-header{padding:20px}
-header h1{color:#3fffe0;font-size:2.6rem}
-header p{opacity:.85;margin-top:6px}
+.hidden{display:none}
 
-.login-box{margin-top:20px}
+/* ================= HEADER ================= */
+header{
+  padding:25px 15px;
+}
+header h1{
+  font-size:2.6rem;
+  color:#3fffe0;
+  letter-spacing:1px;
+}
+header p{
+  margin-top:6px;
+  color:#b0fff5;
+  opacity:.85;
+}
+
+/* ================= LOGIN ================= */
+.login-box{
+  margin-top:18px;
+}
 .login-box input{
-padding:10px 14px;border-radius:20px;border:none;width:200px
+  padding:12px 16px;
+  width:200px;
+  border-radius:25px;
+  border:none;
+  outline:none;
 }
 .login-box button{
-padding:10px 22px;border:none;border-radius:20px;
-background:#0b2f34;color:#3fffe0;cursor:pointer;
-box-shadow:0 0 15px rgba(63,255,224,.4)
+  padding:12px 20px;
+  border:none;
+  border-radius:25px;
+  background:#062f33;
+  color:#3fffe0;
+  cursor:pointer;
+  box-shadow:0 0 18px rgba(63,255,224,.35);
+  margin-left:6px;
 }
 
-/* PLATFORM */
-#platform{display:none;margin-top:40px}
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-gap:22px;
-max-width:600px;
-margin:auto;
+/* ================= PLATFORM ================= */
+#platform{
+  padding:20px;
 }
 
-.card{
-height:130px;border-radius:26px;
-background:linear-gradient(145deg,#061b20,#000);
-display:flex;flex-direction:column;
-justify-content:center;align-items:center;
-cursor:pointer;transition:.3s;
+/* ================= GRID ================= */
+.games-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:22px;
+  margin-top:30px;
 }
-.card i{
-font-size:3rem;color:#3fffe0;margin-bottom:8px;
-animation:float 2s infinite;
+.game-card{
+  height:130px;
+  border-radius:26px;
+  background:linear-gradient(145deg,#041b20,#000);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  transition:.3s;
+  box-shadow:0 0 15px rgba(0,0,0,.7);
 }
-.card span{font-size:.9rem}
-.card:hover{transform:scale(1.08);box-shadow:0 0 25px #3fffe0}
-.locked{opacity:.4;filter:grayscale(1)}
+.game-card i{
+  font-size:3.1rem;
+  color:#3fffe0;
+  animation:float 2.2s infinite ease-in-out;
+}
+.game-card span{
+  margin-top:8px;
+  color:#b0fff5;
+}
+.game-card:hover{
+  transform:scale(1.12);
+  box-shadow:0 0 25px #3fffe0;
+}
+.locked{
+  opacity:.4;
+  filter:grayscale(1);
+}
 
+/* ================= FLOAT ================= */
 @keyframes float{
-0%{transform:translateY(0)}
-50%{transform:translateY(-8px)}
-100%{transform:translateY(0)}
+  0%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+  100%{transform:translateY(0)}
 }
 
-/* GAME UI */
-#gameUI,#leaderboardUI{display:none;padding:15px}
-
+/* ================= HUD ================= */
 .hud{
-display:flex;justify-content:space-between;
-align-items:center;
-background:#031417;
-padding:12px 18px;
-border-radius:22px;
-box-shadow:0 0 20px rgba(63,255,224,.4);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 18px;
+  background:#031417;
+  border-radius:22px;
+  box-shadow:0 0 20px rgba(63,255,224,.35);
+}
+.hud b{color:#3fffe0}
+
+/* ================= GAME AREA ================= */
+.game-container{
+  margin-top:20px;
+  padding:20px;
+  border-radius:24px;
+  background:linear-gradient(145deg,#021113,#000);
+  box-shadow:0 0 25px rgba(0,0,0,.8);
 }
 
-.game-area{
-margin-top:25px;
-padding:25px;
-border-radius:25px;
-background:linear-gradient(145deg,#021012,#000);
+/* ================= DICE ================= */
+#diceBox{
+  font-size:4.5rem;
+  margin:18px 0;
+  transition:.6s;
 }
-
-/* PLAYERS */
-.players{display:flex;justify-content:center;gap:12px;margin:15px 0}
+.players{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:10px;
+}
 .player{
-width:72px;height:72px;border-radius:50%;
-background:#052027;
-display:flex;flex-direction:column;
-justify-content:center;align-items:center;
-font-size:.75rem;
-box-shadow:0 0 10px rgba(63,255,224,.4);
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:#05252b;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  font-size:.7rem;
 }
-.player i{font-size:1.5rem;color:#3fffe0}
-.player.win{box-shadow:0 0 22px gold;background:#2a2500}
+.player i{font-size:1.4rem;color:#3fffe0}
 
-/* BUTTON */
+/* ================= BUTTON ================= */
 .btn{
-padding:10px 20px;border:none;
-border-radius:18px;
-background:#3fffe0;color:#000;
-font-weight:bold;cursor:pointer;margin-top:10px;
+  margin-top:15px;
+  padding:12px 22px;
+  border:none;
+  border-radius:22px;
+  background:#3fffe0;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-#diceBox{font-size:4rem;margin:15px;transition:transform .6s}
-
-/* LEADERBOARD */
-.table{
-margin-top:20px;
-}
-.table div{
-display:flex;justify-content:space-between;
-padding:10px 14px;
-border-bottom:1px solid #123;
-}
-
-/* TOAST */
+/* ================= TOAST ================= */
 .toast{
-position:fixed;bottom:25px;
-left:50%;transform:translateX(-50%);
-background:#0b2f34;
-padding:12px 22px;
-border-radius:18px;
-color:#3fffe0;
-display:none;z-index:50;
+  position:fixed;
+  bottom:25px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#062f33;
+  padding:12px 22px;
+  border-radius:20px;
+  color:#3fffe0;
+  display:none;
 }
 </style>
 </head>
@@ -128,169 +181,165 @@ display:none;z-index:50;
 <body>
 
 <header>
-<h1>🎮 PiGamesHub</h1>
-<p>Web3 Gaming Platform</p>
+  <h1>🎮 PiGamesHub</h1>
+  <p>Web3 Gaming Platform • Play • Earn • Build</p>
 
-<div class="login-box">
-<input id="user" placeholder="Mobile / Pi / Gmail">
-<button onclick="login()">تسجيل الدخول</button>
-</div>
+  <div class="login-box" id="loginBox">
+    <input id="userInput" placeholder="Pi / Gmail / Phone">
+    <button onclick="login()">تسجيل الدخول</button>
+  </div>
 </header>
 
-<section id="platform">
-<div class="grid">
-<div class="card" onclick="startDice()">
-<i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
+<section id="platform" class="hidden">
 
-<div class="card" onclick="openLeaderboard()">
-<i class="fa-solid fa-trophy"></i><span>Leaderboard</span></div>
+  <div class="games-grid" id="gamesGrid"></div>
 
-<div class="card locked"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
-<div class="card locked"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
-<div class="card locked"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
-<div class="card locked"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
-</div>
 </section>
 
-<!-- GAME -->
-<div id="gameUI">
-<div class="hud">
-<span>🎲 Dice</span>
-<span>⭐ <b id="points">0</b></span>
-<button class="btn" onclick="exitGame()">Exit</button>
-</div>
+<!-- GAME UI -->
+<section id="gameUI" class="hidden">
+  <div class="hud">
+    <span id="currentGameName"></span>
+    <span>⭐ <b id="points">0</b></span>
+    <button class="btn" onclick="exitGame()">Exit</button>
+  </div>
 
-<div class="game-area">
-<h3>Round <span id="round">1</span></h3>
-<div class="players" id="dicePlayers"></div>
-<div id="diceBox">🎲</div>
-<button class="btn" onclick="rollDice()" id="rollBtn">Roll Dice</button>
-<button class="btn" onclick="newRound()" id="newRoundBtn" style="display:none">New Round</button>
-<h4 id="diceResult"></h4>
-</div>
-</div>
+  <div class="game-container">
 
-<!-- LEADERBOARD -->
-<div id="leaderboardUI">
-<div class="hud">
-<span>🏆 Leaderboard</span>
-<button class="btn" onclick="closeLeaderboard()">Back</button>
-</div>
-<div class="game-area table" id="leaderboardList"></div>
-</div>
+    <!-- Dice -->
+    <div id="diceGame" class="hidden">
+      <h3>🎲 Dice Game</h3>
+      <div class="players" id="dicePlayers"></div>
+      <div id="diceBox">🎲</div>
+      <button class="btn" onclick="rollDice()">Roll Dice</button>
+      <h4 id="diceResult"></h4>
+    </div>
+
+    <!-- Placeholder -->
+    <div id="placeholderGame" class="hidden">
+      <h3>🚧 Game Under Development</h3>
+      <p>المحرك جاهز – اللعبة قيد البناء</p>
+    </div>
+
+  </div>
+</section>
 
 <div class="toast" id="toast"></div>
 
 <script>
-let username="";
+/* ================= PLATFORM STATE ================= */
+let loggedIn=false;
 let points=0;
-let leaderboard=JSON.parse(localStorage.getItem("leaderboard"))||[];
-let dicePlayers=[],turn=0,round=1,roundFinished=false;
+let currentGame=null;
 
-/* LOGIN */
+/* ================= GAME REGISTRY ================= */
+const GAMES={
+  Dice:{icon:"fa-dice-five",play:()=>openDice()},
+  Domino:{icon:"fa-dice",play:()=>openPlaceholder("Domino")},
+  Chess:{icon:"fa-chess-knight",play:()=>openPlaceholder("Chess")},
+  Ludo:{icon:"fa-gamepad",play:()=>openPlaceholder("Ludo")},
+  UNO:{icon:"fa-layer-group",play:()=>openPlaceholder("UNO")}
+};
+
+/* ================= LOGIN ================= */
 function login(){
-username=document.getElementById("user").value.trim();
-if(!username){toast("❌ أدخل بيانات");return;}
-document.querySelector(".login-box").style.display="none";
-document.getElementById("platform").style.display="block";
-toast("✅ مرحبا "+username);
-updatePoints();
+  const user=userInput.value.trim();
+  if(!user){toast("❌ أدخل اسم");return}
+  loggedIn=true;
+  loginBox.style.display="none";
+  platform.classList.remove("hidden");
+  renderGames();
+  toast(`✅ مرحبا ${user}`);
 }
 
-/* DICE */
-function startDice(){
-document.getElementById("platform").style.display="none";
-document.getElementById("gameUI").style.display="block";
-initRound();
+/* ================= RENDER GAMES ================= */
+function renderGames(){
+  gamesGrid.innerHTML="";
+  Object.keys(GAMES).forEach(g=>{
+    gamesGrid.innerHTML+=`
+      <div class="game-card" onclick="openGame('${g}')">
+        <i class="fa-solid ${GAMES[g].icon}"></i>
+        <span>${g}</span>
+      </div>`;
+  });
 }
 
-function initRound(){
-dicePlayers=[
-{name:username,icon:"fa-user",roll:0},
-{name:"AI 1",icon:"fa-robot",roll:0},
-{name:"AI 2",icon:"fa-robot",roll:0},
-{name:"AI 3",icon:"fa-robot",roll:0}
-];
-turn=0;roundFinished=false;
-document.getElementById("diceResult").innerText="";
-document.getElementById("rollBtn").style.display="inline-block";
-document.getElementById("newRoundBtn").style.display="none";
-document.getElementById("round").innerText=round;
-renderPlayers();
+/* ================= OPEN GAME ================= */
+function openGame(name){
+  currentGame=name;
+  platform.classList.add("hidden");
+  gameUI.classList.remove("hidden");
+  currentGameName.innerText="🎮 "+name;
+  GAMES[name].play();
 }
 
-function renderPlayers(win=null){
-const box=document.getElementById("dicePlayers");
-box.innerHTML="";
-dicePlayers.forEach((p,i)=>{
-box.innerHTML+=`
-<div class="player ${win===i?'win':''}">
-<i class="fa-solid ${p.icon}"></i>
-${p.name}<b>${p.roll||"-"}</b>
-</div>`;
-});
+/* ================= PLACEHOLDER ================= */
+function openPlaceholder(name){
+  hideAllGames();
+  placeholderGame.classList.remove("hidden");
+}
+
+/* ================= DICE GAME ================= */
+let dicePlayers=[],turn=0;
+
+function openDice(){
+  hideAllGames();
+  diceGame.classList.remove("hidden");
+  dicePlayers=[
+    {name:"You",icon:"fa-user",roll:"-"},
+    {name:"AI 1",icon:"fa-robot",roll:"-"},
+    {name:"AI 2",icon:"fa-robot",roll:"-"}
+  ];
+  turn=0;
+  renderDicePlayers();
+}
+
+function renderDicePlayers(){
+  dicePlayersBox=dicePlayersEl=document.getElementById("dicePlayers");
+  dicePlayersEl.innerHTML="";
+  dicePlayers.forEach((p,i)=>{
+    dicePlayersEl.innerHTML+=`
+      <div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
+        <i class="fa-solid ${p.icon}"></i>
+        ${p.name}<b>${p.roll}</b>
+      </div>`;
+  });
 }
 
 function rollDice(){
-if(roundFinished) return;
-const dice=document.getElementById("diceBox");
-dice.style.transform="rotate(720deg)";
-setTimeout(()=>{
-dice.style.transform="rotate(0deg)";
-dicePlayers[turn].roll=Math.floor(Math.random()*6)+1;
-turn++;
-renderPlayers();
-if(turn===dicePlayers.length) endRound();
-},600);
+  diceBox.style.transform="rotate(720deg)";
+  setTimeout(()=>{
+    let v=Math.floor(Math.random()*6)+1;
+    diceBox.innerText=v;
+    dicePlayers[turn].roll=v;
+    turn++;
+    renderDicePlayers();
+    if(turn>=dicePlayers.length){
+      diceResult.innerText="🎉 الجولة انتهت";
+      points+=10;
+      document.getElementById("points").innerText=points;
+    }
+  },600);
 }
 
-function endRound(){
-roundFinished=true;
-let win=0;
-dicePlayers.forEach((p,i)=>{if(p.roll>dicePlayers[win].roll) win=i;});
-points+=20;
-updatePoints();
-saveLeaderboard();
-renderPlayers(win);
-document.getElementById("diceResult").innerText="🏆 الفائز: "+dicePlayers[win].name;
-document.getElementById("rollBtn").style.display="none";
-document.getElementById("newRoundBtn").style.display="inline-block";
+/* ================= EXIT ================= */
+function exitGame(){
+  gameUI.classList.add("hidden");
+  platform.classList.remove("hidden");
+  hideAllGames();
 }
 
-function newRound(){round++;initRound();}
-function exitGame(){document.getElementById("gameUI").style.display="none";document.getElementById("platform").style.display="block";}
-
-/* LEADERBOARD */
-function saveLeaderboard(){
-let player=leaderboard.find(p=>p.name===username);
-if(!player){leaderboard.push({name:username,points:points});}
-else{player.points=points;}
-leaderboard.sort((a,b)=>b.points-a.points);
-localStorage.setItem("leaderboard",JSON.stringify(leaderboard));
+/* ================= UTIL ================= */
+function hideAllGames(){
+  diceGame.classList.add("hidden");
+  placeholderGame.classList.add("hidden");
 }
-
-function openLeaderboard(){
-document.getElementById("platform").style.display="none";
-document.getElementById("leaderboardUI").style.display="block";
-renderLeaderboard();
+function toast(msg){
+  toastEl=document.getElementById("toast");
+  toastEl.innerText=msg;
+  toastEl.style.display="block";
+  setTimeout(()=>toastEl.style.display="none",2000);
 }
-
-function closeLeaderboard(){
-document.getElementById("leaderboardUI").style.display="none";
-document.getElementById("platform").style.display="block";
-}
-
-function renderLeaderboard(){
-const box=document.getElementById("leaderboardList");
-box.innerHTML="";
-leaderboard.forEach((p,i)=>{
-box.innerHTML+=`<div><span>#${i+1} ${p.name}</span><b>${p.points} ⭐</b></div>`;
-});
-}
-
-/* UTIL */
-function updatePoints(){document.getElementById("points").innerText=points;}
-function toast(m){const t=document.getElementById("toast");t.innerText=m;t.style.display="block";setTimeout(()=>t.style.display="none",2200);}
 </script>
 
 </body>
