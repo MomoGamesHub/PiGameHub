@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-/* ================= CORE ================= */
 *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Tahoma}
 body{
   min-height:100vh;
@@ -19,31 +18,34 @@ body{
 }
 .hidden{display:none}
 
-/* ================= HEADER ================= */
-header{
-  padding:25px 15px;
+/* ================= FREEZE EFFECT ================= */
+.platform-freeze{
+  filter:blur(6px) brightness(.5);
+  pointer-events:none;
+  user-select:none;
+  transition:.4s;
 }
-header h1{
-  font-size:2.6rem;
-  color:#3fffe0;
-  letter-spacing:1px;
-}
-header p{
-  margin-top:6px;
-  color:#b0fff5;
-  opacity:.85;
+#overlay-lock{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(2px);
+  z-index:5;
+  display:none;
 }
 
+/* ================= HEADER ================= */
+header{padding:25px 15px}
+header h1{font-size:2.6rem;color:#3fffe0}
+header p{margin-top:6px;color:#b0fff5;opacity:.85}
+
 /* ================= LOGIN ================= */
-.login-box{
-  margin-top:18px;
-}
+.login-box{margin-top:18px}
 .login-box input{
   padding:12px 16px;
   width:200px;
   border-radius:25px;
   border:none;
-  outline:none;
 }
 .login-box button{
   padding:12px 20px;
@@ -57,9 +59,7 @@ header p{
 }
 
 /* ================= PLATFORM ================= */
-#platform{
-  padding:20px;
-}
+#platform{padding:20px;transition:.4s}
 
 /* ================= GRID ================= */
 .games-grid{
@@ -78,34 +78,30 @@ header p{
   align-items:center;
   cursor:pointer;
   transition:.3s;
-  box-shadow:0 0 15px rgba(0,0,0,.7);
 }
 .game-card i{
   font-size:3.1rem;
   color:#3fffe0;
-  animation:float 2.2s infinite ease-in-out;
+  animation:float 2.2s infinite;
 }
-.game-card span{
-  margin-top:8px;
-  color:#b0fff5;
-}
+.game-card span{margin-top:8px;color:#b0fff5}
 .game-card:hover{
   transform:scale(1.12);
   box-shadow:0 0 25px #3fffe0;
 }
-.locked{
-  opacity:.4;
-  filter:grayscale(1);
-}
-
-/* ================= FLOAT ================= */
 @keyframes float{
   0%{transform:translateY(0)}
   50%{transform:translateY(-10px)}
   100%{transform:translateY(0)}
 }
 
-/* ================= HUD ================= */
+/* ================= GAME UI ================= */
+#gameUI{
+  position:fixed;
+  inset:0;
+  z-index:10;
+  padding:20px;
+}
 .hud{
   display:flex;
   justify-content:space-between;
@@ -117,26 +113,19 @@ header p{
 }
 .hud b{color:#3fffe0}
 
-/* ================= GAME AREA ================= */
 .game-container{
   margin-top:20px;
   padding:20px;
   border-radius:24px;
   background:linear-gradient(145deg,#021113,#000);
-  box-shadow:0 0 25px rgba(0,0,0,.8);
 }
 
 /* ================= DICE ================= */
-#diceBox{
-  font-size:4.5rem;
-  margin:18px 0;
-  transition:.6s;
-}
+#diceBox{font-size:4.5rem;margin:18px 0;transition:.6s}
 .players{
   display:flex;
   justify-content:center;
   gap:12px;
-  margin-top:10px;
 }
 .player{
   width:70px;
@@ -149,16 +138,14 @@ header p{
   align-items:center;
   font-size:.7rem;
 }
-.player i{font-size:1.4rem;color:#3fffe0}
+.player i{color:#3fffe0}
 
-/* ================= BUTTON ================= */
 .btn{
   margin-top:15px;
   padding:12px 22px;
   border:none;
   border-radius:22px;
   background:#3fffe0;
-  color:#000;
   font-weight:bold;
   cursor:pointer;
 }
@@ -174,11 +161,14 @@ header p{
   border-radius:20px;
   color:#3fffe0;
   display:none;
+  z-index:20;
 }
 </style>
 </head>
 
 <body>
+
+<div id="overlay-lock"></div>
 
 <header>
   <h1>🎮 PiGamesHub</h1>
@@ -191,12 +181,9 @@ header p{
 </header>
 
 <section id="platform" class="hidden">
-
   <div class="games-grid" id="gamesGrid"></div>
-
 </section>
 
-<!-- GAME UI -->
 <section id="gameUI" class="hidden">
   <div class="hud">
     <span id="currentGameName"></span>
@@ -205,8 +192,6 @@ header p{
   </div>
 
   <div class="game-container">
-
-    <!-- Dice -->
     <div id="diceGame" class="hidden">
       <h3>🎲 Dice Game</h3>
       <div class="players" id="dicePlayers"></div>
@@ -215,73 +200,64 @@ header p{
       <h4 id="diceResult"></h4>
     </div>
 
-    <!-- Placeholder -->
     <div id="placeholderGame" class="hidden">
       <h3>🚧 Game Under Development</h3>
-      <p>المحرك جاهز – اللعبة قيد البناء</p>
+      <p>المحرّك جاهز – التطوير جاري</p>
     </div>
-
   </div>
 </section>
 
 <div class="toast" id="toast"></div>
 
 <script>
-/* ================= PLATFORM STATE ================= */
-let loggedIn=false;
-let points=0;
-let currentGame=null;
-
-/* ================= GAME REGISTRY ================= */
+let loggedIn=false,points=0,currentGame=null;
 const GAMES={
-  Dice:{icon:"fa-dice-five",play:()=>openDice()},
+  Dice:{icon:"fa-dice-five",play:openDice},
   Domino:{icon:"fa-dice",play:()=>openPlaceholder("Domino")},
   Chess:{icon:"fa-chess-knight",play:()=>openPlaceholder("Chess")},
   Ludo:{icon:"fa-gamepad",play:()=>openPlaceholder("Ludo")},
   UNO:{icon:"fa-layer-group",play:()=>openPlaceholder("UNO")}
 };
 
-/* ================= LOGIN ================= */
 function login(){
-  const user=userInput.value.trim();
-  if(!user){toast("❌ أدخل اسم");return}
-  loggedIn=true;
+  if(!userInput.value.trim()){toast("❌ أدخل اسم");return}
   loginBox.style.display="none";
   platform.classList.remove("hidden");
   renderGames();
-  toast(`✅ مرحبا ${user}`);
+  toast("✅ تم تسجيل الدخول");
 }
 
-/* ================= RENDER GAMES ================= */
 function renderGames(){
   gamesGrid.innerHTML="";
   Object.keys(GAMES).forEach(g=>{
     gamesGrid.innerHTML+=`
-      <div class="game-card" onclick="openGame('${g}')">
-        <i class="fa-solid ${GAMES[g].icon}"></i>
-        <span>${g}</span>
-      </div>`;
+    <div class="game-card" onclick="openGame('${g}')">
+      <i class="fa-solid ${GAMES[g].icon}"></i>
+      <span>${g}</span>
+    </div>`;
   });
 }
 
-/* ================= OPEN GAME ================= */
 function openGame(name){
   currentGame=name;
-  platform.classList.add("hidden");
+  freezePlatform(true);
   gameUI.classList.remove("hidden");
   currentGameName.innerText="🎮 "+name;
   GAMES[name].play();
 }
 
-/* ================= PLACEHOLDER ================= */
-function openPlaceholder(name){
+function freezePlatform(state){
+  platform.classList.toggle("platform-freeze",state);
+  overlay-lock.style.display=state?"block":"none";
+}
+
+function openPlaceholder(){
   hideAllGames();
   placeholderGame.classList.remove("hidden");
 }
 
-/* ================= DICE GAME ================= */
+/* ===== Dice ===== */
 let dicePlayers=[],turn=0;
-
 function openDice(){
   hideAllGames();
   diceGame.classList.remove("hidden");
@@ -293,19 +269,16 @@ function openDice(){
   turn=0;
   renderDicePlayers();
 }
-
 function renderDicePlayers(){
-  dicePlayersBox=dicePlayersEl=document.getElementById("dicePlayers");
   dicePlayersEl.innerHTML="";
   dicePlayers.forEach((p,i)=>{
     dicePlayersEl.innerHTML+=`
-      <div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
-        <i class="fa-solid ${p.icon}"></i>
-        ${p.name}<b>${p.roll}</b>
-      </div>`;
+    <div class="player" style="${i===turn?'box-shadow:0 0 15px #3fffe0':''}">
+      <i class="fa-solid ${p.icon}"></i>
+      ${p.name}<b>${p.roll}</b>
+    </div>`;
   });
 }
-
 function rollDice(){
   diceBox.style.transform="rotate(720deg)";
   setTimeout(()=>{
@@ -322,20 +295,18 @@ function rollDice(){
   },600);
 }
 
-/* ================= EXIT ================= */
 function exitGame(){
   gameUI.classList.add("hidden");
-  platform.classList.remove("hidden");
+  freezePlatform(false);
   hideAllGames();
 }
 
-/* ================= UTIL ================= */
 function hideAllGames(){
   diceGame.classList.add("hidden");
   placeholderGame.classList.add("hidden");
 }
+
 function toast(msg){
-  toastEl=document.getElementById("toast");
   toastEl.innerText=msg;
   toastEl.style.display="block";
   setTimeout(()=>toastEl.style.display="none",2000);
