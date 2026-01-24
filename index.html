@@ -61,10 +61,7 @@ animation:float 2s infinite;
 
 .card:hover{transform:scale(1.08);box-shadow:0 0 25px #3fffe0}
 
-.locked{
-opacity:.4;filter:grayscale(1);
-}
-.locked:hover{transform:none;box-shadow:none}
+.locked{opacity:.4;filter:grayscale(1)}
 
 /* FLOAT */
 @keyframes float{
@@ -95,15 +92,20 @@ background:linear-gradient(145deg,#021012,#000);
 /* PLAYERS */
 .players{display:flex;justify-content:center;gap:12px;margin:15px 0}
 .player{
-width:70px;height:70px;
+width:72px;height:72px;
 border-radius:50%;
 background:#052027;
 display:flex;flex-direction:column;
 justify-content:center;align-items:center;
 font-size:.75rem;
 box-shadow:0 0 10px rgba(63,255,224,.4);
+transition:.3s;
 }
 .player i{font-size:1.5rem;color:#3fffe0}
+.player.win{
+box-shadow:0 0 22px gold;
+background:#2a2500;
+}
 
 /* BUTTON */
 .btn{
@@ -138,7 +140,7 @@ z-index:50;
 
 <header>
 <h1>🎮 PiGamesHub</h1>
-<p>Web3 Gaming Platform • Free Play • Mystery Points</p>
+<p>Web3 Gaming Platform • Dice Tournament</p>
 
 <div class="login-box">
 <input id="user" placeholder="Mobile / Pi / Gmail">
@@ -146,42 +148,36 @@ z-index:50;
 </div>
 </header>
 
-<!-- PLATFORM -->
 <section id="platform">
 <div class="grid">
-<div class="card" onclick="startGame('Dice')">
+<div class="card" onclick="startDice()">
 <i class="fa-solid fa-dice-five"></i><span>Dice</span></div>
 
-<div class="card locked" onclick="comingSoon('Domino')">
-<i class="fa-solid fa-dice"></i><span>Domino</span></div>
-
-<div class="card locked" onclick="comingSoon('Chess')">
-<i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
-
-<div class="card locked" onclick="comingSoon('Ludo')">
-<i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
-
-<div class="card locked" onclick="comingSoon('UNO')">
-<i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
+<div class="card locked"><i class="fa-solid fa-dice"></i><span>Domino</span></div>
+<div class="card locked"><i class="fa-solid fa-chess-knight"></i><span>Chess</span></div>
+<div class="card locked"><i class="fa-solid fa-gamepad"></i><span>Ludo</span></div>
+<div class="card locked"><i class="fa-solid fa-layer-group"></i><span>UNO</span></div>
 </div>
 </section>
 
 <!-- GAME -->
 <div id="gameUI">
 <div class="hud">
-<span id="hudGame"></span>
+<span>🎲 Dice Game</span>
 <span>⭐ <b id="points">0</b></span>
 <button class="btn" onclick="exitGame()">Exit</button>
 </div>
 
-<div class="game-area" id="diceGame">
-<h3>🎲 Dice Game</h3>
+<div class="game-area">
+<h3>Round <span id="round">1</span></h3>
 
 <div class="players" id="dicePlayers"></div>
 
 <div id="diceBox">🎲</div>
 
-<button class="btn" onclick="rollDice()">Roll Dice</button>
+<button class="btn" onclick="rollDice()" id="rollBtn">Roll Dice</button>
+<button class="btn" onclick="newRound()" style="display:none" id="newRoundBtn">New Round</button>
+
 <h4 id="diceResult"></h4>
 </div>
 </div>
@@ -193,6 +189,8 @@ let logged=false;
 let points=0;
 let dicePlayers=[];
 let turn=0;
+let round=1;
+let roundFinished=false;
 
 /* LOGIN */
 function login(){
@@ -205,22 +203,15 @@ toast("✅ مرحبا بك "+u);
 updatePoints();
 }
 
-/* PLATFORM */
-function comingSoon(name){
-toast("🚧 "+name+" قيد التطوير");
-}
-
-/* START GAME */
-function startGame(game){
-if(game!=="Dice") return;
+/* START DICE */
+function startDice(){
 document.getElementById("platform").style.display="none";
 document.getElementById("gameUI").style.display="block";
-document.getElementById("hudGame").innerText=game;
-initDice();
+initRound();
 }
 
-/* DICE INIT */
-function initDice(){
+/* INIT ROUND */
+function initRound(){
 dicePlayers=[
 {name:"You",icon:"fa-user",roll:0},
 {name:"AI 1",icon:"fa-robot",roll:0},
@@ -228,25 +219,31 @@ dicePlayers=[
 {name:"AI 3",icon:"fa-robot",roll:0}
 ];
 turn=0;
+roundFinished=false;
 document.getElementById("diceResult").innerText="";
+document.getElementById("rollBtn").style.display="inline-block";
+document.getElementById("newRoundBtn").style.display="none";
+document.getElementById("round").innerText=round;
 renderPlayers();
 }
 
 /* RENDER */
-function renderPlayers(){
+function renderPlayers(winnerIndex=null){
 const box=document.getElementById("dicePlayers");
 box.innerHTML="";
 dicePlayers.forEach((p,i)=>{
 box.innerHTML+=`
-<div class="player" style="${i===turn?'box-shadow:0 0 18px #3fffe0':''}">
-<i class="fa-solid ${p.icon}"></i>${p.name}<b>${p.roll||"-"}</b>
+<div class="player ${winnerIndex===i?'win':''}" 
+style="${i===turn&&!roundFinished?'box-shadow:0 0 18px #3fffe0':''}">
+<i class="fa-solid ${p.icon}"></i>
+${p.name}<b>${p.roll||"-"}</b>
 </div>`;
 });
 }
 
 /* ROLL */
 function rollDice(){
-if(turn>=dicePlayers.length) return;
+if(roundFinished) return;
 const dice=document.getElementById("diceBox");
 dice.style.transform="rotate(720deg)";
 setTimeout(()=>{
@@ -262,12 +259,26 @@ endRound();
 },600);
 }
 
-/* END */
+/* END ROUND */
 function endRound(){
-let win=dicePlayers.reduce((a,b)=>a.roll>b.roll?a:b);
+roundFinished=true;
+let winIndex=0;
+dicePlayers.forEach((p,i)=>{
+if(p.roll>dicePlayers[winIndex].roll) winIndex=i;
+});
 points+=20;
 updatePoints();
-document.getElementById("diceResult").innerText="🏆 الفائز: "+win.name+" (+20)";
+renderPlayers(winIndex);
+document.getElementById("diceResult").innerText=
+"🏆 الفائز: "+dicePlayers[winIndex].name+" (+20 نقطة)";
+document.getElementById("rollBtn").style.display="none";
+document.getElementById("newRoundBtn").style.display="inline-block";
+}
+
+/* NEW ROUND */
+function newRound(){
+round++;
+initRound();
 }
 
 /* EXIT */
