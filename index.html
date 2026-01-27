@@ -3,28 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | Web3 Pro Edition</title>
+    <title>PiGamesHub | Ultimate Web3 Edition</title>
+    
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+
     <style>
         :root {
             --primary: #6741d9;
             --accent: #ffd700;
             --dark-bg: #05010a;
-            --glow: 0 0 25px rgba(103, 65, 217, 0.6);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glow: 0 0 20px rgba(103, 65, 217, 0.5);
         }
 
         body {
             margin: 0;
             background: var(--dark-bg);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
         }
 
-        /* الخلفية المتموجة الفاخرة */
+        /* خلفية الكون المتموجة */
         .universe-bg {
             position: fixed;
             inset: 0;
@@ -32,21 +35,21 @@
             z-index: -2;
         }
 
-        .waves {
+        .waves-overlay {
             position: fixed;
             width: 200%; height: 200%;
-            background: radial-gradient(circle at 20% 30%, rgba(103, 65, 217, 0.1) 0%, transparent 40%);
-            animation: rotateWaves 20s infinite linear;
+            background: radial-gradient(circle at 30% 30%, rgba(103, 65, 217, 0.1) 0%, transparent 50%);
+            animation: rotateBg 25s infinite linear;
             z-index: -1;
         }
 
-        @keyframes rotateWaves {
+        @keyframes rotateBg {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
         header {
-            padding: 20px 5%;
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -59,227 +62,291 @@
 
         .auth-btn {
             background: linear-gradient(45deg, var(--primary), #8e44ad);
-            border: none; color: white; padding: 12px 28px; border-radius: 50px;
-            font-weight: bold; cursor: pointer; transition: 0.4s;
+            border: none; color: white; padding: 10px 25px; border-radius: 50px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
             box-shadow: var(--glow);
         }
 
-        .hero { text-align: center; padding: 40px 20px; }
-        .hero h1 { font-size: 2.4rem; background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* شبكة الألعاب الـ 3D */
+        /* شبكة الألعاب الرئيسية */
         .games-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 25px;
-            padding: 20px;
+            padding: 30px 20px;
             max-width: 550px;
             margin: auto;
         }
 
         .game-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--glass);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 40px;
             padding: 30px 10px;
             text-align: center;
-            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
             cursor: pointer;
         }
 
         .game-card:hover {
-            transform: translateY(-15px) scale(1.05);
+            transform: translateY(-12px);
             background: rgba(103, 65, 217, 0.15);
             border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), var(--glow);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7), var(--glow);
         }
 
         .game-card img {
-            width: 110px; height: 110px;
+            width: 100px; height: 100px;
             object-fit: contain;
-            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
             animation: float 4s infinite ease-in-out;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0); }
-            50% { transform: translateY(-12px) rotate(3deg); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
         }
 
-        .game-card span { display: block; font-weight: 800; font-size: 1.2rem; }
-
-        /* واجهة الدومينو المتطورة */
-        #domino-ui {
+        /* واجهة الـ Lobby الخاصة بالدومينو */
+        #domino-lobby {
             display: none;
             position: fixed;
             inset: 0;
-            background: var(--dark-bg);
+            background: rgba(5, 1, 10, 0.95);
             z-index: 2000;
             flex-direction: column;
-            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
         }
 
-        #board {
+        .lobby-title { color: var(--accent); font-size: 2rem; margin-bottom: 30px; text-shadow: var(--glow); }
+
+        .modes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 85%;
+            max-width: 400px;
+        }
+
+        .mode-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--primary);
+            padding: 20px;
+            border-radius: 25px;
+            text-align: right;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .mode-item:hover {
+            background: var(--primary);
+            transform: translateX(-10px);
+        }
+
+        .mode-item h3 { margin: 0 0 5px 0; font-size: 1.3rem; }
+        .mode-item p { margin: 0; font-size: 0.85rem; opacity: 0.7; }
+
+        /* واجهة طاولة اللعب */
+        #game-table {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, #1a472a 0%, #0a2112 100%);
+            z-index: 3000;
+            flex-direction: column;
+        }
+
+        #game-board {
             flex-grow: 1;
-            background: radial-gradient(circle, #1a472a, #0d2616);
-            border: 8px solid #3d2b1f;
-            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px;
             gap: 10px;
             overflow: auto;
-            padding: 40px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
         }
 
-        #player-hand {
-            height: 150px;
+        #hand {
+            height: 140px;
+            background: rgba(0,0,0,0.7);
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             padding: 20px;
-            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(10px);
         }
 
         .tile {
-            width: 50px; height: 90px;
-            background: #fdfdfd;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            border: 3px solid #333;
-            cursor: pointer;
+            width: 45px; height: 85px;
+            background: #fff; border-radius: 6px;
+            display: flex; flex-direction: column;
+            border: 3px solid #222; cursor: pointer;
             transition: 0.3s;
-            flex-shrink: 0;
         }
 
-        .tile:hover { transform: translateY(-20px); box-shadow: 0 0 20px var(--accent); }
-        .tile-part { flex: 1; color: black; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; }
-        .tile-part:first-child { border-bottom: 3px solid #333; }
+        .tile:hover { transform: translateY(-15px); box-shadow: 0 0 15px var(--accent); }
+        .t-part { flex: 1; color: #000; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; }
+        .t-part:first-child { border-bottom: 3px solid #222; }
 
-        .back-btn {
-            position: absolute; top: 20px; left: 20px;
-            background: #e74c3c; color: white; border: none;
-            padding: 10px 20px; border-radius: 10px; font-weight: bold;
-        }
+        .top-bar { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.4); font-weight: bold; }
+        .btn-exit { background: #ff4757; border: none; color: white; padding: 8px 18px; border-radius: 12px; cursor: pointer; }
+
     </style>
 </head>
 <body>
 
     <div class="universe-bg"></div>
-    <div class="waves"></div>
+    <div class="waves-overlay"></div>
 
     <header>
         <div class="logo">PiGamesHub</div>
-        <button class="auth-btn" id="user-btn" onclick="piAuth()">اتصال المحفظة</button>
+        <button class="auth-btn" id="pi-user" onclick="handleLogin()">اتصال Pi</button>
     </header>
 
-    <div id="main-interface">
-        <section class="hero">
-            <h1>مرحباً بك يا رائد</h1>
-            <p>منصة الويب 3 الأكثر انسيابية على شبكة Pi</p>
-        </section>
-
-        <div class="games-grid">
-            <div class="game-card" onclick="openGame('Domino')">
-                <img src="domino.png.png" alt="دومينو">
-                <span>دومينو</span>
-            </div>
-            <div class="game-card" onclick="alert('قريباً')">
-                <img src="chess.png.png" alt="شطرنج">
-                <span>شطرنج</span>
-            </div>
-            <div class="game-card" onclick="alert('قريباً')">
-                <img src="ludo.png.png" alt="لودو">
-                <span>لودو</span>
-            </div>
-            <div class="game-card" onclick="alert('قريباً')">
-                <img src="cards.png.png" alt="كوتشينة">
-                <span>كوتشينة</span>
-            </div>
-            <div class="game-card" onclick="alert('قريباً')">
-                <img src="tawla31.png.png" alt="طاولة">
-                <span>طاولة 31</span>
-            </div>
-            <div class="game-card" onclick="alert('قريباً')">
-                <img src="nerd.png.png" alt="نرد">
-                <span>النرد</span>
-            </div>
+    <div id="main-ui" class="games-grid">
+        <div class="game-card" onclick="openLobby()">
+            <img src="domino.png.png" alt="Domino">
+            <span>دومينو</span>
+        </div>
+        <div class="game-card" onclick="alert('قريباً: شطرنج الويب 3')">
+            <img src="chess.png.png" alt="Chess">
+            <span>شطرنج</span>
+        </div>
+        <div class="game-card" onclick="alert('قريباً: لودو الحظ')">
+            <img src="ludo.png.png" alt="Ludo">
+            <span>لودو</span>
+        </div>
+        <div class="game-card" onclick="alert('قريباً: ملك الكوتشينة')">
+            <img src="cards.png.png" alt="Cards">
+            <span>كوتشينة</span>
+        </div>
+        <div class="game-card" onclick="alert('قريباً: طاولة المحترفين')">
+            <img src="tawla31.png.png" alt="Tawla">
+            <span>طاولة 31</span>
+        </div>
+        <div class="game-card" onclick="alert('قريباً: زهر الحظ')">
+            <img src="nerd.png.png" alt="Nerd">
+            <span>النرد</span>
         </div>
     </div>
 
-    <div id="domino-ui">
-        <button class="back-btn" onclick="closeGame()">خروج</button>
-        <div id="board"></div>
-        <div id="player-hand"></div>
+    <div id="domino-lobby">
+        <div class="lobby-title">غرفة الدومينو</div>
+        <div class="modes-list">
+            <div class="mode-item" onclick="startMode('classic')">
+                <h3>دومينو عادية (101)</h3>
+                <p>تحدي النقاط الكلاسيكي حتى الفوز بالمباراة.</p>
+            </div>
+            <div class="mode-item" onclick="startMode('american')">
+                <h3>دومينو أمريكاني</h3>
+                <p>قواعد سريعة ونظام مضاعفات Pi.</p>
+            </div>
+            <div class="mode-item" onclick="startMode('fast')">
+                <h3>دومينو سريع (دور واحد)</h3>
+                <p>اللعب الخاطف.. اللى يخلص ورقه الأول يفوز فوراً!</p>
+            </div>
+            <button class="btn-exit" style="margin-top: 20px;" onclick="closeLobby()">رجوع للرئيسية</button>
+        </div>
+    </div>
+
+    <div id="game-table">
+        <div class="top-bar">
+            <span id="active-mode">الوضع: سريع</span>
+            <span id="score">النقاط: 0</span>
+            <button class="btn-exit" onclick="quitGame()">انسحاب</button>
+        </div>
+        <div id="game-board"></div>
+        <div id="hand"></div>
     </div>
 
     <script>
         const Pi = window.Pi;
         Pi.init({ version: "2.0", sandbox: true });
 
-        async function piAuth() {
+        async function handleLogin() {
             try {
                 const auth = await Pi.authenticate(['username'], (p)=>{});
-                document.getElementById('user-btn').innerText = auth.user.username;
-            } catch (e) { alert("افتح من Pi Browser"); }
+                document.getElementById('pi-user').innerText = auth.user.username;
+            } catch (e) { alert("يرجى الفتح من Pi Browser"); }
         }
 
-        // منطق الدومينو
-        let hand = [];
+        let currentMode = '';
+        let playerTiles = [];
 
-        function openGame(name) {
-            if(name === 'Domino') {
-                document.getElementById('domino-ui').style.display = 'flex';
-                startDomino();
-            }
+        function openLobby() {
+            document.getElementById('domino-lobby').style.display = 'flex';
         }
 
-        function closeGame() {
-            document.getElementById('domino-ui').style.display = 'none';
+        function closeLobby() {
+            document.getElementById('domino-lobby').style.display = 'none';
         }
 
-        function startDomino() {
-            const handDiv = document.getElementById('player-hand');
-            const board = document.getElementById('board');
-            handDiv.innerHTML = ""; board.innerHTML = "";
-            hand = [];
+        function startMode(mode) {
+            currentMode = mode;
+            document.getElementById('domino-lobby').style.display = 'none';
+            document.getElementById('main-ui').style.display = 'none';
+            document.getElementById('game-table').style.display = 'flex';
+            
+            const labels = { 'classic': 'عادية 101', 'american': 'أمريكاني', 'fast': 'سريع' };
+            document.getElementById('active-mode').innerText = "الوضع: " + labels[mode];
+            
+            initMatch();
+        }
 
-            // توزيع 7 قطع احترافية
+        function initMatch() {
+            const board = document.getElementById('game-board');
+            const handDiv = document.getElementById('hand');
+            board.innerHTML = ""; handDiv.innerHTML = "";
+            playerTiles = [];
+
+            // توزيع عشوائي للقطع (7 قطع)
             for(let i=0; i<7; i++) {
-                let v1 = Math.floor(Math.random()*7);
-                let v2 = Math.floor(Math.random()*7);
-                hand.push([v1, v2]);
+                playerTiles.push([Math.floor(Math.random()*7), Math.floor(Math.random()*7)]);
             }
             drawHand();
         }
 
         function drawHand() {
-            const handDiv = document.getElementById('player-hand');
+            const handDiv = document.getElementById('hand');
             handDiv.innerHTML = "";
-            hand.forEach((t, i) => {
-                const d = document.createElement('div');
-                d.className = 'tile';
-                d.innerHTML = `<div class="tile-part">${t[0]}</div><div class="tile-part">${t[1]}</div>`;
-                d.onclick = () => play(i);
-                handDiv.appendChild(d);
+            playerTiles.forEach((tile, index) => {
+                const div = document.createElement('div');
+                div.className = 'tile';
+                div.innerHTML = `<div class="t-part">${tile[0]}</div><div class="t-part">${tile[1]}</div>`;
+                div.onclick = () => playTile(index);
+                handDiv.appendChild(div);
             });
         }
 
-        function play(i) {
-            const t = hand[i];
-            const board = document.getElementById('board');
-            const d = document.createElement('div');
-            d.className = 'tile';
-            d.style.transform = "rotate(90deg)"; // وضع اللعب
-            d.innerHTML = `<div class="tile-part">${t[0]}</div><div class="tile-part">${t[1]}</div>`;
-            board.appendChild(d);
-            hand.splice(i, 1);
+        function playTile(index) {
+            const tile = playerTiles[index];
+            const board = document.getElementById('game-board');
+            const div = document.createElement('div');
+            div.className = 'tile';
+            div.style.transform = "rotate(90deg)"; // وضع اللعب الأفقي
+            div.innerHTML = `<div class="t-part">${tile[0]}</div><div class="t-part">${tile[1]}</div>`;
+            board.appendChild(div);
+            
+            playerTiles.splice(index, 1);
             drawHand();
+
+            if(playerTiles.length === 0) {
+                if(currentMode === 'fast') {
+                    alert("انتهى الدور السريع! لقد حققت الفوز.");
+                    quitGame();
+                } else {
+                    alert("أحسنت! فزت بهذا الدور، جاري حساب النقاط...");
+                    initMatch();
+                }
+            }
+        }
+
+        function quitGame() {
+            document.getElementById('game-table').style.display = 'none';
+            document.getElementById('main-ui').style.display = 'grid';
         }
     </script>
 </body>
