@@ -3,37 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | Web3 Gaming Ecosystem</title>
+    <title>PiGamesHub | الوجھة الاحترافية المطورة</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         :root {
             --primary: #6741d9;
             --accent: #ffd700;
-            --dark-bg: #05010a;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glow: 0 0 20px rgba(103, 65, 217, 0.4);
+            --dark-bg: #090216;
         }
 
         body {
             margin: 0;
-            background: radial-gradient(circle at top right, #1a0b2e, #05010a);
-            color: #fff;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* تأثير الخلفية الشبكية */
-        body::after {
-            content: "";
+        /* تأثير الموجات الانسيابية في الخلفية */
+        .wave-bg {
             position: fixed;
-            inset: 0;
-            background-image: linear-gradient(rgba(103, 65, 217, 0.05) 1px, transparent 1px), 
-                              linear-gradient(90deg, rgba(103, 65, 217, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a0b35 0%, #090216 100%);
+            z-index: -2;
+        }
+
+        .wave-overlay {
+            position: fixed;
+            width: 200%; height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(103, 65, 217, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(142, 68, 173, 0.1) 0%, transparent 40%);
+            animation: moveWaves 15s infinite linear;
             z-index: -1;
+        }
+
+        @keyframes moveWaves {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-10%, 5%) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
         }
 
         header {
@@ -42,128 +53,155 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(103, 65, 217, 0.2);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(103, 65, 217, 0.3);
             box-sizing: border-box;
             position: sticky; top: 0; z-index: 100;
         }
 
-        .logo-box { display: flex; align-items: center; gap: 8px; }
-        .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-        .web3-label { background: var(--primary); font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-text { font-size: 1.6rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .web3-tag { background: var(--primary); font-size: 0.6rem; padding: 3px 10px; border-radius: 50px; font-weight: bold; }
 
         .auth-btn {
-            background: linear-gradient(135deg, var(--primary), #4c2fb3);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 10px 24px; border-radius: 12px;
-            cursor: pointer; font-weight: 600; transition: 0.3s;
-            box-shadow: var(--glow);
+            background: linear-gradient(90deg, var(--primary), #8e44ad);
+            border: none; color: white; padding: 12px 25px; border-radius: 30px;
+            cursor: pointer; font-weight: bold; transition: 0.4s;
+            box-shadow: 0 5px 15px rgba(103, 65, 217, 0.4);
         }
 
-        .hero { text-align: center; padding: 40px 20px; }
-        .hero h1 { font-size: 2.2rem; margin: 0; background: linear-gradient(to bottom, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { color: #888; margin-top: 10px; font-size: 0.95rem; }
+        .auth-btn:hover { transform: scale(1.05); box-shadow: 0 8px 25px var(--primary); }
+
+        .hero { text-align: center; padding: 60px 20px; }
+        .hero h1 { font-size: 2.5rem; margin: 0; background: linear-gradient(to bottom, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { color: #aaa; margin-top: 15px; font-size: 1rem; max-width: 500px; margin-inline: auto; }
+
+        /* منطقة الألعاب المتموجة */
+        .games-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 50px;
+            padding: 40px 20px;
+            margin: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            align-self: center;
+        }
 
         .games-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            padding: 20px;
-            width: 95%;
-            max-width: 550px;
+            gap: 25px;
         }
 
         .game-card {
-            background: var(--glass-bg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 28px;
-            padding: 30px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 35px;
+            padding: 25px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             cursor: pointer;
-            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: ""; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(103, 65, 217, 0.1) 0%, transparent 70%);
+            transition: 0.5s;
         }
 
         .game-card:hover {
-            transform: translateY(-8px);
-            background: rgba(103, 65, 217, 0.1);
+            transform: translateY(-15px) scale(1.02);
             border-color: var(--primary);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            background: rgba(103, 65, 217, 0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
         .game-card img {
-            width: 100px; height: 100px;
+            width: 110px; height: 110px;
             object-fit: contain;
             margin-bottom: 15px;
-            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            transition: 0.5s;
         }
 
-        .game-card span { display: block; font-weight: 700; color: #fff; font-size: 1.1rem; }
+        .game-card:hover img { transform: rotate(5deg) scale(1.1); }
 
-        footer { margin-top: auto; padding: 40px; text-align: center; color: #444; font-size: 0.8rem; }
+        .game-card span { display: block; font-weight: 800; font-size: 1.2rem; color: #fff; }
+
+        footer { margin-top: auto; padding: 40px; text-align: center; color: #555; font-size: 0.9rem; }
+
     </style>
 </head>
 <body>
 
+    <div class="wave-bg"></div>
+    <div class="wave-overlay"></div>
+
     <header>
-        <div class="logo-box">
+        <div class="logo-area">
             <span class="logo-text">PiGamesHub</span>
-            <span class="web3-label">WEB 3.0</span>
+            <span class="web3-tag">WEB 3.0</span>
         </div>
-        <button class="auth-btn" id="wallet-btn" onclick="piLogin()">ربط المحفظة</button>
+        <button class="auth-btn" id="wallet-btn" onclick="connect()">اتصال المحفظة</button>
     </header>
 
     <section class="hero">
-        <h1>مرحباً بك يا رائد</h1>
-        <p>أول منصة ألعاب ويب 3 متكاملة على شبكة Pi Network</p>
+        <h1>مستقبل الألعاب بين يديك</h1>
+        <p>استمتع بتجربة ألعاب ويب 3 انسيابية وفريدة من نوعها على شبكة Pi Network.</p>
     </section>
 
-    <div class="games-grid">
-        <div class="game-card" onclick="start('Domino')">
-            <img src="domino.png.png" alt="دومينو">
-            <span>دومينو</span>
-        </div>
-        <div class="game-card" onclick="start('Chess')">
-            <img src="chess.png.png" alt="شطرنج">
-            <span>شطرنج</span>
-        </div>
-        <div class="game-card" onclick="start('Ludo')">
-            <img src="ludo.png.png" alt="لودو">
-            <span>لودو</span>
-        </div>
-        <div class="game-card" onclick="start('Cards')">
-            <img src="cards.png.png" alt="كوتشينة">
-            <span>كوتشينة</span>
-        </div>
-        <div class="game-card" onclick="start('Tawla')">
-            <img src="tawla31.png.png" alt="طاولة">
-            <span>طاولة 31</span>
-        </div>
-        <div class="game-card" onclick="start('Nerd')">
-            <img src="nerd.png.png" alt="نرد">
-            <span>ألعاب النرد</span>
+    <div class="games-container">
+        <div class="games-grid">
+            <div class="game-card" onclick="start('Domino')">
+                <img src="domino.png.png" alt="Domino">
+                <span>دومينو</span>
+            </div>
+            <div class="game-card" onclick="start('Chess')">
+                <img src="chess.png.png" alt="Chess">
+                <span>شطرنج</span>
+            </div>
+            <div class="game-card" onclick="start('Ludo')">
+                <img src="ludo.png.png" alt="Ludo">
+                <span>لودو</span>
+            </div>
+            <div class="game-card" onclick="start('Cards')">
+                <img src="cards.png.png" alt="Joker">
+                <span>كوتشينة</span>
+            </div>
+            <div class="game-card" onclick="start('Tawla')">
+                <img src="tawla31.png.png" alt="Tawla">
+                <span>طاولة 31</span>
+            </div>
+            <div class="game-card" onclick="start('Nerd')">
+                <img src="nerd.png.png" alt="Nerd">
+                <span>النرد</span>
+            </div>
         </div>
     </div>
 
     <footer>
-        &copy; 2026 PiGamesHub Ecosystem. All Rights Reserved.
+        &copy; 2026 PiGamesHub Ecosystem <br> Built for the Future of Web3
     </footer>
 
     <script>
         const Pi = window.Pi;
         Pi.init({ version: "2.0", sandbox: true });
 
-        async function piLogin() {
+        async function connect() {
             try {
                 const auth = await Pi.authenticate(['username'], (p) => {});
                 document.getElementById('wallet-btn').innerText = auth.user.username;
             } catch (e) {
-                alert("يرجى فتح الموقع من Pi Browser");
+                alert("يرجى فتح الموقع من متصفح Pi Browser لربط محفظتك آلياً.");
             }
         }
 
         function start(name) {
-            alert("اتصال آمن ببروتوكول " + name + "... يرجى الانتظار");
+            alert("جاري تفعيل اتصال الويب 3 بلعبة " + name + "... يرجى الانتظار");
         }
     </script>
 </body>
