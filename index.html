@@ -3,190 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | منصة الألعاب الرسمية</title>
-    
+    <title>PiGamesHub | Web3 Gaming Ecosystem</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-
     <style>
         :root {
-            --pi-purple: #6741d9;
-            --pi-dark: #1a0b2e;
-            --gold: #ffcc00;
-            --glass: rgba(255, 255, 255, 0.08);
+            --primary: #6741d9;
+            --accent: #ffd700;
+            --dark-bg: #05010a;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glow: 0 0 20px rgba(103, 65, 217, 0.4);
         }
 
         body {
             margin: 0;
-            padding: 0;
-            background: radial-gradient(circle at center, var(--pi-dark) 0%, #05010a 100%);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top right, #1a0b2e, #05010a);
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        /* تأثير الخلفية الشبكية */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(103, 65, 217, 0.05) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(103, 65, 217, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+        }
+
         header {
             width: 100%;
-            padding: 15px 20px;
+            padding: 20px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--pi-purple);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(103, 65, 217, 0.2);
             box-sizing: border-box;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .logo-text {
-            font-size: 1.4rem;
-            font-weight: bold;
-            background: linear-gradient(to right, #fff, var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .logo-box { display: flex; align-items: center; gap: 8px; }
+        .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .web3-label { background: var(--primary); font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
 
         .auth-btn {
-            background: linear-gradient(45deg, var(--pi-purple), #8e44ad);
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(103, 65, 217, 0.3);
+            background: linear-gradient(135deg, var(--primary), #4c2fb3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px 24px; border-radius: 12px;
+            cursor: pointer; font-weight: 600; transition: 0.3s;
+            box-shadow: var(--glow);
         }
 
-        .welcome-section {
-            text-align: center;
-            margin: 25px 0;
-        }
-
-        .welcome-section h1 { font-size: 1.6rem; margin-bottom: 5px; }
-        .welcome-section p { color: #aaa; font-size: 0.9rem; }
+        .hero { text-align: center; padding: 40px 20px; }
+        .hero h1 { font-size: 2.2rem; margin: 0; background: linear-gradient(to bottom, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { color: #888; margin-top: 10px; font-size: 0.95rem; }
 
         .games-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding: 15px;
+            gap: 20px;
+            padding: 20px;
             width: 95%;
-            max-width: 600px;
+            max-width: 550px;
         }
 
         .game-card {
-            background: var(--glass);
-            border: 1px solid rgba(103, 65, 217, 0.4);
-            border-radius: 20px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.2s, background 0.2s;
-            text-decoration: none;
-            color: white;
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 30px 15px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            backdrop-filter: blur(5px);
         }
 
-        .game-card:active {
-            transform: scale(0.95);
-            background: rgba(103, 65, 217, 0.2);
+        .game-card:hover {
+            transform: translateY(-8px);
+            background: rgba(103, 65, 217, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
 
         .game-card img {
-            width: 85px;
-            height: 85px;
+            width: 100px; height: 100px;
             object-fit: contain;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            margin-bottom: 15px;
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3));
         }
 
-        .game-card span {
-            font-weight: 600;
-            font-size: 1rem;
-        }
+        .game-card span { display: block; font-weight: 700; color: #fff; font-size: 1.1rem; }
 
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            font-size: 0.75rem;
-            opacity: 0.5;
-            letter-spacing: 1px;
-        }
+        footer { margin-top: auto; padding: 40px; text-align: center; color: #444; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-text">PiGamesHub</div>
-        <button class="auth-btn" id="btn-auth" onclick="login()">ربط المحفظة</button>
+        <div class="logo-box">
+            <span class="logo-text">PiGamesHub</span>
+            <span class="web3-label">WEB 3.0</span>
+        </div>
+        <button class="auth-btn" id="wallet-btn" onclick="piLogin()">ربط المحفظة</button>
     </header>
 
-    <div class="welcome-section">
+    <section class="hero">
         <h1>مرحباً بك يا رائد</h1>
-        <p>استمتع بأفضل الألعاب واربح عملة Pi</p>
-    </div>
+        <p>أول منصة ألعاب ويب 3 متكاملة على شبكة Pi Network</p>
+    </section>
 
     <div class="games-grid">
         <div class="game-card" onclick="start('Domino')">
-            <img src="domino.png.png" alt="Domino">
+            <img src="domino.png.png" alt="دومينو">
             <span>دومينو</span>
         </div>
-
         <div class="game-card" onclick="start('Chess')">
-            <img src="chess.png.png" alt="Chess">
+            <img src="chess.png.png" alt="شطرنج">
             <span>شطرنج</span>
         </div>
-
         <div class="game-card" onclick="start('Ludo')">
-            <img src="ludo.png.png" alt="Ludo">
+            <img src="ludo.png.png" alt="لودو">
             <span>لودو</span>
         </div>
-
-        <div class="game-card" onclick="start('Joker')">
-            <img src="cards.png.png" alt="Joker">
+        <div class="game-card" onclick="start('Cards')">
+            <img src="cards.png.png" alt="كوتشينة">
             <span>كوتشينة</span>
         </div>
-
         <div class="game-card" onclick="start('Tawla')">
-            <img src="tawla.png" alt="Tawla">
+            <img src="tawla31.png.png" alt="طاولة">
             <span>طاولة 31</span>
         </div>
-
-        <div class="game-card" onclick="start('Dice')">
-            <img src="nerd.png" alt="Dice">
+        <div class="game-card" onclick="start('Nerd')">
+            <img src="nerd.png.png" alt="نرد">
             <span>ألعاب النرد</span>
         </div>
     </div>
 
-    <footer>حقوق النشر © 2026 - منصة PIGAMESHUB</footer>
+    <footer>
+        &copy; 2026 PiGamesHub Ecosystem. All Rights Reserved.
+    </footer>
 
     <script>
-        // تهيئة SDK الخاص بشبكة باى
         const Pi = window.Pi;
-        if (Pi) {
-            Pi.init({ version: "2.0", sandbox: true });
-        }
+        Pi.init({ version: "2.0", sandbox: true });
 
-        async function login() {
+        async function piLogin() {
             try {
-                const scopes = ['username', 'payments'];
-                const auth = await Pi.authenticate(scopes, (payment) => {
-                    console.log("Incomplete payment found", payment);
-                });
-                document.getElementById('btn-auth').innerText = auth.user.username;
-                alert("تم الاتصال بحساب: " + auth.user.username);
-            } catch (err) {
-                alert("يرجى فتح التطبيق من متصفح Pi Browser");
+                const auth = await Pi.authenticate(['username'], (p) => {});
+                document.getElementById('wallet-btn').innerText = auth.user.username;
+            } catch (e) {
+                alert("يرجى فتح الموقع من Pi Browser");
             }
         }
 
-        function start(game) {
-            alert("جاري دخول غرفة " + game + "... انتظر لحظة");
-            // يمكنك هنا وضع رابط الصفحة التالية لكل لعبة
+        function start(name) {
+            alert("اتصال آمن ببروتوكول " + name + "... يرجى الانتظار");
         }
     </script>
 </body>
