@@ -3,198 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | Professional Web3 Domino</title>
+    <title>PiGamesHub | Advanced Domino</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root {
-            --primary: #6741d9;
-            --accent: #ffd700;
-            --dark: #05010a;
-            --glow: 0 0 20px rgba(103, 65, 217, 0.6);
+        :root { --primary: #6741d9; --accent: #ffd700; --dark: #05010a; }
+        body { margin: 0; background: var(--dark); color: white; font-family: sans-serif; overflow: hidden; }
+
+        /* الواجهة الرئيسية الثابتة */
+        .universe { position: fixed; inset: 0; background: radial-gradient(circle, #1a0b35, #05010a); z-index: -1; }
+        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(103,65,217,0.3); }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; max-width: 500px; margin: auto; }
+        .game-card { background: rgba(255,255,255,0.05); border-radius: 35px; padding: 25px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+
+        /* نظام النقاط (Dots) للقطع */
+        .domino-tile {
+            width: 40px; height: 80px; background: #eee; border-radius: 6px;
+            display: flex; flex-direction: column; border: 2px solid #222; position: relative;
         }
-
-        body {
-            margin: 0; background: var(--dark); color: white;
-            font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
-        }
-
-        /* زينة الواجهة الرئيسية */
-        .bg-universe { position: fixed; inset: 0; background: radial-gradient(circle, #1a0b35, #05010a); z-index: -1; }
-        .moving-waves { position: fixed; width: 200%; height: 200%; background: radial-gradient(circle at 30% 30%, rgba(103,65,217,0.1), transparent 50%); animation: rotate 30s linear infinite; z-index: -1; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(103,65,217,0.3); position: sticky; top: 0; z-index: 1000; }
-        .auth-btn { background: linear-gradient(45deg, var(--primary), #8e44ad); border: none; color: white; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: var(--glow); }
-
-        /* شبكة الألعاب الأصلية */
-        .main-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; max-width: 500px; margin: auto; }
-        .game-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 35px; padding: 25px 10px; text-align: center; transition: 0.4s; cursor: pointer; backdrop-filter: blur(10px); }
-        .game-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: var(--glow); }
-        .game-card img { width: 90px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); animation: float 4s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        /* واجهة الـ Lobby (الاختيار) */
-        #domino-lobby {
-            display: none; position: fixed; inset: 0; background: rgba(5,1,10,0.98);
-            z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .lobby-box { width: 85%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
-        .mode-item { background: rgba(103,65,217,0.1); border: 2px solid var(--primary); padding: 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
-        .mode-item:hover { background: var(--primary); transform: scale(1.03); }
-
-        /* طاولة الدومينو المحترفة */
-        #domino-table {
-            display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0a2b16 0%, #05150a 100%);
-            z-index: 3000; flex-direction: column;
-        }
-        .table-center { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; border: 15px solid #2c1e14; margin: 10px; border-radius: 20px; box-shadow: inset 0 0 100px rgba(0,0,0,0.5); }
+        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 4px; gap: 2px; position: relative; }
+        .half:first-child { border-bottom: 2px solid #333; }
+        .dot { background: #111; border-radius: 50%; width: 6px; height: 6px; visibility: hidden; margin: auto; }
         
-        /* تصميم الأوراق المحترف */
-        .tile {
-            width: 45px; height: 85px; background: linear-gradient(145deg, #fff, #e0e0e0);
-            border-radius: 8px; border: 3px solid #333; display: flex; flex-direction: column;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer; transition: 0.2s;
-        }
-        .tile-v { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: #111; }
-        .tile-v:first-child { border-bottom: 3px solid #333; }
-        .tile.played { transform: rotate(90deg); margin: 0 10px; scale: 0.8; }
+        /* توزيع النقاط بناءً على الرقم */
+        .v-1 .dot:nth-child(5) { visibility: visible; }
+        .v-2 .dot:nth-child(1), .v-2 .dot:nth-child(9) { visibility: visible; }
+        .v-3 .dot:nth-child(1), .v-3 .dot:nth-child(5), .v-3 .dot:nth-child(9) { visibility: visible; }
+        .v-4 .dot:nth-child(1), .v-4 .dot:nth-child(3), .v-4 .dot:nth-child(7), .v-4 .dot:nth-child(9) { visibility: visible; }
+        .v-5 .dot:nth-child(1), .v-5 .dot:nth-child(3), .v-5 .dot:nth-child(5), .v-5 .dot:nth-child(7), .v-5 .dot:nth-child(9) { visibility: visible; }
+        .v-6 .dot:nth-child(1), .v-6 .dot:nth-child(3), .v-6 .dot:nth-child(4), .v-6 .dot:nth-child(6), .v-6 .dot:nth-child(7), .v-6 .dot:nth-child(9) { visibility: visible; }
 
-        /* توزيع اللاعبين */
-        .p-tag { position: absolute; padding: 8px 15px; background: rgba(0,0,0,0.7); border-radius: 20px; border: 1px solid var(--primary); font-size: 0.8rem; }
-        .tag-top { top: 10px; } .tag-left { left: 10px; transform: rotate(90deg); } .tag-right { right: 10px; transform: rotate(-90deg); } .tag-bottom { bottom: 10px; border-color: var(--accent); }
-        .active-glow { box-shadow: 0 0 20px var(--accent); border-color: var(--accent); }
-
-        #board-tiles { display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; padding: 20px; width: 100%; height: 100%; overflow: auto; }
+        /* الطاولة الاحترافية */
+        #domino-table { display: none; position: fixed; inset: 0; background: #0a2b16; z-index: 3000; flex-direction: column; }
+        .table-area { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 10px solid #2c1e14; }
         
-        #player-hand { height: 130px; background: rgba(0,0,0,0.85); display: flex; justify-content: center; gap: 10px; padding: 15px; backdrop-filter: blur(10px); }
+        /* مسار الثعبان (Snake Layout) */
+        #board-tiles { 
+            display: flex; align-items: center; justify-content: center; 
+            flex-wrap: wrap; gap: 4px; width: 90%; max-height: 80%; 
+            padding: 20px;
+        }
 
-        .pass-msg { position: absolute; background: rgba(231, 76, 60, 0.9); padding: 10px 20px; border-radius: 10px; font-weight: bold; animation: fade 2s forwards; }
-        @keyframes fade { from {opacity: 1;} to {opacity: 0;} }
+        .tile-wrapper { transform: rotate(90deg); flex-shrink: 0; }
+        
+        #player-hand { height: 120px; background: rgba(0,0,0,0.8); display: flex; justify-content: center; gap: 8px; padding: 10px; overflow-x: auto; }
+
+        .tag { position: absolute; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; border: 1px solid var(--primary); font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
-    <div class="bg-universe"></div>
-    <div class="moving-waves"></div>
+    <div class="universe"></div>
 
     <header>
-        <div style="font-size: 1.6rem; font-weight: 900; color: var(--accent);">PiGamesHub</div>
-        <button class="auth-btn" id="user-pi" onclick="login()">اتصال المحفظة</button>
+        <div style="font-weight: 900; color: var(--accent);">PiGamesHub</div>
+        <button onclick="login()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:20px;">اتصال</button>
     </header>
 
     <div id="main-menu" class="main-grid">
-        <div class="game-card" onclick="showLobby()">
-            <img src="domino.png.png">
-            <span>دومينو</span>
+        <div class="game-card" onclick="openGame()">
+            <img src="domino.png.png" width="80">
+            <span>دومينو احترافي</span>
         </div>
-        <div class="game-card"><img src="chess.png.png"><span>شطرنج</span></div>
-        <div class="game-card"><img src="ludo.png.png"><span>لودو</span></div>
-        <div class="game-card"><img src="cards.png.png"><span>كوتشينة</span></div>
-        <div class="game-card"><img src="tawla31.png.png"><span>طاولة 31</span></div>
-        <div class="game-card"><img src="nerd.png.png"><span>النرد</span></div>
-    </div>
-
-    <div id="domino-lobby">
-        <h2 style="color: var(--accent);">اختيار نظام اللعب</h2>
-        <div class="lobby-box">
-            <div class="mode-item" onclick="startDomino('classic')">
-                <h3>الدومينو العادية</h3>
-                <p>تحدي 101 نقطة - 4 لاعبين</p>
-            </div>
-            <div class="mode-item" onclick="startDomino('american')">
-                <h3>الدومينو الأمريكاني</h3>
-                <p>قواعد سريعة ونقاط مضاعفة</p>
-            </div>
-            <div class="mode-item" onclick="startDomino('fast')">
-                <h3>الدومينو السريع</h3>
-                <p>دور واحد - اللى يخلص ورقه يفوز</p>
-            </div>
-            <button onclick="hideLobby()" style="background:none; border:none; color:red; cursor:pointer;">إلغاء</button>
         </div>
-    </div>
 
     <div id="domino-table">
-        <div style="padding: 10px; display: flex; justify-content: space-between; background: var(--primary);">
+        <div style="background: #111; padding: 8px; display: flex; justify-content: space-between;">
             <span id="game-status">انتظر دورك...</span>
-            <button onclick="location.reload()" style="background: #c0392b; border:none; color:white; border-radius:5px; padding:3px 10px;">خروج</button>
+            <button onclick="location.reload()" style="background:red; color:white; border:none; border-radius:5px;">خروج</button>
         </div>
-        
-        <div class="table-center">
-            <div class="p-tag tag-top" id="slot-2">الكمبيوتر 2 (7)</div>
-            <div class="p-tag tag-left" id="slot-1">الكمبيوتر 1 (7)</div>
-            <div class="p-tag tag-right" id="slot-3">الكمبيوتر 3 (7)</div>
-            <div class="p-tag tag-bottom" id="slot-0">أنت (7)</div>
-            
+        <div class="table-area">
+            <div class="tag" style="top:10px;">الكمبيوتر 2</div>
+            <div class="tag" style="left:10px;">الكمبيوتر 1</div>
+            <div class="tag" style="right:10px;">الكمبيوتر 3</div>
             <div id="board-tiles"></div>
         </div>
-
         <div id="player-hand"></div>
     </div>
 
     <script>
-        const Pi = window.Pi;
-        Pi.init({ version: "2.0", sandbox: true });
-
-        async function login() {
-            try {
-                const auth = await Pi.authenticate(['username'], (p)=>{});
-                document.getElementById('user-pi').innerText = auth.user.username;
-            } catch (e) { alert("افتح من Pi Browser"); }
-        }
-
-        // إظهار وإخفاء اللوبي
-        function showLobby() { document.getElementById('domino-lobby').style.display = 'flex'; }
-        function hideLobby() { document.getElementById('domino-lobby').style.display = 'none'; }
-
-        // منطق اللعبة
         let players = [[], [], [], []];
         let gameBoard = [];
         let turn = 0;
 
-        function startDomino(mode) {
-            hideLobby();
+        function login() { /* Pi Auth Logic */ }
+
+        function openGame() {
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('domino-table').style.display = 'flex';
-            
-            // تحضير الورق (28 قطعة)
+            initMatch();
+        }
+
+        function initMatch() {
             let deck = [];
             for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push([i, j]);
             deck.sort(() => Math.random() - 0.5);
-
             for(let p=0; p<4; p++) players[p] = deck.splice(0, 7);
-            gameBoard = [];
-            turn = 0;
-            
             updateUI();
             processTurn();
         }
 
+        function createTileUI(v1, v2) {
+            const dots = '<div></div>'.repeat(9);
+            return `<div class="domino-tile">
+                <div class="half v-${v1}">${dots}</div>
+                <div class="half v-${v2}">${dots}</div>
+            </div>`;
+        }
+
         function updateUI() {
-            const handDiv = document.getElementById('player-hand');
-            handDiv.innerHTML = "";
+            const hand = document.getElementById('player-hand');
+            hand.innerHTML = "";
             players[0].forEach((t, i) => {
                 const d = document.createElement('div');
-                d.className = 'tile';
-                d.innerHTML = `<div class="tile-v">${t[0]}</div><div class="tile-v">${t[1]}</div>`;
+                d.innerHTML = createTileUI(t[0], t[1]);
                 d.onclick = () => playTile(0, i);
-                handDiv.appendChild(d);
+                hand.appendChild(d);
             });
-
-            for(let i=0; i<4; i++) {
-                let label = (i==0) ? "أنت" : `الكمبيوتر ${i}`;
-                document.getElementById(`slot-${i}`).innerText = `${label} (${players[i].length})`;
-                document.getElementById(`slot-${i}`).classList.toggle('active-glow', turn === i);
-            }
         }
 
         function playTile(pIdx, tIdx) {
             if(turn !== pIdx) return;
             const tile = players[pIdx][tIdx];
-
             if(canPlay(tile)) {
                 executeMove(tile, pIdx, tIdx);
-            } else {
-                if(pIdx === 0) alert("هذه القطعة لا تناسب اللوحة!");
             }
         }
 
@@ -210,66 +141,43 @@
             } else {
                 let L = gameBoard[0][0], R = gameBoard[gameBoard.length-1][1];
                 if(tile.includes(L)) {
-                    if(tile[1] === L) gameBoard.unshift(tile);
-                    else gameBoard.unshift([tile[1], tile[0]]);
+                    gameBoard.unshift(tile[1] === L ? tile : [tile[1], tile[0]]);
                 } else {
-                    if(tile[0] === R) gameBoard.push(tile);
-                    else gameBoard.push([tile[1], tile[0]]);
+                    gameBoard.push(tile[0] === R ? tile : [tile[1], tile[0]]);
                 }
             }
             players[pIdx].splice(tIdx, 1);
             renderBoard();
             updateUI();
-            
-            if(players[pIdx].length === 0) {
-                alert("انتهت اللعبة! الفائز: " + (pIdx==0?"أنت":`كمبيوتر ${pIdx}`));
-                location.reload();
-            } else {
-                turn = (turn + 1) % 4;
-                processTurn();
-            }
+            if(players[pIdx].length === 0) { alert("فاز لاعب " + pIdx); location.reload(); }
+            else { turn = (turn + 1) % 4; processTurn(); }
         }
 
         function renderBoard() {
             const b = document.getElementById('board-tiles');
             b.innerHTML = "";
             gameBoard.forEach(t => {
-                const d = document.createElement('div');
-                d.className = 'tile played';
-                d.innerHTML = `<div class="tile-v">${t[0]}</div><div class="tile-v">${t[1]}</div>`;
-                b.appendChild(d);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'tile-wrapper';
+                wrapper.innerHTML = createTileUI(t[0], t[1]);
+                b.appendChild(wrapper);
             });
         }
 
         function processTurn() {
-            if(turn === 0) {
-                document.getElementById('game-status').innerText = "دورك الآن - اختر قطعة";
+            if(turn !== 0) {
+                document.getElementById('game-status').innerText = `كمبيوتر ${turn} يلعب...`;
+                setTimeout(() => {
+                    let idx = players[turn].findIndex(t => canPlay(t));
+                    if(idx !== -1) playTile(turn, idx);
+                    else { turn = (turn+1)%4; processTurn(); }
+                }, 1000);
+            } else {
+                document.getElementById('game-status').innerText = "دورك الآن";
                 if(!players[0].some(t => canPlay(t))) {
-                    showPassMsg("لا يوجد لعب.. تمرير الدور");
-                    setTimeout(() => { turn = 1; processTurn(); }, 2000);
+                    setTimeout(() => { turn = 1; processTurn(); }, 1500);
                 }
-            } else {
-                document.getElementById('game-status').innerText = `كمبيوتر ${turn} يفكر...`;
-                setTimeout(aiLogic, 1500);
             }
-        }
-
-        function aiLogic() {
-            let idx = players[turn].findIndex(t => canPlay(t));
-            if(idx !== -1) {
-                playTile(turn, idx);
-            } else {
-                showPassMsg(`كمبيوتر ${turn} مرر الدور`);
-                turn = (turn + 1) % 4;
-                processTurn();
-            }
-        }
-
-        function showPassMsg(msg) {
-            const m = document.createElement('div');
-            m.className = 'pass-msg';
-            m.innerText = msg;
-            document.querySelector('.table-center').appendChild(m);
         }
     </script>
 </body>
