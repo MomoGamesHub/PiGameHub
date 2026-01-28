@@ -3,180 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | Advanced Domino</title>
+    <title>PiGamesHub | The Ultimate Masterpiece</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --primary: #6741d9; --accent: #ffd700; --dark: #05010a; }
-        body { margin: 0; background: var(--dark); color: white; font-family: sans-serif; overflow: hidden; }
+        :root {
+            --primary: #6741d9;
+            --accent: #ffd700;
+            --dark-bg: #05010a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glow: 0 0 25px rgba(103, 65, 217, 0.5);
+        }
 
-        /* الواجهة الرئيسية الثابتة */
-        .universe { position: fixed; inset: 0; background: radial-gradient(circle, #1a0b35, #05010a); z-index: -1; }
-        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(103,65,217,0.3); }
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; max-width: 500px; margin: auto; }
-        .game-card { background: rgba(255,255,255,0.05); border-radius: 35px; padding: 25px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+        body, html { 
+            margin: 0; padding: 0; background: var(--dark-bg); 
+            color: white; font-family: 'Segoe UI', sans-serif; 
+            height: 100vh; overflow: hidden; 
+        }
 
-        /* نظام النقاط (Dots) للقطع */
+        /* الخلفية السينمائية */
+        .universe { position: fixed; inset: 0; background: radial-gradient(circle at 50% 50%, #1a0b35 0%, #05010a 100%); z-index: -2; }
+        .waves { position: fixed; width: 200%; height: 200%; background: radial-gradient(circle at 30% 30%, rgba(103,65,217,0.12), transparent 50%); animation: rotateBg 30s linear infinite; z-index: -1; }
+        @keyframes rotateBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* الهيدر */
+        header { 
+            padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
+            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(103, 65, 217, 0.3); 
+        }
+        .logo { font-size: 1.8rem; font-weight: 900; color: var(--accent); text-shadow: var(--glow); }
+
+        /* شبكة الألعاب الستة */
+        .main-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; 
+            padding: 20px; max-width: 500px; margin: 30px auto; 
+        }
+        .game-card { 
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 35px; padding: 25px 10px; text-align: center; 
+            transition: 0.4s; cursor: pointer; backdrop-filter: blur(10px);
+        }
+        .game-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: var(--glow); }
+        .game-card img { width: 80px; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5)); animation: float 4s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        /* الدومينو بنظام النقاط Dots */
         .domino-tile {
-            width: 40px; height: 80px; background: #eee; border-radius: 6px;
-            display: flex; flex-direction: column; border: 2px solid #222; position: relative;
+            width: 44px; height: 88px; background: linear-gradient(145deg, #ffffff, #e0e0e0);
+            border-radius: 8px; border: 3px solid #222; position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4); cursor: pointer; 
         }
-        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 4px; gap: 2px; position: relative; }
-        .half:first-child { border-bottom: 2px solid #333; }
-        .dot { background: #111; border-radius: 50%; width: 6px; height: 6px; visibility: hidden; margin: auto; }
+        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 5px; gap: 3px; height: 40px; }
+        .half:first-child { border-bottom: 3px solid #333; }
+        .dot { background: #111; border-radius: 50%; width: 7px; height: 7px; visibility: hidden; margin: auto; }
         
-        /* توزيع النقاط بناءً على الرقم */
-        .v-1 .dot:nth-child(5) { visibility: visible; }
-        .v-2 .dot:nth-child(1), .v-2 .dot:nth-child(9) { visibility: visible; }
-        .v-3 .dot:nth-child(1), .v-3 .dot:nth-child(5), .v-3 .dot:nth-child(9) { visibility: visible; }
-        .v-4 .dot:nth-child(1), .v-4 .dot:nth-child(3), .v-4 .dot:nth-child(7), .v-4 .dot:nth-child(9) { visibility: visible; }
-        .v-5 .dot:nth-child(1), .v-5 .dot:nth-child(3), .v-5 .dot:nth-child(5), .v-5 .dot:nth-child(7), .v-5 .dot:nth-child(9) { visibility: visible; }
-        .v-6 .dot:nth-child(1), .v-6 .dot:nth-child(3), .v-6 .dot:nth-child(4), .v-6 .dot:nth-child(6), .v-6 .dot:nth-child(7), .v-6 .dot:nth-child(9) { visibility: visible; }
+        /* توزيع النقاط */
+        .v-1 .d5, .v-3 .d5, .v-5 .d5 { visibility: visible; }
+        .v-2 .d1, .v-2 .d9, .v-3 .d1, .v-3 .d9, .v-4 .d1, .v-4 .d3, .v-4 .d7, .v-4 .d9, .v-5 .d1, .v-5 .d3, .v-5 .d7, .v-5 .d9, .v-6 .d1, .v-6 .d3, .v-6 .d4, .v-6 .d6, .v-6 .d7, .v-6 .d9 { visibility: visible; }
 
-        /* الطاولة الاحترافية */
-        #domino-table { display: none; position: fixed; inset: 0; background: #0a2b16; z-index: 3000; flex-direction: column; }
-        .table-area { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 10px solid #2c1e14; }
-        
-        /* مسار الثعبان (Snake Layout) */
-        #board-tiles { 
-            display: flex; align-items: center; justify-content: center; 
-            flex-wrap: wrap; gap: 4px; width: 90%; max-height: 80%; 
-            padding: 20px;
+        /* طاولة اللعب - مسار Snake */
+        #domino-screen { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0a2b16 0%, #05150a 100%); z-index: 5000; flex-direction: column; }
+        .table-area { 
+            flex-grow: 1; position: relative; border: 15px solid #2c1e14; margin: 10px; border-radius: 25px; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
+        #snake-path { 
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: center; 
+            gap: 15px; width: 90%; max-height: 85%; padding: 20px; transition: 0.5s;
+        }
+        .in-game-tile { transform: rotate(90deg) scale(0.8); flex-shrink: 0; }
 
-        .tile-wrapper { transform: rotate(90deg); flex-shrink: 0; }
-        
-        #player-hand { height: 120px; background: rgba(0,0,0,0.8); display: flex; justify-content: center; gap: 8px; padding: 10px; overflow-x: auto; }
+        /* شاشة الاختيار Lobby */
+        #lobby-screen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 4000; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .mode-option { background: rgba(103,65,217,0.15); border: 2px solid var(--primary); padding: 25px; border-radius: 25px; width: 280px; margin: 12px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .mode-option:hover { background: var(--primary); transform: translateX(-10px); }
 
-        .tag { position: absolute; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; border: 1px solid var(--primary); font-size: 0.7rem; }
+        #hand-container { height: 150px; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px; border-top: 3px solid var(--primary); overflow-x: auto; }
     </style>
 </head>
 <body>
 
     <div class="universe"></div>
+    <div class="waves"></div>
 
-    <header>
-        <div style="font-weight: 900; color: var(--accent);">PiGamesHub</div>
-        <button onclick="login()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:20px;">اتصال</button>
-    </header>
-
-    <div id="main-menu" class="main-grid">
-        <div class="game-card" onclick="openGame()">
-            <img src="domino.png.png" width="80">
-            <span>دومينو احترافي</span>
+    <div id="main-ui">
+        <header>
+            <div class="logo">PiGamesHub</div>
+            <button class="auth-btn" onclick="piLogin()">اتصال Pi</button>
+        </header>
+        <div class="main-grid">
+            <div class="game-card" onclick="openDominoLobby()">
+                <img src="domino.png.png"><div>دومينو</div>
+            </div>
+            <div class="game-card"><img src="chess.png.png"><div>شطرنج</div></div>
+            <div class="game-card"><img src="ludo.png.png"><div>لودو</div></div>
+            <div class="game-card"><img src="cards.png.png"><div>كوتشينة</div></div>
+            <div class="game-card"><img src="tawla31.png.png"><div>طاولة 31</div></div>
+            <div class="game-card"><img src="nerd.png.png"><div>النرد</div></div>
         </div>
-        </div>
+    </div>
 
-    <div id="domino-table">
-        <div style="background: #111; padding: 8px; display: flex; justify-content: space-between;">
-            <span id="game-status">انتظر دورك...</span>
-            <button onclick="location.reload()" style="background:red; color:white; border:none; border-radius:5px;">خروج</button>
+    <div id="lobby-screen">
+        <h2 style="color:var(--accent); margin-bottom:30px;">اختر نظام الدومينو</h2>
+        <div class="mode-option" onclick="initDominoGame('classic')">دومينو عادية (101 نقطة)</div>
+        <div class="mode-option" onclick="initDominoGame('american')">دومينو أمريكاني</div>
+        <div class="mode-option" onclick="initDominoGame('fast')">دومينو سريع (دور واحد)</div>
+        <button onclick="document.getElementById('lobby-screen').style.display='none'" style="margin-top:20px; color:red; background:none; border:none; cursor:pointer;">إلغاء</button>
+    </div>
+
+    <div id="domino-screen">
+        <div style="padding:12px; background:rgba(0,0,0,0.5); display:flex; justify-content:space-between;">
+            <span id="turn-info" style="color:var(--accent); font-weight:bold;">جاري التحميل...</span>
+            <button onclick="location.reload()" style="background:#c0392b; color:white; border:none; padding:5px 15px; border-radius:10px;">خروج</button>
         </div>
         <div class="table-area">
-            <div class="tag" style="top:10px;">الكمبيوتر 2</div>
-            <div class="tag" style="left:10px;">الكمبيوتر 1</div>
-            <div class="tag" style="right:10px;">الكمبيوتر 3</div>
-            <div id="board-tiles"></div>
+            <div id="snake-path"></div>
         </div>
-        <div id="player-hand"></div>
+        <div id="hand-container"></div>
     </div>
 
     <script>
+        const Pi = window.Pi;
         let players = [[], [], [], []];
-        let gameBoard = [];
+        let board = [];
         let turn = 0;
 
-        function login() { /* Pi Auth Logic */ }
+        function openDominoLobby() { document.getElementById('lobby-screen').style.display = 'flex'; }
 
-        function openGame() {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('domino-table').style.display = 'flex';
-            initMatch();
+        function createDotsHTML(v1, v2) {
+            const dotGrid = `<div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div><div class="dot d7"></div><div class="dot d8"></div><div class="dot d9"></div>`;
+            return `<div class="domino-tile">
+                <div class="half v-${v1}">${dotGrid}</div>
+                <div class="half v-${v2}">${dotGrid}</div>
+            </div>`;
         }
 
-        function initMatch() {
+        function initDominoGame() {
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('main-ui').style.display = 'none';
+            document.getElementById('domino-screen').style.display = 'flex';
+            
             let deck = [];
             for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push([i, j]);
             deck.sort(() => Math.random() - 0.5);
             for(let p=0; p<4; p++) players[p] = deck.splice(0, 7);
-            updateUI();
-            processTurn();
+            
+            updateDisplay();
+            gameLoop();
         }
 
-        function createTileUI(v1, v2) {
-            const dots = '<div></div>'.repeat(9);
-            return `<div class="domino-tile">
-                <div class="half v-${v1}">${dots}</div>
-                <div class="half v-${v2}">${dots}</div>
-            </div>`;
-        }
-
-        function updateUI() {
-            const hand = document.getElementById('player-hand');
+        function updateDisplay() {
+            const hand = document.getElementById('hand-container');
             hand.innerHTML = "";
             players[0].forEach((t, i) => {
-                const d = document.createElement('div');
-                d.innerHTML = createTileUI(t[0], t[1]);
-                d.onclick = () => playTile(0, i);
-                hand.appendChild(d);
+                const div = document.createElement('div');
+                div.innerHTML = createDotsHTML(t[0], t[1]);
+                div.onclick = () => playerMove(i);
+                hand.appendChild(div);
             });
         }
 
-        function playTile(pIdx, tIdx) {
-            if(turn !== pIdx) return;
-            const tile = players[pIdx][tIdx];
-            if(canPlay(tile)) {
-                executeMove(tile, pIdx, tIdx);
+        function playerMove(idx) {
+            if(turn !== 0) return;
+            const tile = players[0][idx];
+            if(isValid(tile)) {
+                playToBoard(tile, 0, idx);
             }
         }
 
-        function canPlay(tile) {
-            if(gameBoard.length === 0) return true;
-            let L = gameBoard[0][0], R = gameBoard[gameBoard.length-1][1];
-            return tile.includes(L) || tile.includes(R);
+        function isValid(tile) {
+            if(board.length === 0) return true;
+            return tile.includes(board[0][0]) || tile.includes(board[board.length-1][1]);
         }
 
-        function executeMove(tile, pIdx, tIdx) {
-            if(gameBoard.length === 0) {
-                gameBoard.push(tile);
-            } else {
-                let L = gameBoard[0][0], R = gameBoard[gameBoard.length-1][1];
-                if(tile.includes(L)) {
-                    gameBoard.unshift(tile[1] === L ? tile : [tile[1], tile[0]]);
-                } else {
-                    gameBoard.push(tile[0] === R ? tile : [tile[1], tile[0]]);
-                }
+        function playToBoard(tile, pIdx, tIdx) {
+            if(board.length === 0) board.push(tile);
+            else {
+                let L = board[0][0], R = board[board.length-1][1];
+                if(tile.includes(L)) board.unshift(tile[1]===L ? tile : [tile[1], tile[0]]);
+                else board.push(tile[0]===R ? tile : [tile[1], tile[0]]);
             }
             players[pIdx].splice(tIdx, 1);
-            renderBoard();
-            updateUI();
-            if(players[pIdx].length === 0) { alert("فاز لاعب " + pIdx); location.reload(); }
-            else { turn = (turn + 1) % 4; processTurn(); }
+            drawBoard();
+            updateDisplay();
+            
+            if(players[pIdx].length === 0) {
+                alert(pIdx === 0 ? "مبروك! لقد فزت." : "خسرت! فاز الكمبيوتر " + pIdx);
+                location.reload();
+            } else {
+                turn = (turn + 1) % 4;
+                gameLoop();
+            }
         }
 
-        function renderBoard() {
-            const b = document.getElementById('board-tiles');
+        function drawBoard() {
+            const b = document.getElementById('snake-path');
             b.innerHTML = "";
-            gameBoard.forEach(t => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'tile-wrapper';
-                wrapper.innerHTML = createTileUI(t[0], t[1]);
-                b.appendChild(wrapper);
+            board.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'in-game-tile';
+                div.innerHTML = createDotsHTML(t[0], t[1]);
+                b.appendChild(div);
             });
         }
 
-        function processTurn() {
+        function gameLoop() {
+            document.getElementById('turn-info').innerText = turn === 0 ? "دورك: اختر قطعة مناسبة" : `دور كمبيوتر ${turn} يفكر...`;
             if(turn !== 0) {
-                document.getElementById('game-status').innerText = `كمبيوتر ${turn} يلعب...`;
                 setTimeout(() => {
-                    let idx = players[turn].findIndex(t => canPlay(t));
-                    if(idx !== -1) playTile(turn, idx);
-                    else { turn = (turn+1)%4; processTurn(); }
-                }, 1000);
-            } else {
-                document.getElementById('game-status').innerText = "دورك الآن";
-                if(!players[0].some(t => canPlay(t))) {
-                    setTimeout(() => { turn = 1; processTurn(); }, 1500);
-                }
+                    let L = board[0][0], R = board[board.length-1][1];
+                    let idx = players[turn].findIndex(t => board.length===0 || t.includes(L) || t.includes(R));
+                    if(idx !== -1) playToBoard(players[turn][idx], turn, idx);
+                    else { turn = (turn + 1) % 4; gameLoop(); }
+                }, 1500);
             }
         }
     </script>
