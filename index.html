@@ -3,267 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | Ultimate Artistic Edition</title>
+    <title>PiGamesHub | The Ultimate Pioneer Edition</title>
     <style>
         :root {
-            --primary-purple: #6741d9;
+            --pi-purple: #6741d9;
             --pi-gold: #ffd700;
-            --dark-bg: #05010a;
-            --semi-dark: #1a0b35;
-            --glass-card: rgba(255, 255, 255, 0.04);
-            --border-light: rgba(255, 255, 255, 0.1);
-            --shadow-glow: 0 0 20px rgba(103, 65, 217, 0.4);
-            --table-green: #0a3d1d;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --dark-space: #05010a;
         }
 
-        body, html {
-            margin: 0; padding: 0;
-            background: var(--dark-bg);
-            color: white; font-family: 'Segoe UI', sans-serif;
-            height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column;
-        }
+        body, html { margin: 0; padding: 0; background: var(--dark-space); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
 
-        /* الخلفية الفنية المدمجة */
-        .background-art {
+        /* الخلفية الاحترافية الكبيرة */
+        .hero-background {
             position: fixed; inset: 0;
-            background: radial-gradient(circle at center, var(--semi-dark) 0%, var(--dark-bg) 100%);
+            /* استبدل الرابط أدناه برابط صورة الشطرنج بعد الرفع */
+            background: url('https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/hero-bg.jpg') no-repeat center center;
+            background-size: cover;
+            opacity: 0.35; /* شفافية لجعل الواجهة واضحة */
             z-index: -2;
-            overflow: hidden;
+            filter: blur(1px);
         }
-        .chess-king {
-            position: absolute; width: 400px; opacity: 0.2; filter: blur(5px);
-            bottom: -50px; left: -100px; z-index: -1;
-            transform: rotate(-10deg);
-            background: url('chess_king_gold.png') no-repeat center center / contain;
-            height: 500px;
-        }
-        .chess-knight {
-            position: absolute; width: 300px; opacity: 0.2; filter: blur(5px);
-            top: -30px; right: -80px; z-index: -1;
-            transform: rotate(15deg);
-            background: url('chess_knight_gold.png') no-repeat center center / contain;
-            height: 400px;
-        }
-        .dice-bg-left {
-            position: absolute; width: 150px; opacity: 0.15; filter: blur(3px);
-            top: 10%; left: 0%; transform: rotate(25deg);
-            background: url('dice_pink_blue.png') no-repeat center center / contain;
-            height: 150px;
-        }
-        .dice-bg-right {
-            position: absolute; width: 180px; opacity: 0.15; filter: blur(3px);
-            bottom: 5%; right: 0%; transform: rotate(-30deg);
-            background: url('dice_pink_blue.png') no-repeat center center / contain;
-            height: 180px;
-        }
+
+        /* تأثير الأمواج الانسيابية المتوهجة */
         .wave-effect {
-            position: absolute; width: 150%; height: 150%;
-            background: radial-gradient(circle at 70% 30%, rgba(103,65,217,0.15), transparent 50%);
-            animation: rotateWaves 40s linear infinite; z-index: -1;
+            position: fixed; width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(103, 65, 217, 0.2), transparent 50%);
+            animation: flowWaves 20s linear infinite;
+            z-index: -1;
         }
-        @keyframes rotateWaves { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes flowWaves { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* الهيدر والعلامة التجارية */
-        header {
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-light);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            position: relative; z-index: 10;
+        /* الهيدر وزر Pi الرسمي */
+        header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .logo-text { font-size: 1.7rem; font-weight: 900; color: var(--pi-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .pi-btn {
+            background: linear-gradient(45deg, var(--pi-purple), #4b2cb3);
+            border: 2px solid var(--pi-gold); color: white; padding: 10px 25px;
+            border-radius: 50px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 15px var(--pi-purple); animation: glowPulse 2s infinite;
         }
-        .pi-brand-logo {
-            color: var(--pi-gold); font-weight: 900; font-size: 1.6rem;
-            text-shadow: 0 0 10px var(--pi-gold);
-        }
-        .pi-auth-btn {
-            background: linear-gradient(45deg, var(--primary-purple), #512da8);
-            border: 2px solid var(--pi-gold); color: white;
-            padding: 10px 22px; border-radius: 30px; cursor: pointer;
-            font-weight: bold; font-size: 1rem;
-            box-shadow: 0 0 15px var(--primary-purple);
-            animation: btn-glow 2s infinite alternate;
-        }
-        @keyframes btn-glow {
-            0% { box-shadow: 0 0 8px var(--primary-purple); }
-            100% { box-shadow: 0 0 20px var(--pi-gold); }
-        }
+        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 10px var(--pi-purple); } 50% { box-shadow: 0 0 20px var(--pi-gold); } }
 
-        /* حاوية الألعاب (مطابقة للصورة الاحترافية) */
-        .hub-container {
-            flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px;
-        }
-        .hub-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
-            max-width: 420px; width: 100%;
-            padding: 25px; background: var(--glass-card); border-radius: 30px;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-glow);
-            margin-top: 20px;
-        }
+        /* شبكة الألعاب الستة بتصميم Glassmorphism */
+        .main-hub { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 480px; margin: 40px auto; padding: 20px; }
         .game-card {
-            background: rgba(255,255,255,0.08); border-radius: 20px; padding: 18px;
-            text-align: center; border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
-            transition: 0.3s ease-in-out;
+            background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px; padding: 25px 15px; text-align: center;
+            backdrop-filter: blur(15px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
         }
-        .game-card:hover {
-            border-color: var(--pi-gold); transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        }
-        .game-card img { width: 65px; height: 65px; object-fit: contain; margin-bottom: 10px; }
-        .game-card div { font-size: 0.95rem; font-weight: 600; }
+        .game-card:hover { border-color: var(--pi-gold); transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        .game-card img { width: 75px; height: 75px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4)); }
 
-        /* شاشة اللوبي */
-        #lobby-screen {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 1000; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(8px);
+        /* طاولة اللعب والمسار الثعباني المصحح */
+        #game-view { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0e4d26, #051a0d); flex-direction: column; z-index: 1000; }
+        .table-area { flex: 1; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px; padding: 30px; overflow-y: auto; }
+        
+        /* قطعة الدومينو بنقاطها الحقيقية */
+        .tile {
+            width: 38px; height: 76px; background: #f8f8f8; border: 2px solid #222;
+            border-radius: 6px; display: flex; flex-direction: column; box-shadow: 3px 6px 12px rgba(0,0,0,0.4);
         }
-        .lobby-title { color: var(--pi-gold); font-size: 1.8rem; margin-bottom: 30px; }
-        .lobby-option {
-            width: 300px; padding: 18px; margin: 12px; background: var(--glass-card);
-            border: 1px solid var(--primary-purple); border-radius: 20px; color: white;
-            cursor: pointer; font-size: 1.1rem; text-align: center; transition: 0.3s;
-        }
-        .lobby-option:hover { background: var(--primary-purple); transform: scale(1.03); }
-        .back-button {
-            position: absolute; top: 25px; right: 25px; color: var(--pi-gold);
-            background: none; border: 1px solid var(--pi-gold); padding: 8px 18px;
-            border-radius: 15px; cursor: pointer; font-size: 0.9rem;
-        }
+        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 4px; gap: 2px; }
+        .dot { background: #111; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; margin: auto; }
+        
+        /* منطق النقاط المبرمج */
+        .v1 .d5, .v3 .d5, .v5 .d5 { visibility: visible; }
+        .v2 .d1, .v2 .d9, .v3 .d1, .v3 .d9, .v4 .d1, .v4 .d3, .v4 .d7, .v4 .d9, .v5 .d1, .v5 .d3, .v5 .d7, .v5 .d9, .v6 .d1, .v6 .d3, .v6 .d4, .v6 .d6, .v6 .d7, .v6 .d9 { visibility: visible; }
 
-        /* شاشة اللعب (الدومينو) */
-        #domino-game-view {
-            display: none; position: fixed; inset: 0; background: radial-gradient(circle, var(--table-green) 0%, #051a0d 100%);
-            z-index: 500; flex-direction: column;
-        }
-        .game-header {
-            padding: 10px 15px; background: rgba(0,0,0,0.6); display: flex;
-            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light);
-        }
-        .exit-btn {
-            background: #c0392b; color: white; border: none; padding: 6px 15px;
-            border-radius: 8px; cursor: pointer; font-size: 0.85rem;
-        }
-        .turn-status { color: var(--pi-gold); font-weight: bold; font-size: 1.1rem; }
+        .horizontal { transform: rotate(90deg); margin: 0 -12px; }
 
-        .game-board-area {
-            flex-grow: 1; display: flex; align-items: center; justify-content: center;
-            padding: 15px; overflow: hidden;
-        }
-        #domino-snake-path {
-            display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-            gap: 8px; max-width: 95%; max-height: 95%; overflow: auto;
-            border: 2px dashed rgba(255,255,255,0.1); padding: 10px; border-radius: 10px;
-        }
-
-        /* تصميم قطع الدومينو النهائية (بالنقاط) */
-        .domino-tile {
-            width: 38px; height: 76px; background: linear-gradient(145deg, #ffffff, #f0f0f0);
-            border: 2px solid #222; border-radius: 5px; box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
-            display: flex; flex-direction: column; flex-shrink: 0;
-            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-        }
-        .domino-tile.in-hand:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.6); }
-        .domino-half {
-            flex: 1; display: grid; grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr); padding: 4px; gap: 2px;
-        }
-        .domino-half:first-child { border-bottom: 2px solid #333; }
-        .domino-dot { background: #000; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; margin: auto; }
-
-        /* منطق ظهور النقاط */
-        .v0 .domino-dot.d0 { visibility: hidden; } /* Zero has no dots */
-        .v1 .domino-dot:nth-child(5) { visibility: visible; }
-        .v2 .domino-dot:nth-child(1), .v2 .domino-dot:nth-child(9) { visibility: visible; }
-        .v3 .domino-dot:nth-child(1), .v3 .domino-dot:nth-child(5), .v3 .domino-dot:nth-child(9) { visibility: visible; }
-        .v4 .domino-dot:nth-child(1), .v4 .domino-dot:nth-child(3), .v4 .domino-dot:nth-child(7), .v4 .domino-dot:nth-child(9) { visibility: visible; }
-        .v5 .domino-dot:nth-child(1), .v5 .domino-dot:nth-child(3), .v5 .domino-dot:nth-child(5), .v5 .domino-dot:nth-child(7), .v5 .domino-dot:nth-child(9) { visibility: visible; }
-        .v6 .domino-dot:nth-child(1), .v6 .domino-dot:nth-child(3), .v6 .domino-dot:nth-child(4), .v6 .domino-dot:nth-child(6), .v6 .domino-dot:nth-child(7), .v6 .domino-dot:nth-child(9) { visibility: visible; }
-
-        /* منطقة يد اللاعب */
-        #player-hand-area {
-            height: 120px; background: rgba(0,0,0,0.8); display: flex;
-            justify-content: center; align-items: center; gap: 10px;
-            padding: 0 10px; border-top: 2px solid var(--pi-gold); overflow-x: auto;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.4);
-        }
-        .domino-in-hand {
-            transform: rotate(0deg); /* قطع اليد رأسية */
-            cursor: pointer;
-        }
-        .domino-on-board-horizontal {
-            transform: rotate(90deg); /* قطع اللوحة أفقية */
-        }
-        .domino-on-board-vertical {
-            transform: rotate(0deg); /* الدوش رأسي */
-        }
-
+        #hand-area { height: 140px; background: rgba(0,0,0,0.92); display: flex; justify-content: center; align-items: center; gap: 12px; border-top: 3px solid var(--pi-gold); }
+        .back-btn { background: none; border: 1.5px solid var(--pi-gold); color: var(--pi-gold); padding: 6px 18px; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="background-art">
-        <div class="wave-effect"></div>
-    </div>
+    <div class="hero-background"></div>
+    <div class="wave-effect"></div>
 
-    <div id="main-interface">
+    <div id="home-screen">
         <header>
-            <div class="pi-brand-logo">PiGamesHub</div>
-            <button class="pi-auth-btn">تسجيل دخول $\pi$</button>
+            <div class="logo-text">PiGamesHub</div>
+            <button class="pi-btn" onclick="piAuth()">تسجيل دخول $\pi$</button>
         </header>
 
-        <div class="hub-container">
-            <div class="hub-grid">
-                <div class="game-card" onclick="openLobby()">
-                    <img src="domino.png.png" alt="دومينو">
-                    <div>دومينو</div>
-                </div>
-                <div class="game-card">
-                    <img src="chess.png.png" alt="شطرنج">
-                    <div>شطرنج</div>
-                </div>
-                <div class="game-card">
-                    <img src="ludo.png.png" alt="لودو">
-                    <div>لودو</div>
-                </div>
-                <div class="game-card">
-                    <img src="cards.png.png" alt="كوتشينة">
-                    <div>كوتشينة</div>
-                </div>
-                <div class="game-card">
-                    <img src="tawla31.png.png" alt="طاولة 31">
-                    <div>طاولة 31</div>
-                </div>
-                <div class="game-card">
-                    <img src="nerd.png.png" alt="النرد">
-                    <div>النرد</div>
-                </div>
+        <div class="main-hub">
+            <div class="game-card" onclick="openGame('domino')">
+                <img src="domino-pro.png"><div>دومينو</div>
             </div>
+            <div class="game-card"><img src="chess-gold.png"><div>شطرنج</div></div>
+            <div class="game-card"><img src="ludo-pro.png"><div>لودو</div></div>
+            <div class="game-card"><img src="cards-pro.png"><div>كوتشينة</div></div>
+            <div class="game-card"><img src="tawla-pro.png"><div>طاولة 31</div></div>
+            <div class="game-card"><img src="colored-dice.png"><div>النرد الملون</div></div>
         </div>
     </div>
 
-    <div id="lobby-screen">
-        <button class="back-button" onclick="closeLobby()">🏠 العودة للرئيسية</button>
-        <h2 class="lobby-title">اختر نظام الدومينو</h2>
-        <button class="lobby-option" onclick="startDominoGame()">دومينو عادية (101 نقطة)</button>
-        <button class="lobby-option">دومينو أمريكاني</button>
-        <button class="lobby-option">دومينو سريع (دور واحد)</button>
-    </div>
-
-    <div id="domino-game-view">
-        <div class="game-header">
-            <button class="exit-btn" onclick="location.reload()">خروج</button>
-            <span id="turn-display" class="turn-status">جاري التحميل...</span>
+    <div id="game-view">
+        <div style="padding: 12px 25px; background: rgba(0,0,0,0.6); display: flex; justify-content: space-between; align-items: center;">
+            <button class="back-btn" onclick="location.reload()">🏠 عودة للرئيسية</button>
+            <span id="game-status" style="color: var(--pi-gold); font-weight: bold;">دورك الآن</span>
         </div>
-        <div class="game-board-area">
-            <div id="domino-snake-path"></div>
-        </div>
-        <div id="player-hand-area"></div>
+        <div class="table-area" id="main-board"></div>
+        <div id="hand-area"></div>
     </div>
 
     <script>
-        // Pi SDK Integration (Dummy for now)
-        function loginPiNetwork() {
+        let myTiles = [], boardTiles = [], turn = 0;
+
+        function piAuth() { alert("مرحباً بك يا رائد في نظام Pi البيئي"); }
+
+        function createTileUI(v1, v2, isHorizontal = false) {
+            let dots = '<div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div><div class="dot d7"></div><div class="dot d8"></div><div class="dot d9"></div>';
+            return `
+                <div class="tile ${isHorizontal ? 'horizontal' : ''}">
+                    <div class="half v${v1}">${dots}</div>
+                    <div style="height:2px; background:#ddd; margin:0 5px;"></div>
+                    <div class="half v${v2}">${dots}</div>
+                </div>`;
+        }
+
+        function openGame(type) {
+            if(type !== 'domino') return;
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('game-view').style.display = 'flex';
             
+            let deck = [];
+            for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push([i, j]);
+            deck.sort(() => Math.random() - 0.5);
+            myTiles = deck.splice(0, 7);
+            
+            updateHand();
+        }
+
+        function updateHand() {
+            const handDiv = document.getElementById('hand-area');
+            handDiv.innerHTML = "";
+            myTiles.forEach((t, i) => {
+                let div = document.createElement('div');
+                div.innerHTML = createTileUI(t[0], t[1], false);
+                div.onclick = () => playTile(i);
+                handDiv.appendChild(div);
+            });
+        }
+
+        function playTile(idx) {
+            let t = myTiles[idx];
+            if(boardTiles.length === 0) boardTiles.push(t);
+            else {
+                let L = boardTiles[0][0], R = boardTiles[boardTiles.length-1][1];
+                if(t.includes(L)) boardTiles.unshift(t[1] === L ? t : [t[1], t[0]]);
+                else if(t.includes(R)) boardTiles.push(t[0] === R ? t : [t[1], t[0]]);
+                else return;
+            }
+            myTiles.splice(idx, 1);
+            refreshBoard();
+            updateHand();
+        }
+
+        function refreshBoard() {
+            const bDiv = document.getElementById('main-board');
+            bDiv.innerHTML = "";
+            boardTiles.forEach(t => {
+                let div = document.createElement('div');
+                // خوارزمية المسار: الدوش رأسي وغيره أفقي
+                div.innerHTML = createTileUI(t[0], t[1], t[0] !== t[1]);
+                bDiv.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
