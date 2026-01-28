@@ -3,173 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PiGamesHub | Pro Edition</title>
+    <title>PiGamesHub | Final Patch</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        /* تعريف الألوان المستوحاة من صورك */
-        :root {
-            --pi-blue: #3b82f6;
-            --pi-purple: #8b5cf6;
-            --pi-gold: #f59e0b;
-            --bg-light: #f8fafc;
-            --card-bg: #ffffff;
-        }
+        :root { --blue: #3b82f6; --gold: #f59e0b; --purple: #8b5cf6; }
+        body { margin: 0; background: #f8fafc; font-family: sans-serif; color: #1e293b; text-align: center; }
+        
+        /* الهيدر الجديد */
+        header { background: #fff; padding: 15px; border-bottom: 2px solid var(--purple); display: flex; justify-content: space-between; align-items: center; }
+        
+        /* كروت الإحصائيات مثل باى اب استوديو */
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .s-card { padding: 20px; border-radius: 15px; color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .gold { background: linear-gradient(135deg, #f59e0b, #b45309); }
 
-        body { 
-            margin: 0; padding: 0; background-color: var(--bg-light); 
-            font-family: 'Segoe UI', Roboto, sans-serif; color: #1e293b;
-        }
-
-        /* الهيدر العلوي */
-        header {
-            background: #fff; padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; }
-
-        /* منطقة الرصيد (مثل الصورة) */
-        .stats-container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px;
-        }
-        .stat-card {
-            padding: 20px; border-radius: 16px; color: white; text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .blue-card { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .gold-card { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .stat-value { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; }
-        .stat-label { font-size: 0.8rem; opacity: 0.9; }
-
-        /* الأقسام (ورق، نرد، استراتيجية) */
-        .tabs {
-            display: flex; justify-content: space-around; padding: 10px 20px;
-            background: #fff; border-bottom: 1px solid #e2e8f0;
-        }
-        .tab-item { padding: 8px 15px; font-size: 0.9rem; color: #64748b; cursor: pointer; }
-        .active-tab { color: #1e293b; font-weight: bold; border-bottom: 2px solid var(--pi-purple); }
-
-        /* قائمة الألعاب */
-        .game-list { padding: 20px; }
-        .game-card {
-            background: #fff; border-radius: 20px; padding: 15px; margin-bottom: 15px;
-            display: flex; align-items: center; gap: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9;
-        }
-        .game-icon { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
-        .game-info { flex: 1; }
-        .game-title { font-weight: bold; font-size: 1.1rem; }
-        .game-desc { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
-        .level-badge { background: #fef3c7; color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; }
-
-        /* زر الدفع السحري لإنهاء المهمة البنفسجية */
-        .action-banner {
-            margin: 20px; padding: 20px; border-radius: 20px;
-            background: linear-gradient(135deg, #a855f7, #7c3aed);
-            color: white; text-align: center; cursor: pointer;
-        }
-
-        #game-view { display: none; position: fixed; inset: 0; background: #064e3b; z-index: 100; }
+        /* زر الأكشن الكبير */
+        .btn-box { margin: 20px; padding: 25px; border-radius: 20px; background: white; border: 2px dashed var(--purple); }
+        .main-btn { background: var(--purple); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; }
+        .pay-btn { background: #10b981; margin-top: 15px; display: none; } /* مخفي حتى يتم تسجيل الدخول */
+        
+        .loading-text { color: var(--purple); font-size: 0.8rem; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="user-profile">
-        <div class="avatar"></div>
-        <div>
-            <div id="username" style="font-weight: bold; font-size: 0.9rem;">مرحباً، جاري التحميل...</div>
-            <div style="font-size: 0.7rem; color: #64748b;">المستوى 1</div>
-        </div>
-    </div>
-    <div style="color:var(--pi-purple); font-weight: bold;">PiGameHub</div>
+    <div style="font-weight: bold; color: var(--purple);">PiGamesHub</div>
+    <div id="user-status" style="font-size: 0.8rem;">غير متصل</div>
 </header>
 
-<div id="lobby">
-    <div class="stats-container">
-        <div class="stat-card blue-card">
-            <div class="stat-value" id="pi-balance">0.00</div>
-            <div class="stat-label">Pi Balance</div>
-        </div>
-        <div class="stat-card gold-card">
-            <div class="stat-value">2450</div>
-            <div class="stat-label">عملات اللعبة</div>
-        </div>
+<div class="stats">
+    <div class="s-card gold">
+        <div id="game-coins">2450</div>
+        <div style="font-size: 0.7rem;">عملات اللعبة</div>
     </div>
-
-    <div class="action-banner" id="pay-btn" onclick="transferPi()">
-        <h3>تفعيل الخطوة الأخيرة</h3>
-        <p>اضغط هنا لدفع 0.1 Pi واعتماد تطبيقك رسمياً</p>
-    </div>
-
-    <div class="tabs">
-        <div class="tab-item active-tab">ورق ♠️</div>
-        <div class="tab-item">نرد 🎲</div>
-        <div class="tab-item">استراتيجية 👑</div>
-    </div>
-
-    <div class="game-list">
-        <div class="game-card" onclick="startDomino()">
-            <img src="1000106355.png" class="game-icon" onerror="this.src='https://via.placeholder.com/60/8b5cf6/ffffff?text=D'">
-            <div class="game-info">
-                <div class="game-title">دومينو المحترفين</div>
-                <div class="game-desc">لعبة الدومينو الكلاسيكية بخصم ذكي</div>
-            </div>
-            <div class="level-badge">متوسط</div>
-        </div>
-        
-        <div class="game-card">
-            <img src="1000106337.png" class="game-icon" onerror="this.src='https://via.placeholder.com/60/f59e0b/ffffff?text=C'">
-            <div class="game-info">
-                <div class="game-title">شطرنج الملوك</div>
-                <div class="game-desc">اختبر ذكاءك ضد أقوى تحدي</div>
-            </div>
-            <div class="level-badge">صعب</div>
-        </div>
+    <div class="s-card blue">
+        <div id="pi-balance">0.00</div>
+        <div style="font-size: 0.7rem;">Pi Balance</div>
     </div>
 </div>
 
-<div id="game-view">
-    <button onclick="location.reload()" style="margin:20px; padding:10px 20px; border-radius:10px; border:none; background:white; color:#064e3b; font-weight:bold;">🏠 العودة للرئيسية</button>
-    <div id="board" style="display:flex; justify-content:center; align-items:center; height:70vh; color:white;">جاري فتح اللعبة...</div>
+<div class="btn-box">
+    <div id="step-1">
+        <h3 style="color: var(--purple); margin-top: 0;">الخطوة 1: الدخول</h3>
+        <p style="font-size: 0.9rem;">اضغط لتسجيل الدخول والموافقة على صلاحيات الدفع</p>
+        <button class="main-btn" onclick="login()">تسجيل دخول Pi Network</button>
+        <div id="loading" class="loading-text">جاري الاتصال بـ Pi Network...</div>
+    </div>
+
+    <div id="step-2" style="display: none;">
+        <h3 style="color: #10b981; margin-top: 0;">الخطوة 2: التفعيل</h3>
+        <p style="font-size: 0.9rem;">تم تسجيل الدخول! الآن يمكنك تفعيل المهمة البنفسجية</p>
+        <button class="main-btn pay-btn" id="payBtn" style="display: block;" onclick="pay()">دفع 0.1 Pi للتفعيل</button>
+    </div>
 </div>
 
 <script>
     const Pi = window.Pi;
     Pi.init({ version: "2.0", sandbox: true });
 
-    // تسجيل الدخول التلقائي فور فتح الصفحة
-    async function autoLogin() {
+    async function login() {
+        document.getElementById('loading').style.display = 'block';
         try {
+            // نطلب الـ username والـ payments بوضوح
             const scopes = ['username', 'payments'];
-            const auth = await Pi.authenticate(scopes, (payment) => {});
-            document.getElementById('username').innerText = "مرحباً، " + auth.user.username;
-            document.getElementById('pi-balance').innerText = "125.56"; // رصيد استعراضي لمحاكاة الصورة
-        } catch (e) { console.error(e); }
+            const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+            
+            // نجاح تسجيل الدخول
+            document.getElementById('user-status').innerText = "أهلاً " + auth.user.username;
+            document.getElementById('pi-balance').innerText = "125.56";
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+            
+            console.log("Login Success, Scope granted.");
+        } catch (err) {
+            alert("خطأ: " + err);
+            document.getElementById('loading').style.display = 'none';
+        }
     }
-    autoLogin();
 
-    async function transferPi() {
+    function onIncompletePaymentFound(payment) {
+        console.log("Payment incomplete", payment);
+    }
+
+    async function pay() {
         try {
             const payment = await Pi.createPayment({
                 amount: 0.1,
-                memo: "تفعيل تطبيق PiGamesHub",
-                metadata: { userId: "pioneer_user_1" }
+                memo: "Activation for PiGamesHub Developer Task",
+                metadata: { type: "activation" }
             }, {
-                onReadyForServerApproval: (pId) => console.log("Approved"),
-                onReadyForServerCompletion: (pId, txid) => {
-                    alert("تمت العملية! المهمة البنفسجية ستصبح Completed الآن.");
+                onReadyForServerApproval: (id) => console.log("Approved ID:", id),
+                onReadyForServerCompletion: (id, txid) => {
+                    alert("تمت العملية بنجاح! مبروك، المهمة البنفسجية اكتملت.");
                 },
-                onCancel: (pId) => {},
-                onError: (e) => alert("خطأ: تأكد من تسجيل الدخول أولاً")
+                onCancel: (id) => alert("تم إلغاء الدفع"),
+                onError: (error) => alert("حدث خطأ أثناء الدفع: " + error.message)
             });
-        } catch (err) { alert(err.message); }
-    }
-
-    function startDomino() {
-        document.getElementById('lobby').style.display = 'none';
-        document.getElementById('game-view').style.display = 'block';
+        } catch (err) {
+            alert("فشل إنشاء الطلب: " + err.message);
+        }
     }
 </script>
 
