@@ -3,138 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PiGamesHub | Reset Force</title>
+    <title>PiGamesHub | Official Mainnet Edition</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        /* نظام الألوان الموحد */
-        :root { --gold: #ffd700; --purple: #6741d9; --dark: #020005; }
-        
+        :root { --gold: #ffd700; --purple: #6741d9; --bg: #05010a; --glass: rgba(255,255,255,0.08); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--dark); color: white; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
 
-        /* الخلفية (تم دمج الصورة في الكود) */
-        .bg-layer {
+        /* الخلفية السينمائية */
+        .hero-bg {
             position: fixed; inset: 0;
-            background: linear-gradient(rgba(2,0,5,0.8), rgba(2,0,5,0.8)), url('1000106337.png');
+            background: linear-gradient(rgba(5,1,10,0.8), rgba(5,1,10,0.8)), url('1000106337.png');
             background-size: cover; z-index: -1;
         }
 
-        /* واجهة المنصة (6 أزرار) */
-        header { padding: 20px; text-align: center; border-bottom: 2px solid var(--gold); background: rgba(0,0,0,0.9); }
-        .grid-container { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
-            padding: 20px; flex: 1; overflow-y: auto; 
-        }
-        .btn-game { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
-            border-radius: 20px; padding: 20px; text-align: center; transition: 0.3s;
-        }
-        .btn-game img { width: 60px; height: 60px; display: block; margin: 0 auto 10px; border-radius: 10px; }
-        .btn-game:active { background: var(--purple); border-color: var(--gold); }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--gold); }
+        .pi-btn { background: linear-gradient(45deg, var(--purple), #4b2cb3); border: 1px solid var(--gold); color: white; padding: 10px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; }
 
-        /* منطقة اللعب */
-        #game-arena { 
-            display: none; position: fixed; inset: 0; background: #0a2e18; 
-            z-index: 999; flex-direction: column; 
-        }
-        .table { flex: 1; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 5px; padding: 20px; overflow: auto; }
-        .hand { height: 130px; background: #000; border-top: 2px solid var(--gold); display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .hub { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 450px; margin: auto; }
+        .card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
+        .card img { width: 60px; height: 60px; margin-bottom: 10px; border-radius: 12px; }
 
-        /* قطع الدومينو (تصميم صلب) */
-        .tile-obj { 
-            width: 36px; height: 72px; background: #fff; border: 2px solid #000; 
-            border-radius: 5px; display: flex; flex-direction: column; flex-shrink: 0;
-        }
-        .side { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; }
+        /* شاشة اللعبة */
+        #arena { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0e4d26, #051a0d); z-index: 1000; flex-direction: column; }
+        .board { flex: 1; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px; padding: 20px; overflow: auto; }
+        .hand { height: 130px; background: rgba(0,0,0,0.9); border-top: 3px solid var(--gold); display: flex; justify-content: center; align-items: center; gap: 10px; }
+
+        /* قطع الدومينو البرمجية */
+        .tile { width: 38px; height: 76px; background: white; border: 2px solid #000; border-radius: 5px; display: flex; flex-direction: column; flex-shrink: 0; }
+        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; }
         .dot { background: #000; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; margin: auto; }
-        
-        /* تفعيل النقاط */
-        .n1 .d5, .n3 .d5, .n5 .d5 { visibility: visible; }
-        .n2 .d1, .n2 .d9, .n4 .d1, .n4 .d3, .n4 .d7, .n4 .d9, .n6 .d1, .n6 .d3, .n6 .d4, .n6 .d6, .n6 .d7, .n6 .d9 { visibility: visible; }
-        .n3 .d1, .n3 .d9, .n5 .d1, .n3 .d9, .n5 .d3, .n5 .d7, .n5 .d9 { visibility: visible; }
-        
-        .flat { transform: rotate(90deg); margin: 0 -15px; }
+        .v1 .d5, .v3 .d5, .v5 .d5 { visibility: visible; }
+        .v2 .d1, .v2 .d9, .v3 .d1, .v3 .d9, .v4 .d1, .v4 .d3, .v4 .d7, .v4 .d9, .v5 .d1, .v5 .d3, .v5 .d7, .v5 .d9, .v6 .d1, .v6 .d3, .v6 .d4, .v6 .d6, .v6 .d7, .v6 .d9 { visibility: visible; }
+        .rotated { transform: rotate(90deg); margin: 0 -14px; }
     </style>
 </head>
 <body>
 
-<div class="bg-layer"></div>
+<div class="hero-bg"></div>
 
-<div id="ui-main">
-    <header><b style="color:var(--gold); font-size: 1.5rem;">PiGamesHub</b></header>
-    <div class="grid-container">
-        <div class="btn-game" onclick="runGame()">
-            <img src="1000106355.png" onerror="this.src='https://via.placeholder.com/60/6741d9/ffd700?text=Pi'">
-            <b>دومينو</b>
-        </div>
-        <div class="btn-game"><img src="1000106337.png" onerror="this.style.display='none'"><b>شطرنج</b></div>
-        <div class="btn-game"><img src="1000106355.png" onerror="this.style.display='none'"><b>لودو</b></div>
-        <div class="btn-game"><img src="1000106337.png" onerror="this.style.display='none'"><b>كوتشينة</b></div>
-        <div class="btn-game"><img src="1000106355.png" onerror="this.style.display='none'"><b>نرد</b></div>
-        <div class="btn-game"><img src="1000106337.png" onerror="this.style.display='none'"><b>طاولة</b></div>
+<div id="home">
+    <header>
+        <div style="color:var(--gold); font-weight:bold;">PiGamesHub</div>
+        <button class="pi-btn" onclick="authPi()">تسجيل دخول $\pi$</button>
+    </header>
+
+    <div style="text-align: center; padding: 20px;">
+        <button class="pi-btn" style="background: #28a745;" onclick="transferPi()">تفعيل الخطوة الأخيرة (دفع 0.1 $\pi$)</button>
+    </div>
+
+    <div class="hub">
+        <div class="card" onclick="openDomino()"><img src="1000106355.png"><div>دومينو</div></div>
+        <div class="card"><img src="1000106337.png"><div>شطرنج</div></div>
+        <div class="card"><img src="1000110182.jpg"><div>لودو</div></div>
+        <div class="card"><img src="1000106337.png"><div>كوتشينة</div></div>
+        <div class="card"><img src="1000106355.png"><div>نرد</div></div>
+        <div class="card"><img src="1000110182.jpg"><div>طاولة 31</div></div>
     </div>
 </div>
 
-<div id="game-arena">
-    <div style="background:#000; padding:10px; display:flex; justify-content:space-between;">
-        <button onclick="location.reload()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:5px;">خروج</button>
-        <span style="color:var(--gold)">Pioneer Game</span>
+<div id="arena">
+    <div style="padding:10px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between;">
+        <button onclick="location.reload()" style="border:1px solid var(--gold); background:none; color:var(--gold); padding:5px 15px; border-radius:10px;">🏠 خروج</button>
+        <span id="score">المستوى: محترف</span>
     </div>
-    <div class="table" id="board-area"></div>
-    <div class="hand" id="hand-area"></div>
+    <div class="board" id="game-board"></div>
+    <div class="hand" id="player-hand"></div>
 </div>
 
 <script>
-    // نظام فك التجمد
-    let myTiles = [], played = [];
+    // 1. إعدادات Pi SDK الأساسية
+    const Pi = window.Pi;
+    Pi.init({ version: "2.0", sandbox: true }); // اجعل sandbox: false عند النشر الحقيقي
 
-    function runGame() {
-        document.getElementById('ui-main').style.display = 'none';
-        document.getElementById('game-arena').style.display = 'flex';
-        
-        // توليد قطع الدومينو
-        let deck = [];
-        for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push([i,j]);
-        deck.sort(() => Math.random() - 0.5);
-        myTiles = deck.splice(0, 7);
-        renderAll();
+    async function authPi() {
+        try {
+            const scopes = ['username', 'payments'];
+            const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+            alert("أهلاً بك: " + auth.user.username);
+        } catch (err) { alert("فشل الاتصال: " + err); }
     }
 
-    function drawTile(v1, v2, isFlat = false) {
+    function onIncompletePaymentFound(payment) { /* لمعالجة المدفوعات المعلقة */ }
+
+    // 2. وظيفة الدفع لإنهاء المهمة البنفسجية
+    async function transferPi() {
+        try {
+            const payment = await Pi.createPayment({
+                amount: 0.1,
+                memo: "تفعيل تطبيق PiGamesHub",
+                metadata: { userId: "pioneer_1" }
+            }, {
+                onReadyForServerApproval: (paymentId) => { console.log("Approved: " + paymentId); },
+                onReadyForServerCompletion: (paymentId, txid) => { 
+                    alert("تم الدفع بنجاح! راجع صفحة المطورين الآن.");
+                },
+                onCancel: (paymentId) => { console.log("Canceled"); },
+                onError: (error, payment) => { console.error(error); }
+            });
+        } catch (err) { alert("خطأ في العملية: " + err.message); }
+    }
+
+    // 3. منطق الدومينو المستقر
+    let myTiles = [], board = [];
+
+    function openDomino() {
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('arena').style.display = 'flex';
+        let d = []; for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) d.push([i,j]);
+        d.sort(() => Math.random() - 0.5);
+        myTiles = d.splice(0, 7);
+        render();
+    }
+
+    function createTileHTML(v1, v2, isRot = false) {
         let dots = '<div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div><div class="dot d7"></div><div class="dot d8"></div><div class="dot d9"></div>';
-        return `<div class="tile-obj ${isFlat ? 'flat' : ''}"><div class="side n${v1}">${dots}</div><div style="height:1px;background:#eee;"></div><div class="side n${v2}">${dots}</div></div>`;
+        return `<div class="tile ${isRot ? 'rotated' : ''}"><div class="half v${v1}">${dots}</div><div style="height:1px;background:#eee;"></div><div class="half v${v2}">${dots}</div></div>`;
     }
 
-    function renderAll() {
-        const hArea = document.getElementById('hand-area');
-        hArea.innerHTML = '';
+    function render() {
+        const h = document.getElementById('player-hand'); h.innerHTML = '';
         myTiles.forEach((t, i) => {
-            let d = document.createElement('div');
-            d.innerHTML = drawTile(t[0], t[1]);
-            d.onclick = () => play(i);
-            hArea.appendChild(d);
+            let div = document.createElement('div'); div.innerHTML = createTileHTML(t[0], t[1]);
+            div.onclick = () => play(i); h.appendChild(div);
         });
-
-        const bArea = document.getElementById('board-area');
-        bArea.innerHTML = '';
-        played.forEach(t => {
-            let d = document.createElement('div');
-            d.innerHTML = drawTile(t[0], t[1], t[0] !== t[1]);
-            bArea.appendChild(d);
+        const b = document.getElementById('game-board'); b.innerHTML = '';
+        board.forEach(t => {
+            let div = document.createElement('div'); div.innerHTML = createTileHTML(t[0], t[1], t[0] !== t[1]);
+            b.appendChild(div);
         });
     }
 
     function play(idx) {
         let t = myTiles[idx];
-        if(played.length === 0) {
-            played.push(t);
-        } else {
-            let left = played[0][0], right = played[played.length-1][1];
-            if(t.includes(left)) played.unshift(t[1] === left ? t : [t[1], t[0]]);
-            else if(t.includes(right)) played.push(t[0] === right ? t : [t[1], t[0]]);
+        if(board.length === 0) board.push(t);
+        else {
+            let L = board[0][0], R = board[board.length-1][1];
+            if(t.includes(L)) board.unshift(t[1] === L ? t : [t[1], t[0]]);
+            else if(t.includes(R)) board.push(t[0] === R ? t : [t[1], t[0]]);
             else return;
         }
-        myTiles.splice(idx, 1);
-        renderAll();
+        myTiles.splice(idx, 1); render();
     }
 </script>
 </body>
