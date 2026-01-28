@@ -3,249 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | 4-Players AI Edition</title>
+    <title>PiGamesHub | Professional Web3 Domino</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --primary: #6741d9; --accent: #ffd700; --bg: #05010a; }
-        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
-        
-        /* واجهة اللعب الكبرى */
-        #game-table {
-            display: none; position: fixed; inset: 0; 
-            background: radial-gradient(circle, #1a472a 0%, #05150a 100%);
-            z-index: 3000; flex-direction: column;
+        :root {
+            --primary: #6741d9;
+            --accent: #ffd700;
+            --dark: #05010a;
+            --glow: 0 0 20px rgba(103, 65, 217, 0.6);
         }
 
-        /* توزيع اللاعبين الأربعة */
-        .table-area {
-            flex-grow: 1; position: relative; display: flex;
-            align-items: center; justify-content: center;
+        body {
+            margin: 0; background: var(--dark); color: white;
+            font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
         }
 
-        .player-slot {
-            position: absolute; padding: 10px; background: rgba(0,0,0,0.5);
-            border-radius: 15px; border: 1px solid var(--primary); font-size: 0.8rem;
-        }
-        .slot-top { top: 20px; }
-        .slot-left { left: 20px; transform: rotate(90deg); }
-        .slot-right { right: 20px; transform: rotate(-90deg); }
-        .slot-bottom { bottom: 120px; border-color: var(--accent); }
+        /* زينة الواجهة الرئيسية */
+        .bg-universe { position: fixed; inset: 0; background: radial-gradient(circle, #1a0b35, #05010a); z-index: -1; }
+        .moving-waves { position: fixed; width: 200%; height: 200%; background: radial-gradient(circle at 30% 30%, rgba(103,65,217,0.1), transparent 50%); animation: rotate 30s linear infinite; z-index: -1; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        #main-board {
-            width: 70%; height: 50%; border: 4px dashed rgba(255,255,255,0.1);
-            border-radius: 20px; display: flex; align-items: center; 
-            justify-content: center; gap: 5px; flex-wrap: wrap; overflow-y: auto;
-        }
+        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(103,65,217,0.3); position: sticky; top: 0; z-index: 1000; }
+        .auth-btn { background: linear-gradient(45deg, var(--primary), #8e44ad); border: none; color: white; padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: var(--glow); }
 
-        /* قطع الدومينو */
-        .tile {
-            width: 35px; height: 70px; background: white; border-radius: 4px;
-            display: flex; flex-direction: column; border: 2px solid #222;
-            cursor: pointer; flex-shrink: 0; transition: 0.3s;
-        }
-        .tile.horizontal { transform: rotate(90deg); margin: 0 15px; }
-        .t-part { flex: 1; color: black; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; }
-        .t-part:first-child { border-bottom: 2px solid #222; }
-
-        #my-hand {
-            height: 100px; background: rgba(0,0,0,0.8); display: flex;
-            justify-content: center; align-items: center; gap: 8px; padding: 10px;
-        }
-
-        .active-turn { box-shadow: 0 0 20px var(--accent); border: 2px solid var(--accent); }
-
-        /* الأكواد السابقة للواجهة */
-        .universe-bg { position: fixed; inset: 0; background: radial-gradient(circle, #1a0b35, #05010a); z-index: -1; }
-        header { padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(103,65,217,0.3); }
-        .auth-btn { background: linear-gradient(45deg, var(--primary), #8e44ad); border: none; color: white; padding: 10px 20px; border-radius: 50px; cursor: pointer; }
-        .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; max-width: 500px; margin: auto; }
-        .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 30px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-        .card img { width: 80px; animation: float 4s infinite ease-in-out; }
+        /* شبكة الألعاب الأصلية */
+        .main-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; max-width: 500px; margin: auto; }
+        .game-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 35px; padding: 25px 10px; text-align: center; transition: 0.4s; cursor: pointer; backdrop-filter: blur(10px); }
+        .game-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: var(--glow); }
+        .game-card img { width: 90px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); animation: float 4s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
+        /* واجهة الـ Lobby (الاختيار) */
         #domino-lobby {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            display: none; position: fixed; inset: 0; background: rgba(5,1,10,0.98);
             z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
         }
-        .mode-btn { background: var(--glass); border: 2px solid var(--primary); padding: 15px; border-radius: 15px; width: 250px; margin: 10px; cursor: pointer; color: white; text-align: center; }
-        .mode-btn:hover { background: var(--primary); }
+        .lobby-box { width: 85%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        .mode-item { background: rgba(103,65,217,0.1); border: 2px solid var(--primary); padding: 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+        .mode-item:hover { background: var(--primary); transform: scale(1.03); }
+
+        /* طاولة الدومينو المحترفة */
+        #domino-table {
+            display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0a2b16 0%, #05150a 100%);
+            z-index: 3000; flex-direction: column;
+        }
+        .table-center { flex-grow: 1; position: relative; display: flex; align-items: center; justify-content: center; border: 15px solid #2c1e14; margin: 10px; border-radius: 20px; box-shadow: inset 0 0 100px rgba(0,0,0,0.5); }
+        
+        /* تصميم الأوراق المحترف */
+        .tile {
+            width: 45px; height: 85px; background: linear-gradient(145deg, #fff, #e0e0e0);
+            border-radius: 8px; border: 3px solid #333; display: flex; flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); cursor: pointer; transition: 0.2s;
+        }
+        .tile-v { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: #111; }
+        .tile-v:first-child { border-bottom: 3px solid #333; }
+        .tile.played { transform: rotate(90deg); margin: 0 10px; scale: 0.8; }
+
+        /* توزيع اللاعبين */
+        .p-tag { position: absolute; padding: 8px 15px; background: rgba(0,0,0,0.7); border-radius: 20px; border: 1px solid var(--primary); font-size: 0.8rem; }
+        .tag-top { top: 10px; } .tag-left { left: 10px; transform: rotate(90deg); } .tag-right { right: 10px; transform: rotate(-90deg); } .tag-bottom { bottom: 10px; border-color: var(--accent); }
+        .active-glow { box-shadow: 0 0 20px var(--accent); border-color: var(--accent); }
+
+        #board-tiles { display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; padding: 20px; width: 100%; height: 100%; overflow: auto; }
+        
+        #player-hand { height: 130px; background: rgba(0,0,0,0.85); display: flex; justify-content: center; gap: 10px; padding: 15px; backdrop-filter: blur(10px); }
+
+        .pass-msg { position: absolute; background: rgba(231, 76, 60, 0.9); padding: 10px 20px; border-radius: 10px; font-weight: bold; animation: fade 2s forwards; }
+        @keyframes fade { from {opacity: 1;} to {opacity: 0;} }
     </style>
 </head>
 <body>
 
-    <div class="universe-bg"></div>
+    <div class="bg-universe"></div>
+    <div class="moving-waves"></div>
 
     <header>
-        <div style="font-weight: 900; color: var(--accent);">PiGamesHub</div>
-        <button class="auth-btn" id="pi-user" onclick="handleLogin()">اتصال Pi</button>
+        <div style="font-size: 1.6rem; font-weight: 900; color: var(--accent);">PiGamesHub</div>
+        <button class="auth-btn" id="user-pi" onclick="login()">اتصال المحفظة</button>
     </header>
 
-    <div id="main-ui" class="games-grid">
-        <div class="card" onclick="document.getElementById('domino-lobby').style.display='flex'">
+    <div id="main-menu" class="main-grid">
+        <div class="game-card" onclick="showLobby()">
             <img src="domino.png.png">
-            <span>دومينو 4 لاعبين</span>
+            <span>دومينو</span>
         </div>
-        <div class="card"><img src="chess.png.png"><span>قريباً</span></div>
+        <div class="game-card"><img src="chess.png.png"><span>شطرنج</span></div>
+        <div class="game-card"><img src="ludo.png.png"><span>لودو</span></div>
+        <div class="game-card"><img src="cards.png.png"><span>كوتشينة</span></div>
+        <div class="game-card"><img src="tawla31.png.png"><span>طاولة 31</span></div>
+        <div class="game-card"><img src="nerd.png.png"><span>النرد</span></div>
     </div>
 
     <div id="domino-lobby">
-        <h2 style="color: var(--accent);">اختر وضع اللعب</h2>
-        <div class="mode-btn" onclick="startFullGame('solo')">لعب ضد الكمبيوتر (4 لاعبين)</div>
-        <div class="mode-btn" onclick="alert('سيتم تفعيل اللعب الأونلاين قريباً')">لعب أونلاين (Multiplayer)</div>
-        <button onclick="document.getElementById('domino-lobby').style.display='none'" style="color: red; background: none; border: none; cursor: pointer;">إغلاق</button>
+        <h2 style="color: var(--accent);">اختيار نظام اللعب</h2>
+        <div class="lobby-box">
+            <div class="mode-item" onclick="startDomino('classic')">
+                <h3>الدومينو العادية</h3>
+                <p>تحدي 101 نقطة - 4 لاعبين</p>
+            </div>
+            <div class="mode-item" onclick="startDomino('american')">
+                <h3>الدومينو الأمريكاني</h3>
+                <p>قواعد سريعة ونقاط مضاعفة</p>
+            </div>
+            <div class="mode-item" onclick="startDomino('fast')">
+                <h3>الدومينو السريع</h3>
+                <p>دور واحد - اللى يخلص ورقه يفوز</p>
+            </div>
+            <button onclick="hideLobby()" style="background:none; border:none; color:red; cursor:pointer;">إلغاء</button>
+        </div>
     </div>
 
-    <div id="game-table">
-        <div style="padding: 10px; display: flex; justify-content: space-between;">
-            <span id="turn-indicator">دورك الآن</span>
-            <button onclick="location.reload()" style="background: red; color: white; border: none; border-radius: 5px; padding: 5px 10px;">انسحاب</button>
+    <div id="domino-table">
+        <div style="padding: 10px; display: flex; justify-content: space-between; background: var(--primary);">
+            <span id="game-status">انتظر دورك...</span>
+            <button onclick="location.reload()" style="background: #c0392b; border:none; color:white; border-radius:5px; padding:3px 10px;">خروج</button>
+        </div>
+        
+        <div class="table-center">
+            <div class="p-tag tag-top" id="slot-2">الكمبيوتر 2 (7)</div>
+            <div class="p-tag tag-left" id="slot-1">الكمبيوتر 1 (7)</div>
+            <div class="p-tag tag-right" id="slot-3">الكمبيوتر 3 (7)</div>
+            <div class="p-tag tag-bottom" id="slot-0">أنت (7)</div>
+            
+            <div id="board-tiles"></div>
         </div>
 
-        <div class="table-area">
-            <div class="player-slot slot-top" id="p2">الكمبيوتر 2 (7 قطع)</div>
-            <div class="player-slot slot-left" id="p1">الكمبيوتر 1 (7 قطع)</div>
-            <div class="player-slot slot-right" id="p3">الكمبيوتر 3 (7 قطع)</div>
-            <div class="player-slot slot-bottom" id="p0">أنت (7 قطع)</div>
-
-            <div id="main-board"></div>
-        </div>
-
-        <div id="my-hand"></div>
+        <div id="player-hand"></div>
     </div>
 
     <script>
         const Pi = window.Pi;
         Pi.init({ version: "2.0", sandbox: true });
 
-        async function handleLogin() {
+        async function login() {
             try {
                 const auth = await Pi.authenticate(['username'], (p)=>{});
-                document.getElementById('pi-user').innerText = auth.user.username;
+                document.getElementById('user-pi').innerText = auth.user.username;
             } catch (e) { alert("افتح من Pi Browser"); }
         }
 
-        let players = [[], [], [], []]; // 4 لاعبين
-        let board = [];
-        let currentTurn = 0; // 0=أنت، 1-3=كمبيوتر
+        // إظهار وإخفاء اللوبي
+        function showLobby() { document.getElementById('domino-lobby').style.display = 'flex'; }
+        function hideLobby() { document.getElementById('domino-lobby').style.display = 'none'; }
 
-        function startFullGame() {
-            document.getElementById('domino-lobby').style.display = 'none';
-            document.getElementById('main-ui').style.display = 'none';
-            document.getElementById('game-table').style.display = 'flex';
+        // منطق اللعبة
+        let players = [[], [], [], []];
+        let gameBoard = [];
+        let turn = 0;
+
+        function startDomino(mode) {
+            hideLobby();
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('domino-table').style.display = 'flex';
             
-            initDeck();
-        }
-
-        function initDeck() {
+            // تحضير الورق (28 قطعة)
             let deck = [];
             for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push([i, j]);
             deck.sort(() => Math.random() - 0.5);
 
             for(let p=0; p<4; p++) players[p] = deck.splice(0, 7);
+            gameBoard = [];
+            turn = 0;
             
             updateUI();
-            checkTurn();
+            processTurn();
         }
 
         function updateUI() {
-            const handDiv = document.getElementById('my-hand');
+            const handDiv = document.getElementById('player-hand');
             handDiv.innerHTML = "";
             players[0].forEach((t, i) => {
                 const d = document.createElement('div');
                 d.className = 'tile';
-                d.innerHTML = `<div class="t-part">${t[0]}</div><div class="t-part">${t[1]}</div>`;
-                d.onclick = () => userPlay(i);
+                d.innerHTML = `<div class="tile-v">${t[0]}</div><div class="tile-v">${t[1]}</div>`;
+                d.onclick = () => playTile(0, i);
                 handDiv.appendChild(d);
             });
 
-            for(let i=1; i<=3; i++) {
-                document.getElementById(`p${i}`).innerText = `كمبيوتر ${i} (${players[i].length} قطع)`;
+            for(let i=0; i<4; i++) {
+                let label = (i==0) ? "أنت" : `الكمبيوتر ${i}`;
+                document.getElementById(`slot-${i}`).innerText = `${label} (${players[i].length})`;
+                document.getElementById(`slot-${i}`).classList.toggle('active-glow', turn === i);
             }
         }
 
-        function userPlay(idx) {
-            if(currentTurn !== 0) return;
-            const tile = players[0][idx];
-            
+        function playTile(pIdx, tIdx) {
+            if(turn !== pIdx) return;
+            const tile = players[pIdx][tIdx];
+
             if(canPlay(tile)) {
-                addToBoard(tile, 0);
-                players[0].splice(idx, 1);
-                nextTurn();
+                executeMove(tile, pIdx, tIdx);
             } else {
-                alert("هذه القطعة لا تناسب اللوحة!");
+                if(pIdx === 0) alert("هذه القطعة لا تناسب اللوحة!");
             }
         }
 
         function canPlay(tile) {
-            if(board.length === 0) return true;
-            let left = board[0][0];
-            let right = board[board.length-1][1];
-            return tile.includes(left) || tile.includes(right);
+            if(gameBoard.length === 0) return true;
+            let L = gameBoard[0][0], R = gameBoard[gameBoard.length-1][1];
+            return tile.includes(L) || tile.includes(R);
         }
 
-        function addToBoard(tile, pIdx) {
-            if(board.length === 0) {
-                board.push(tile);
+        function executeMove(tile, pIdx, tIdx) {
+            if(gameBoard.length === 0) {
+                gameBoard.push(tile);
             } else {
-                let left = board[0][0];
-                let right = board[board.length-1][1];
-                if(tile.includes(left)) {
-                    if(tile[1] === left) board.unshift(tile);
-                    else board.unshift([tile[1], tile[0]]);
+                let L = gameBoard[0][0], R = gameBoard[gameBoard.length-1][1];
+                if(tile.includes(L)) {
+                    if(tile[1] === L) gameBoard.unshift(tile);
+                    else gameBoard.unshift([tile[1], tile[0]]);
                 } else {
-                    if(tile[0] === right) board.push(tile);
-                    else board.push([tile[1], tile[0]]);
+                    if(tile[0] === R) gameBoard.push(tile);
+                    else gameBoard.push([tile[1], tile[0]]);
                 }
             }
+            players[pIdx].splice(tIdx, 1);
             renderBoard();
             updateUI();
+            
+            if(players[pIdx].length === 0) {
+                alert("انتهت اللعبة! الفائز: " + (pIdx==0?"أنت":`كمبيوتر ${pIdx}`));
+                location.reload();
+            } else {
+                turn = (turn + 1) % 4;
+                processTurn();
+            }
         }
 
         function renderBoard() {
-            const b = document.getElementById('main-board');
+            const b = document.getElementById('board-tiles');
             b.innerHTML = "";
-            board.forEach(t => {
+            gameBoard.forEach(t => {
                 const d = document.createElement('div');
-                d.className = 'tile horizontal';
-                d.innerHTML = `<div class="t-part">${t[0]}</div><div class="t-part">${t[1]}</div>`;
+                d.className = 'tile played';
+                d.innerHTML = `<div class="tile-v">${t[0]}</div><div class="tile-v">${t[1]}</div>`;
                 b.appendChild(d);
             });
         }
 
-        function nextTurn() {
-            currentTurn = (currentTurn + 1) % 4;
-            checkTurn();
-        }
-
-        function checkTurn() {
-            document.querySelectorAll('.player-slot').forEach(s => s.classList.remove('active-turn'));
-            document.getElementById(`p${currentTurn}`).classList.add('active-turn');
-
-            if(currentTurn !== 0) {
-                document.getElementById('turn-indicator').innerText = `كمبيوتر ${currentTurn} يفكر...`;
-                setTimeout(aiMove, 1500);
+        function processTurn() {
+            if(turn === 0) {
+                document.getElementById('game-status').innerText = "دورك الآن - اختر قطعة";
+                if(!players[0].some(t => canPlay(t))) {
+                    showPassMsg("لا يوجد لعب.. تمرير الدور");
+                    setTimeout(() => { turn = 1; processTurn(); }, 2000);
+                }
             } else {
-                document.getElementById('turn-indicator').innerText = "دورك الآن";
+                document.getElementById('game-status').innerText = `كمبيوتر ${turn} يفكر...`;
+                setTimeout(aiLogic, 1500);
             }
         }
 
-        function aiMove() {
-            let hand = players[currentTurn];
-            let playIdx = hand.findIndex(t => canPlay(t));
+        function aiLogic() {
+            let idx = players[turn].findIndex(t => canPlay(t));
+            if(idx !== -1) {
+                playTile(turn, idx);
+            } else {
+                showPassMsg(`كمبيوتر ${turn} مرر الدور`);
+                turn = (turn + 1) % 4;
+                processTurn();
+            }
+        }
 
-            if(playIdx !== -1) {
-                addToBoard(hand[playIdx], currentTurn);
-                hand.splice(playIdx, 1);
-            } else {
-                console.log(`كمبيوتر ${currentTurn} لم يجد قطعة!`);
-            }
-            
-            if(hand.length === 0) {
-                alert(`انتهت اللعبة! الفائز هو لاعب ${currentTurn}`);
-                location.reload();
-            } else {
-                nextTurn();
-            }
+        function showPassMsg(msg) {
+            const m = document.createElement('div');
+            m.className = 'pass-msg';
+            m.innerText = msg;
+            document.querySelector('.table-center').appendChild(m);
         }
     </script>
 </body>
