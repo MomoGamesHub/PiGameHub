@@ -3,174 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PiGamesHub | The Ultimate Pioneer Edition</title>
+    <title>PiGamesHub | Professional Edition</title>
     <style>
         :root {
             --pi-purple: #6741d9;
             --pi-gold: #ffd700;
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --dark-space: #05010a;
+            --glass: rgba(255, 255, 255, 0.08);
         }
 
-        body, html { margin: 0; padding: 0; background: var(--dark-space); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
+        body, html { 
+            margin: 0; padding: 0; background: #05010a; 
+            color: white; font-family: 'Segoe UI', sans-serif; 
+            height: 100vh; overflow: hidden; 
+        }
 
-        /* الخلفية الاحترافية الكبيرة */
-        .hero-background {
+        /* 1. تثبيت الخلفية (صورة الشطرنج الذهبي اللي رفعتها) */
+        .hero-bg {
             position: fixed; inset: 0;
-            /* استبدل الرابط أدناه برابط صورة الشطرنج بعد الرفع */
-            background: url('https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/hero-bg.jpg') no-repeat center center;
-            background-size: cover;
-            opacity: 0.35; /* شفافية لجعل الواجهة واضحة */
-            z-index: -2;
-            filter: blur(1px);
+            /* تم تعديل الرابط ليقرأ من ملفاتك مباشرة */
+            background: url('1000106337.png') no-repeat center center; 
+            background-size: contain; opacity: 0.25; z-index: -2; filter: blur(2px);
         }
 
-        /* تأثير الأمواج الانسيابية المتوهجة */
-        .wave-effect {
+        /* 2. إضافة التموج الانسيابي */
+        .wave-layer {
             position: fixed; width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(103, 65, 217, 0.2), transparent 50%);
-            animation: flowWaves 20s linear infinite;
-            z-index: -1;
+            background: radial-gradient(circle at 30% 30%, rgba(103, 65, 217, 0.2), transparent 60%);
+            animation: flow 20s infinite linear; z-index: -1;
         }
-        @keyframes flowWaves { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes flow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* الهيدر وزر Pi الرسمي */
-        header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .logo-text { font-size: 1.7rem; font-weight: 900; color: var(--pi-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        /* 3. الهيدر المتطور */
+        header { 
+            padding: 15px 25px; display: flex; justify-content: space-between; 
+            align-items: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--pi-gold); }
         .pi-btn {
             background: linear-gradient(45deg, var(--pi-purple), #4b2cb3);
-            border: 2px solid var(--pi-gold); color: white; padding: 10px 25px;
-            border-radius: 50px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 0 15px var(--pi-purple); animation: glowPulse 2s infinite;
+            border: 2px solid var(--pi-gold); color: white; padding: 8px 20px;
+            border-radius: 50px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 0 15px var(--pi-purple);
         }
-        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 10px var(--pi-purple); } 50% { box-shadow: 0 0 20px var(--pi-gold); } }
 
-        /* شبكة الألعاب الستة بتصميم Glassmorphism */
-        .main-hub { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 480px; margin: 40px auto; padding: 20px; }
-        .game-card {
-            background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 30px; padding: 25px 15px; text-align: center;
-            backdrop-filter: blur(15px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+        /* 4. إصلاح شبكة الألعاب (تأثير الزجاج) */
+        .grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; 
+            max-width: 400px; margin: 30px auto; padding: 10px; 
         }
-        .game-card:hover { border-color: var(--pi-gold); transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-        .game-card img { width: 75px; height: 75px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4)); }
-
-        /* طاولة اللعب والمسار الثعباني المصحح */
-        #game-view { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0e4d26, #051a0d); flex-direction: column; z-index: 1000; }
-        .table-area { flex: 1; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px; padding: 30px; overflow-y: auto; }
-        
-        /* قطعة الدومينو بنقاطها الحقيقية */
-        .tile {
-            width: 38px; height: 76px; background: #f8f8f8; border: 2px solid #222;
-            border-radius: 6px; display: flex; flex-direction: column; box-shadow: 3px 6px 12px rgba(0,0,0,0.4);
+        .card {
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 20px; text-align: center;
+            backdrop-filter: blur(12px); transition: 0.3s;
         }
-        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 4px; gap: 2px; }
-        .dot { background: #111; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; margin: auto; }
-        
-        /* منطق النقاط المبرمج */
-        .v1 .d5, .v3 .d5, .v5 .d5 { visibility: visible; }
-        .v2 .d1, .v2 .d9, .v3 .d1, .v3 .d9, .v4 .d1, .v4 .d3, .v4 .d7, .v4 .d9, .v5 .d1, .v5 .d3, .v5 .d7, .v5 .d9, .v6 .d1, .v6 .d3, .v6 .d4, .v6 .d6, .v6 .d7, .v6 .d9 { visibility: visible; }
+        .card:hover { border-color: var(--pi-gold); transform: translateY(-5px); }
+        .card img { width: 60px; height: 60px; margin-bottom: 10px; }
 
-        .horizontal { transform: rotate(90deg); margin: 0 -12px; }
-
-        #hand-area { height: 140px; background: rgba(0,0,0,0.92); display: flex; justify-content: center; align-items: center; gap: 12px; border-top: 3px solid var(--pi-gold); }
-        .back-btn { background: none; border: 1.5px solid var(--pi-gold); color: var(--pi-gold); padding: 6px 18px; border-radius: 12px; cursor: pointer; }
+        /* شاشة اللعبة */
+        #game-screen { display: none; position: fixed; inset: 0; background: #0a2e18; z-index: 1000; flex-direction: column; }
     </style>
 </head>
 <body>
 
-    <div class="hero-background"></div>
-    <div class="wave-effect"></div>
+    <div class="hero-bg"></div>
+    <div class="wave-layer"></div>
 
-    <div id="home-screen">
+    <div id="lobby">
         <header>
-            <div class="logo-text">PiGamesHub</div>
-            <button class="pi-btn" onclick="piAuth()">تسجيل دخول $\pi$</button>
+            <div class="logo">PiGamesHub</div>
+            <button class="pi-btn">دخول Pi</button>
         </header>
 
-        <div class="main-hub">
-            <div class="game-card" onclick="openGame('domino')">
-                <img src="domino-pro.png"><div>دومينو</div>
-            </div>
-            <div class="game-card"><img src="chess-gold.png"><div>شطرنج</div></div>
-            <div class="game-card"><img src="ludo-pro.png"><div>لودو</div></div>
-            <div class="game-card"><img src="cards-pro.png"><div>كوتشينة</div></div>
-            <div class="game-card"><img src="tawla-pro.png"><div>طاولة 31</div></div>
-            <div class="game-card"><img src="colored-dice.png"><div>النرد الملون</div></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <h2 style="font-size: 1.2rem;">مستقبل الألعاب بين يديك</h2>
         </div>
-    </div>
 
-    <div id="game-view">
-        <div style="padding: 12px 25px; background: rgba(0,0,0,0.6); display: flex; justify-content: space-between; align-items: center;">
-            <button class="back-btn" onclick="location.reload()">🏠 عودة للرئيسية</button>
-            <span id="game-status" style="color: var(--pi-gold); font-weight: bold;">دورك الآن</span>
+        <div class="grid">
+            <div class="card" onclick="start()"><img src="1000110182.jpg"><div>دومينو</div></div>
+            <div class="card"><img src="1000106337.png"><div>شطرنج</div></div>
+            <div class="card"><img src="1000106355.png"><div>النرد الملون</div></div>
+            <div class="card"><img src="1000110182.jpg"><div>لودو</div></div>
+            <div class="card"><img src="1000110182.jpg"><div>كوتشينة</div></div>
+            <div class="card"><img src="1000110182.jpg"><div>طاولة 31</div></div>
         </div>
-        <div class="table-area" id="main-board"></div>
-        <div id="hand-area"></div>
     </div>
 
     <script>
-        let myTiles = [], boardTiles = [], turn = 0;
-
-        function piAuth() { alert("مرحباً بك يا رائد في نظام Pi البيئي"); }
-
-        function createTileUI(v1, v2, isHorizontal = false) {
-            let dots = '<div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div><div class="dot d7"></div><div class="dot d8"></div><div class="dot d9"></div>';
-            return `
-                <div class="tile ${isHorizontal ? 'horizontal' : ''}">
-                    <div class="half v${v1}">${dots}</div>
-                    <div style="height:2px; background:#ddd; margin:0 5px;"></div>
-                    <div class="half v${v2}">${dots}</div>
-                </div>`;
-        }
-
-        function openGame(type) {
-            if(type !== 'domino') return;
-            document.getElementById('home-screen').style.display = 'none';
-            document.getElementById('game-view').style.display = 'flex';
-            
-            let deck = [];
-            for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push([i, j]);
-            deck.sort(() => Math.random() - 0.5);
-            myTiles = deck.splice(0, 7);
-            
-            updateHand();
-        }
-
-        function updateHand() {
-            const handDiv = document.getElementById('hand-area');
-            handDiv.innerHTML = "";
-            myTiles.forEach((t, i) => {
-                let div = document.createElement('div');
-                div.innerHTML = createTileUI(t[0], t[1], false);
-                div.onclick = () => playTile(i);
-                handDiv.appendChild(div);
-            });
-        }
-
-        function playTile(idx) {
-            let t = myTiles[idx];
-            if(boardTiles.length === 0) boardTiles.push(t);
-            else {
-                let L = boardTiles[0][0], R = boardTiles[boardTiles.length-1][1];
-                if(t.includes(L)) boardTiles.unshift(t[1] === L ? t : [t[1], t[0]]);
-                else if(t.includes(R)) boardTiles.push(t[0] === R ? t : [t[1], t[0]]);
-                else return;
-            }
-            myTiles.splice(idx, 1);
-            refreshBoard();
-            updateHand();
-        }
-
-        function refreshBoard() {
-            const bDiv = document.getElementById('main-board');
-            bDiv.innerHTML = "";
-            boardTiles.forEach(t => {
-                let div = document.createElement('div');
-                // خوارزمية المسار: الدوش رأسي وغيره أفقي
-                div.innerHTML = createTileUI(t[0], t[1], t[0] !== t[1]);
-                bDiv.appendChild(div);
-            });
+        function start() {
+            alert("بدء اللعبة... جاري تحميل النظام المتقدم");
         }
     </script>
 </body>
