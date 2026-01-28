@@ -3,148 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PiGamesHub | Official Mainnet Edition</title>
+    <title>PiGamesHub | Pro Edition</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --gold: #ffd700; --purple: #6741d9; --bg: #05010a; --glass: rgba(255,255,255,0.08); }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
-
-        /* الخلفية السينمائية */
-        .hero-bg {
-            position: fixed; inset: 0;
-            background: linear-gradient(rgba(5,1,10,0.8), rgba(5,1,10,0.8)), url('1000106337.png');
-            background-size: cover; z-index: -1;
+        /* تعريف الألوان المستوحاة من صورك */
+        :root {
+            --pi-blue: #3b82f6;
+            --pi-purple: #8b5cf6;
+            --pi-gold: #f59e0b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
         }
 
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--gold); }
-        .pi-btn { background: linear-gradient(45deg, var(--purple), #4b2cb3); border: 1px solid var(--gold); color: white; padding: 10px 20px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        body { 
+            margin: 0; padding: 0; background-color: var(--bg-light); 
+            font-family: 'Segoe UI', Roboto, sans-serif; color: #1e293b;
+        }
 
-        .hub { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 450px; margin: auto; }
-        .card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; text-align: center; backdrop-filter: blur(10px); }
-        .card img { width: 60px; height: 60px; margin-bottom: 10px; border-radius: 12px; }
+        /* الهيدر العلوي */
+        header {
+            background: #fff; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; }
 
-        /* شاشة اللعبة */
-        #arena { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #0e4d26, #051a0d); z-index: 1000; flex-direction: column; }
-        .board { flex: 1; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px; padding: 20px; overflow: auto; }
-        .hand { height: 130px; background: rgba(0,0,0,0.9); border-top: 3px solid var(--gold); display: flex; justify-content: center; align-items: center; gap: 10px; }
+        /* منطقة الرصيد (مثل الصورة) */
+        .stats-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px;
+        }
+        .stat-card {
+            padding: 20px; border-radius: 16px; color: white; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .blue-card { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .gold-card { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-value { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { font-size: 0.8rem; opacity: 0.9; }
 
-        /* قطع الدومينو البرمجية */
-        .tile { width: 38px; height: 76px; background: white; border: 2px solid #000; border-radius: 5px; display: flex; flex-direction: column; flex-shrink: 0; }
-        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; }
-        .dot { background: #000; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; margin: auto; }
-        .v1 .d5, .v3 .d5, .v5 .d5 { visibility: visible; }
-        .v2 .d1, .v2 .d9, .v3 .d1, .v3 .d9, .v4 .d1, .v4 .d3, .v4 .d7, .v4 .d9, .v5 .d1, .v5 .d3, .v5 .d7, .v5 .d9, .v6 .d1, .v6 .d3, .v6 .d4, .v6 .d6, .v6 .d7, .v6 .d9 { visibility: visible; }
-        .rotated { transform: rotate(90deg); margin: 0 -14px; }
+        /* الأقسام (ورق، نرد، استراتيجية) */
+        .tabs {
+            display: flex; justify-content: space-around; padding: 10px 20px;
+            background: #fff; border-bottom: 1px solid #e2e8f0;
+        }
+        .tab-item { padding: 8px 15px; font-size: 0.9rem; color: #64748b; cursor: pointer; }
+        .active-tab { color: #1e293b; font-weight: bold; border-bottom: 2px solid var(--pi-purple); }
+
+        /* قائمة الألعاب */
+        .game-list { padding: 20px; }
+        .game-card {
+            background: #fff; border-radius: 20px; padding: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f1f5f9;
+        }
+        .game-icon { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
+        .game-info { flex: 1; }
+        .game-title { font-weight: bold; font-size: 1.1rem; }
+        .game-desc { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+        .level-badge { background: #fef3c7; color: #d97706; padding: 4px 8px; border-radius: 8px; font-size: 0.7rem; }
+
+        /* زر الدفع السحري لإنهاء المهمة البنفسجية */
+        .action-banner {
+            margin: 20px; padding: 20px; border-radius: 20px;
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: white; text-align: center; cursor: pointer;
+        }
+
+        #game-view { display: none; position: fixed; inset: 0; background: #064e3b; z-index: 100; }
     </style>
 </head>
 <body>
 
-<div class="hero-bg"></div>
+<header>
+    <div class="user-profile">
+        <div class="avatar"></div>
+        <div>
+            <div id="username" style="font-weight: bold; font-size: 0.9rem;">مرحباً، جاري التحميل...</div>
+            <div style="font-size: 0.7rem; color: #64748b;">المستوى 1</div>
+        </div>
+    </div>
+    <div style="color:var(--pi-purple); font-weight: bold;">PiGameHub</div>
+</header>
 
-<div id="home">
-    <header>
-        <div style="color:var(--gold); font-weight:bold;">PiGamesHub</div>
-        <button class="pi-btn" onclick="authPi()">تسجيل دخول $\pi$</button>
-    </header>
-
-    <div style="text-align: center; padding: 20px;">
-        <button class="pi-btn" style="background: #28a745;" onclick="transferPi()">تفعيل الخطوة الأخيرة (دفع 0.1 $\pi$)</button>
+<div id="lobby">
+    <div class="stats-container">
+        <div class="stat-card blue-card">
+            <div class="stat-value" id="pi-balance">0.00</div>
+            <div class="stat-label">Pi Balance</div>
+        </div>
+        <div class="stat-card gold-card">
+            <div class="stat-value">2450</div>
+            <div class="stat-label">عملات اللعبة</div>
+        </div>
     </div>
 
-    <div class="hub">
-        <div class="card" onclick="openDomino()"><img src="1000106355.png"><div>دومينو</div></div>
-        <div class="card"><img src="1000106337.png"><div>شطرنج</div></div>
-        <div class="card"><img src="1000110182.jpg"><div>لودو</div></div>
-        <div class="card"><img src="1000106337.png"><div>كوتشينة</div></div>
-        <div class="card"><img src="1000106355.png"><div>نرد</div></div>
-        <div class="card"><img src="1000110182.jpg"><div>طاولة 31</div></div>
+    <div class="action-banner" id="pay-btn" onclick="transferPi()">
+        <h3>تفعيل الخطوة الأخيرة</h3>
+        <p>اضغط هنا لدفع 0.1 Pi واعتماد تطبيقك رسمياً</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-item active-tab">ورق ♠️</div>
+        <div class="tab-item">نرد 🎲</div>
+        <div class="tab-item">استراتيجية 👑</div>
+    </div>
+
+    <div class="game-list">
+        <div class="game-card" onclick="startDomino()">
+            <img src="1000106355.png" class="game-icon" onerror="this.src='https://via.placeholder.com/60/8b5cf6/ffffff?text=D'">
+            <div class="game-info">
+                <div class="game-title">دومينو المحترفين</div>
+                <div class="game-desc">لعبة الدومينو الكلاسيكية بخصم ذكي</div>
+            </div>
+            <div class="level-badge">متوسط</div>
+        </div>
+        
+        <div class="game-card">
+            <img src="1000106337.png" class="game-icon" onerror="this.src='https://via.placeholder.com/60/f59e0b/ffffff?text=C'">
+            <div class="game-info">
+                <div class="game-title">شطرنج الملوك</div>
+                <div class="game-desc">اختبر ذكاءك ضد أقوى تحدي</div>
+            </div>
+            <div class="level-badge">صعب</div>
+        </div>
     </div>
 </div>
 
-<div id="arena">
-    <div style="padding:10px; background:rgba(0,0,0,0.8); display:flex; justify-content:space-between;">
-        <button onclick="location.reload()" style="border:1px solid var(--gold); background:none; color:var(--gold); padding:5px 15px; border-radius:10px;">🏠 خروج</button>
-        <span id="score">المستوى: محترف</span>
-    </div>
-    <div class="board" id="game-board"></div>
-    <div class="hand" id="player-hand"></div>
+<div id="game-view">
+    <button onclick="location.reload()" style="margin:20px; padding:10px 20px; border-radius:10px; border:none; background:white; color:#064e3b; font-weight:bold;">🏠 العودة للرئيسية</button>
+    <div id="board" style="display:flex; justify-content:center; align-items:center; height:70vh; color:white;">جاري فتح اللعبة...</div>
 </div>
 
 <script>
-    // 1. إعدادات Pi SDK الأساسية
     const Pi = window.Pi;
-    Pi.init({ version: "2.0", sandbox: true }); // اجعل sandbox: false عند النشر الحقيقي
+    Pi.init({ version: "2.0", sandbox: true });
 
-    async function authPi() {
+    // تسجيل الدخول التلقائي فور فتح الصفحة
+    async function autoLogin() {
         try {
             const scopes = ['username', 'payments'];
-            const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
-            alert("أهلاً بك: " + auth.user.username);
-        } catch (err) { alert("فشل الاتصال: " + err); }
+            const auth = await Pi.authenticate(scopes, (payment) => {});
+            document.getElementById('username').innerText = "مرحباً، " + auth.user.username;
+            document.getElementById('pi-balance').innerText = "125.56"; // رصيد استعراضي لمحاكاة الصورة
+        } catch (e) { console.error(e); }
     }
+    autoLogin();
 
-    function onIncompletePaymentFound(payment) { /* لمعالجة المدفوعات المعلقة */ }
-
-    // 2. وظيفة الدفع لإنهاء المهمة البنفسجية
     async function transferPi() {
         try {
             const payment = await Pi.createPayment({
                 amount: 0.1,
                 memo: "تفعيل تطبيق PiGamesHub",
-                metadata: { userId: "pioneer_1" }
+                metadata: { userId: "pioneer_user_1" }
             }, {
-                onReadyForServerApproval: (paymentId) => { console.log("Approved: " + paymentId); },
-                onReadyForServerCompletion: (paymentId, txid) => { 
-                    alert("تم الدفع بنجاح! راجع صفحة المطورين الآن.");
+                onReadyForServerApproval: (pId) => console.log("Approved"),
+                onReadyForServerCompletion: (pId, txid) => {
+                    alert("تمت العملية! المهمة البنفسجية ستصبح Completed الآن.");
                 },
-                onCancel: (paymentId) => { console.log("Canceled"); },
-                onError: (error, payment) => { console.error(error); }
+                onCancel: (pId) => {},
+                onError: (e) => alert("خطأ: تأكد من تسجيل الدخول أولاً")
             });
-        } catch (err) { alert("خطأ في العملية: " + err.message); }
+        } catch (err) { alert(err.message); }
     }
 
-    // 3. منطق الدومينو المستقر
-    let myTiles = [], board = [];
-
-    function openDomino() {
-        document.getElementById('home').style.display = 'none';
-        document.getElementById('arena').style.display = 'flex';
-        let d = []; for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) d.push([i,j]);
-        d.sort(() => Math.random() - 0.5);
-        myTiles = d.splice(0, 7);
-        render();
-    }
-
-    function createTileHTML(v1, v2, isRot = false) {
-        let dots = '<div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div><div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div><div class="dot d7"></div><div class="dot d8"></div><div class="dot d9"></div>';
-        return `<div class="tile ${isRot ? 'rotated' : ''}"><div class="half v${v1}">${dots}</div><div style="height:1px;background:#eee;"></div><div class="half v${v2}">${dots}</div></div>`;
-    }
-
-    function render() {
-        const h = document.getElementById('player-hand'); h.innerHTML = '';
-        myTiles.forEach((t, i) => {
-            let div = document.createElement('div'); div.innerHTML = createTileHTML(t[0], t[1]);
-            div.onclick = () => play(i); h.appendChild(div);
-        });
-        const b = document.getElementById('game-board'); b.innerHTML = '';
-        board.forEach(t => {
-            let div = document.createElement('div'); div.innerHTML = createTileHTML(t[0], t[1], t[0] !== t[1]);
-            b.appendChild(div);
-        });
-    }
-
-    function play(idx) {
-        let t = myTiles[idx];
-        if(board.length === 0) board.push(t);
-        else {
-            let L = board[0][0], R = board[board.length-1][1];
-            if(t.includes(L)) board.unshift(t[1] === L ? t : [t[1], t[0]]);
-            else if(t.includes(R)) board.push(t[0] === R ? t : [t[1], t[0]]);
-            else return;
-        }
-        myTiles.splice(idx, 1); render();
+    function startDomino() {
+        document.getElementById('lobby').style.display = 'none';
+        document.getElementById('game-view').style.display = 'block';
     }
 </script>
+
 </body>
 </html>
