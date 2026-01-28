@@ -3,106 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PiGamesHub | Final Patch</title>
+    <title>PiGamesHub | Direct Activation</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --blue: #3b82f6; --gold: #f59e0b; --purple: #8b5cf6; }
-        body { margin: 0; background: #f8fafc; font-family: sans-serif; color: #1e293b; text-align: center; }
-        
-        /* الهيدر الجديد */
-        header { background: #fff; padding: 15px; border-bottom: 2px solid var(--purple); display: flex; justify-content: space-between; align-items: center; }
-        
-        /* كروت الإحصائيات مثل باى اب استوديو */
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .s-card { padding: 20px; border-radius: 15px; color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-        .gold { background: linear-gradient(135deg, #f59e0b, #b45309); }
-
-        /* زر الأكشن الكبير */
-        .btn-box { margin: 20px; padding: 25px; border-radius: 20px; background: white; border: 2px dashed var(--purple); }
-        .main-btn { background: var(--purple); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; }
-        .pay-btn { background: #10b981; margin-top: 15px; display: none; } /* مخفي حتى يتم تسجيل الدخول */
-        
-        .loading-text { color: var(--purple); font-size: 0.8rem; margin-top: 10px; display: none; }
+        :root { --p-purple: #6d28d9; --p-gold: #f59e0b; }
+        body { margin: 0; background: #f3f4f6; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        .box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        h2 { color: var(--p-purple); margin-bottom: 10px; }
+        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+        .btn-auth { background: var(--p-purple); color: white; }
+        .btn-pay { background: #10b981; color: white; display: none; }
+        .status { font-size: 0.8rem; color: #6b7280; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-weight: bold; color: var(--purple);">PiGamesHub</div>
-    <div id="user-status" style="font-size: 0.8rem;">غير متصل</div>
-</header>
-
-<div class="stats">
-    <div class="s-card gold">
-        <div id="game-coins">2450</div>
-        <div style="font-size: 0.7rem;">عملات اللعبة</div>
-    </div>
-    <div class="s-card blue">
-        <div id="pi-balance">0.00</div>
-        <div style="font-size: 0.7rem;">Pi Balance</div>
-    </div>
-</div>
-
-<div class="btn-box">
-    <div id="step-1">
-        <h3 style="color: var(--purple); margin-top: 0;">الخطوة 1: الدخول</h3>
-        <p style="font-size: 0.9rem;">اضغط لتسجيل الدخول والموافقة على صلاحيات الدفع</p>
-        <button class="main-btn" onclick="login()">تسجيل دخول Pi Network</button>
-        <div id="loading" class="loading-text">جاري الاتصال بـ Pi Network...</div>
-    </div>
-
-    <div id="step-2" style="display: none;">
-        <h3 style="color: #10b981; margin-top: 0;">الخطوة 2: التفعيل</h3>
-        <p style="font-size: 0.9rem;">تم تسجيل الدخول! الآن يمكنك تفعيل المهمة البنفسجية</p>
-        <button class="main-btn pay-btn" id="payBtn" style="display: block;" onclick="pay()">دفع 0.1 Pi للتفعيل</button>
-    </div>
+<div class="box">
+    <h2>تفعيل PiGamesHub</h2>
+    <p style="font-size: 0.9rem; color: #4b5563;">اتبع الخطوات بالترتيب لإنهاء المهمة رقم 10</p>
+    
+    <button id="authBtn" class="btn btn-auth" onclick="startPiAuth()">1. تسجيل دخول Pi</button>
+    
+    <button id="payBtn" class="btn btn-pay" onclick="createPiPayment()">2. دفع 0.1 Pi وتفعيل التطبيق</button>
+    
+    <div id="msg" class="status">انتظار تسجيل الدخول...</div>
 </div>
 
 <script>
+    // تهيئة الـ SDK
     const Pi = window.Pi;
     Pi.init({ version: "2.0", sandbox: true });
 
-    async function login() {
-        document.getElementById('loading').style.display = 'block';
+    async function startPiAuth() {
+        const msg = document.getElementById('msg');
+        msg.innerText = "جاري الاتصال بـ Pi Network...";
+        
         try {
-            // نطلب الـ username والـ payments بوضوح
+            // نطلب الصلاحيات من Pi مباشرة (بدون جوجل)
             const scopes = ['username', 'payments'];
             const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
             
-            // نجاح تسجيل الدخول
-            document.getElementById('user-status').innerText = "أهلاً " + auth.user.username;
-            document.getElementById('pi-balance').innerText = "125.56";
-            document.getElementById('step-1').style.display = 'none';
-            document.getElementById('step-2').style.display = 'block';
+            // إذا نجح الدخول
+            msg.innerText = "مرحباً " + auth.user.username + "! جاهز للتفعيل.";
+            msg.style.color = "#10b981";
+            document.getElementById('authBtn').style.display = "none";
+            document.getElementById('payBtn').style.display = "block";
             
-            console.log("Login Success, Scope granted.");
         } catch (err) {
-            alert("خطأ: " + err);
-            document.getElementById('loading').style.display = 'none';
+            msg.innerText = "خطأ: تأكد من فتح الرابط داخل Pi Browser";
+            msg.style.color = "red";
+            console.error(err);
         }
     }
 
     function onIncompletePaymentFound(payment) {
-        console.log("Payment incomplete", payment);
+        // معالجة المدفوعات التي لم تكتمل إذا وجدت
+        console.log("Incomplete payment:", payment);
     }
 
-    async function pay() {
+    async function createPiPayment() {
         try {
             const payment = await Pi.createPayment({
                 amount: 0.1,
-                memo: "Activation for PiGamesHub Developer Task",
-                metadata: { type: "activation" }
+                memo: "Activation Payment for PiGamesHub",
+                metadata: { orderId: "ACT-100" }
             }, {
-                onReadyForServerApproval: (id) => console.log("Approved ID:", id),
-                onReadyForServerCompletion: (id, txid) => {
-                    alert("تمت العملية بنجاح! مبروك، المهمة البنفسجية اكتملت.");
+                onReadyForServerApproval: (id) => {
+                    console.log("Payment approved by user, ID:", id);
                 },
-                onCancel: (id) => alert("تم إلغاء الدفع"),
-                onError: (error) => alert("حدث خطأ أثناء الدفع: " + error.message)
+                onReadyForServerCompletion: (id, txid) => {
+                    alert("مبروك يا رائد! تمت العملية بنجاح. اذهب الآن لصفحة المطورين وستجد المهمة اكتملت.");
+                    location.reload(); // لإعادة التوجيه للرئيسية بعد النجاح
+                },
+                onCancel: (id) => alert("تم إلغاء العملية"),
+                onError: (error) => alert("حدث خطأ: " + error.message)
             });
         } catch (err) {
-            alert("فشل إنشاء الطلب: " + err.message);
+            alert("خطأ في إنشاء الطلب: " + err.message);
         }
     }
 </script>
