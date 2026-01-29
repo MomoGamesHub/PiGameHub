@@ -1,13 +1,15 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ message: 'Method Not Allowed' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method Not Allowed' });
+    }
 
     const { paymentId, action, txid } = req.body;
     
-    // سحب المفتاح من إعدادات فيرسل الآمنة
+    // سحب المفتاح من إعدادات Vercel التي قمت بضبطها مسبقاً
     const SERVER_API_KEY = process.env.PI_API_KEY; 
 
     try {
-        // لاحظ استخدام علامة ` بدلاً من ' هنا
+        // تم تصحيح الرابط باستخدام علامات الـ Backticks `
         const response = await fetch(`https://api.minepi.com/v2/payments/${paymentId}/${action}`, {
             method: 'POST',
             headers: {
@@ -19,7 +21,9 @@ export default async function handler(req, res) {
 
         const result = await response.json();
         return res.status(200).json(result);
+        
     } catch (error) {
+        console.error("Pi Error:", error);
         return res.status(500).json({ error: error.message });
     }
 }
