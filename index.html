@@ -3,86 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PiGamesHub | Direct Activation</title>
+    <title>PiGamesHub | PRO Activation</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --p-purple: #6d28d9; --p-gold: #f59e0b; }
-        body { margin: 0; background: #f3f4f6; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
-        .box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
-        h2 { color: var(--p-purple); margin-bottom: 10px; }
-        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; }
-        .btn-auth { background: var(--p-purple); color: white; }
-        .btn-pay { background: #10b981; color: white; display: none; }
-        .status { font-size: 0.8rem; color: #6b7280; margin-top: 15px; }
+        :root { --p-purple: #6d28d9; --p-gold: #f59e0b; --p-green: #10b981; }
+        body { margin: 0; background: #0f172a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; color: white; }
+        .box { background: #1e293b; padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 90%; max-width: 400px; border: 1px solid #334155; }
+        h2 { color: var(--p-gold); margin-bottom: 10px; font-size: 1.5rem; }
+        .btn { width: 100%; padding: 16px; margin: 12px 0; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
+        .btn-auth { background: var(--p-purple); color: white; box-shadow: 0 4px 15px rgba(109, 40, 217, 0.4); }
+        .btn-pay { background: var(--p-green); color: white; display: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .btn:active { transform: scale(0.98); }
+        .status { font-size: 0.85rem; color: #94a3b8; margin-top: 20px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h2>تفعيل PiGamesHub</h2>
-    <p style="font-size: 0.9rem; color: #4b5563;">اتبع الخطوات بالترتيب لإنهاء المهمة رقم 10</p>
+    <h2>تنشيط PiGamesHub</h2>
+    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 25px;">تفعيل الخطوة 10 عبر الـ Testnet</p>
     
-    <button id="authBtn" class="btn btn-auth" onclick="startPiAuth()">1. تسجيل دخول Pi</button>
+    <button id="authBtn" class="btn btn-auth" onclick="startPiAuth()">1. تسجيل الدخول بالهوية</button>
+    <button id="payBtn" class="btn btn-pay" onclick="createPiPayment()">2. دفع 0.1 Pi وتنشيط التطبيق</button>
     
-    <button id="payBtn" class="btn btn-pay" onclick="createPiPayment()">2. دفع 0.1 Pi وتفعيل التطبيق</button>
-    
-    <div id="msg" class="status">انتظار تسجيل الدخول...</div>
+    <div id="msg" class="status">بانتظار تسجيل الدخول...</div>
 </div>
 
 <script>
-    // تهيئة الـ SDK
     const Pi = window.Pi;
     Pi.init({ version: "2.0", sandbox: true });
 
     async function startPiAuth() {
         const msg = document.getElementById('msg');
-        msg.innerText = "جاري الاتصال بـ Pi Network...";
-        
+        msg.innerText = "جاري التحقق من الهوية...";
         try {
-            // نطلب الصلاحيات من Pi مباشرة (بدون جوجل)
             const scopes = ['username', 'payments'];
             const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
-            
-            // إذا نجح الدخول
-            msg.innerText = "مرحباً " + auth.user.username + "! جاهز للتفعيل.";
+            msg.innerText = "أهلاً " + auth.user.username + "! يمكنك الآن التفعيل.";
             msg.style.color = "#10b981";
             document.getElementById('authBtn').style.display = "none";
             document.getElementById('payBtn').style.display = "block";
-            
         } catch (err) {
-            msg.innerText = "خطأ: تأكد من فتح الرابط داخل Pi Browser";
-            msg.style.color = "red";
-            console.error(err);
+            msg.innerText = "خطأ: افتح الرابط من Pi Browser";
+            msg.style.color = "#ef4444";
         }
+    }
+
+    async function handleServerStep(paymentId, action, txid = null) {
+        // نرسل البيانات لملف الـ api اللي عملناه في فيرسل
+        const response = await fetch('/api/pi-handler', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, action, txid })
+        });
+        return response.json();
     }
 
     function onIncompletePaymentFound(payment) {
-        // معالجة المدفوعات التي لم تكتمل إذا وجدت
-        console.log("Incomplete payment:", payment);
+        console.log("Incomplete payment found", payment);
     }
 
     async function createPiPayment() {
+        const msg = document.getElementById('msg');
         try {
-            const payment = await Pi.createPayment({
+            await Pi.createPayment({
                 amount: 0.1,
-                memo: "Activation Payment for PiGamesHub",
-                metadata: { orderId: "ACT-100" }
+                memo: "Final Activation - Step 10",
+                metadata: { orderId: "PRO-ACT-V1" }
             }, {
-                onReadyForServerApproval: (id) => {
-                    console.log("Payment approved by user, ID:", id);
+                onReadyForServerApproval: async (id) => {
+                    msg.innerText = "جاري معالجة الموافقة بالسيرفر...";
+                    await handleServerStep(id, 'approve');
                 },
-                onReadyForServerCompletion: (id, txid) => {
-                    alert("مبروك يا رائد! تمت العملية بنجاح. اذهب الآن لصفحة المطورين وستجد المهمة اكتملت.");
-                    location.reload(); // لإعادة التوجيه للرئيسية بعد النجاح
+                onReadyForServerCompletion: async (id, txid) => {
+                    msg.innerText = "جاري التأكيد النهائي على البلوكشين...";
+                    await handleServerStep(id, 'complete', txid);
+                    alert("تم التفعيل بنجاح! مبروك يا بطل.");
+                    location.reload();
                 },
-                onCancel: (id) => alert("تم إلغاء العملية"),
-                onError: (error) => alert("حدث خطأ: " + error.message)
+                onCancel: (id) => msg.innerText = "تم إلغاء المعاملة",
+                onError: (error) => msg.innerText = "خطأ: " + error.message
             });
         } catch (err) {
-            alert("خطأ في إنشاء الطلب: " + err.message);
+            msg.innerText = "فشل الطلب: " + err.message;
         }
     }
 </script>
-
 </body>
 </html>
