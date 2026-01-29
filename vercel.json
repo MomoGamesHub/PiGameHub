@@ -4,7 +4,7 @@
       "source": "/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Content-Security-Policy", "value": "frame-ancestors 'self' https://*.pinet.com https://*.pi;" }
+        { "key": "Content-Security-Policy", "value": "frame-ancestors 'self' https://*.pinet.com https://*.pi-blockchain.net https://*.minepi.com;" }
       ]
     }
   ]
