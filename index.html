@@ -33,10 +33,11 @@
     <div class="hand" id="hand" style="margin-top: 20px;"></div>
 </div>
 
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 <script>
-    const Pi = window.Pi;
-    // السطر 45 اللي كان فيه المشكلة (تم التأكد إنه sandbox: false)
-    Pi.init({ version: "2.0", sandbox: false });
+  Pi.init({ version: "2.0", sandbox: false });
+    alert("Pi SDK Loaded OK");
+</script>
 
     async function startPiAuth() {
         try {
