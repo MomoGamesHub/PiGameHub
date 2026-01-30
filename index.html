@@ -7,15 +7,16 @@
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         :root { --p-purple: #6d28d9; --p-gold: #f59e0b; --p-green: #10b981; }
-        body { margin: 0; background: #0f172a; font-family: Arial, sans-serif; color: white; text-align: center; }
-        .pay-box { background: #1e293b; padding: 20px; border-radius: 15px; margin: 20px auto; width: 90%; max-width: 400px; }
-        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        body { margin: 0; background: #0f172a; font-family: Arial, sans-serif; color: white; text-align: center; overflow-x: hidden; }
+        .pay-box { background: #1e293b; padding: 20px; border-radius: 15px; margin: 20px auto; width: 90%; max-width: 400px; border: 1px solid #334155; }
+        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
         .btn-auth { background: var(--p-purple); color: white; }
         .btn-pay { background: var(--p-green); color: white; display: none; }
         #game-section { display: none; padding: 20px; }
-        .hand { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+        .hand { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
         .domino { width: 50px; height: 100px; background: white; border: 2px solid #000; color: black; display: flex; flex-direction: column; border-radius: 5px; }
         .half { flex: 1; border-bottom: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+        .half:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -29,24 +30,26 @@
 
 <div id="game-section">
     <h1>🎴 دومينو تدريبية</h1>
-    <button class="btn" style="background: var(--p-gold); width: auto;" onclick="drawDomino()">سحب قطعة</button>
-    <div class="hand" id="hand" style="margin-top: 20px;"></div>
+    <button class="btn" style="background: var(--p-gold); width: auto; padding: 10px 30px;" onclick="drawDomino()">سحب قطعة</button>
+    <div id="board" style="margin: 10px; color: #94a3b8;">اسحب قطع البدء</div>
+    <div class="hand" id="hand"></div>
 </div>
 
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 <script>
-  Pi.init({ version: "2.0", sandbox: false });
-    alert("Pi SDK Loaded OK");
-</script>
+    const Pi = window.Pi;
+    Pi.init({ version: "2.0", sandbox: false });
 
     async function startPiAuth() {
+        const msgDiv = document.getElementById('msg');
         try {
+            msgDiv.innerText = "جاري الاتصال بـ Pi...";
             const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
-            document.getElementById('msg').innerText = "أهلاً " + auth.user.username;
+            msgDiv.innerText = "أهلاً " + auth.user.username + "!";
             document.getElementById('authBtn').style.display = "none";
             document.getElementById('payBtn').style.display = "block";
         } catch (err) {
-            alert("خطأ في الاتصال: " + err.message);
+            msgDiv.innerText = "فشل الاتصال. تأكد من فتح الرابط داخل Pi Browser";
+            console.error(err);
         }
     }
 
@@ -62,22 +65,29 @@
                     handleServer(id, 'complete', txid);
                     showGame();
                 },
-                onCancel: () => alert("تم الإلغاء"),
-                onError: (err) => alert(err.message)
+                onCancel: () => alert("تم إلغاء عملية الدفع"),
+                onError: (err) => alert("خطأ في الدفع: " + err.message)
             });
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     async function handleServer(paymentId, action, txid = null) {
-        // السطر 83 اللي كان فيه مشكلة الأقواس (تم تصحيحه بالكامل)
-        await fetch('/api/pi-handler', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId, action, txid })
-        });
+        try {
+            await fetch('/api/pi-handler', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId, action, txid })
+            });
+        } catch (error) {
+            console.error("Server Error:", error);
+        }
     }
 
-    function onIncompletePaymentFound(p) { handleServer(p.identifier, 'complete', p.transaction.txid); }
+    function onIncompletePaymentFound(p) {
+        handleServer(p.identifier, 'complete', p.transaction.txid);
+    }
 
     function showGame() {
         document.getElementById('auth-section').style.display = "none";
@@ -86,6 +96,9 @@
 
     function drawDomino() {
         const h = document.getElementById('hand');
+        const boardMsg = document.getElementById('board');
+        if (boardMsg) boardMsg.innerText = "";
+        
         const d = document.createElement('div');
         d.className = 'domino';
         const r1 = Math.floor(Math.random() * 7);
