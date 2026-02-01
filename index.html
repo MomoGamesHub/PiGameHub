@@ -3,74 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PiGameHub | Domino</title>
+    <title>Pi App Studio Experience</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --p-purple: #6d28d9; --p-gold: #f59e0b; --p-green: #10b981; }
-        body { margin: 0; background: #0f172a; font-family: Arial, sans-serif; color: white; text-align: center; overflow-x: hidden; }
-        .pay-box { background: #1e293b; padding: 20px; border-radius: 15px; margin: 20px auto; width: 90%; max-width: 400px; border: 1px solid #334155; }
-        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        .btn-auth { background: var(--p-purple); color: white; }
-        .btn-pay { background: var(--p-green); color: white; display: none; }
-        #game-section { display: none; padding: 20px; }
-        .hand { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-        .domino { width: 50px; height: 100px; background: white; border: 2px solid #000; color: black; display: flex; flex-direction: column; border-radius: 5px; }
-        .half { flex: 1; border-bottom: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
-        .half:last-child { border-bottom: none; }
+        :root {
+            --pi-purple: #673ab7;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        body { 
+            margin: 0; 
+            background: var(--bg-light); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: var(--text-dark);
+        }
+
+        /* شريط العلوى المحاكي لـ Pi App Studio */
+        .top-bar {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .pi-balance { background: #fff8e1; color: #f59e0b; padding: 5px 12px; border-radius: 20px; font-weight: bold; border: 1px solid #ffe082; }
+
+        /* منطقة تسجيل الدخول */
+        #auth-section {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .auth-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* شبكة الألعاب (Dashboard) */
+        #game-dashboard {
+            display: none;
+            padding: 20px;
+        }
+        .section-title { text-align: right; font-size: 1.2rem; margin-bottom: 20px; color: var(--pi-purple); }
+        
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: 0.3s;
+            border: 1px solid #f0f0f0;
+        }
+        .game-card img { width: 60px; height: 60px; border-radius: 12px; margin-bottom: 10px; }
+        .game-card h4 { margin: 5px 0; font-size: 1rem; }
+        .game-card p { font-size: 0.8rem; color: #777; margin: 0; }
+
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-main { background: var(--pi-purple); color: white; }
+        
+        #pay-overlay {
+            display: none;
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85); color:white;
+            z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+        }
     </style>
 </head>
 <body>
 
-<div id="auth-section" class="pay-box">
-    <h2>تنشيط PiGameHub</h2>
-    <p id="msg">بانتظار تسجيل الدخول عبر Pi Browser...</p>
-    <button id="authBtn" class="btn btn-auth" onclick="startPiAuth()">1. تسجيل الدخول بالهوية</button>
-    <button id="payBtn" class="btn btn-pay" onclick="createPiPayment()">2. دفع 0.1 Pi لتشغيل اللعبة</button>
+<div class="top-bar">
+    <div class="user-info">
+        <strong>Pi Game Hub</strong>
+    </div>
+    <div class="pi-balance" id="user-balance">0.00 Pi</div>
 </div>
 
-<div id="game-section">
-    <h1>🎴 دومينو تدريبية</h1>
-    <button class="btn" style="background: var(--p-gold); width: auto; padding: 10px 30px;" onclick="drawDomino()">سحب قطعة</button>
-    <div id="board" style="margin: 10px; color: #94a3b8;">اسحب قطع البدء</div>
-    <div class="hand" id="hand"></div>
+<div id="auth-section">
+    <div class="auth-card">
+        <img src="https://minepi.com/wp-content/uploads/2021/10/logo.png" width="80" alt="Pi">
+        <h2>مرحباً بك في المنصة</h2>
+        <p>يجب تسجيل الدخول عبر متصفح Pi للاستمرار</p>
+        <button id="authBtn" class="btn btn-main" onclick="startPiAuth()">تسجيل الدخول بالهوية</button>
+    </div>
+</div>
+
+<div id="game-dashboard">
+    <h3 class="section-title">ألعابك المفضلة 🎮</h3>
+    <div class="game-grid">
+        <div class="game-card" onclick="requestGamePayment('Domino')">
+            <div style="font-size: 40px;">🎴</div>
+            <h4>لعبة الدومينو</h4>
+            <p>1.2k لاعب</p>
+            <button class="btn btn-main" style="font-size: 12px; padding: 5px;">العب الآن</button>
+        </div>
+        <div class="game-card" onclick="alert('ستتوفر قريباً!')">
+            <div style="font-size: 40px;">🎲</div>
+            <h4>لودو باى</h4>
+            <p>500 لاعب</p>
+            <button class="btn" style="background: #eee; font-size: 12px; padding: 5px;">قريباً</button>
+        </div>
+    </div>
+</div>
+
+<div id="pay-overlay">
+    <h3>تنشيط اللعبة</h3>
+    <p>سيتم خصم 0.1 Pi من رصيدك</p>
+    <button class="btn btn-main" onclick="createPiPayment()" style="width: 200px;">تأكيد الدفع</button>
+    <button onclick="document.getElementById('pay-overlay').style.display='none'" style="background:none; border:none; color:white; margin-top:20px;">إلغاء</button>
 </div>
 
 <script>
     const Pi = window.Pi;
     Pi.init({ version: "2.0", sandbox: false });
 
+    let currentUser = null;
+
     async function startPiAuth() {
-        const msgDiv = document.getElementById('msg');
+        const btn = document.getElementById('authBtn');
         try {
-            msgDiv.innerText = "جاري الاتصال بـ Pi...";
+            btn.innerText = "جاري التحقق...";
             const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
-            msgDiv.innerText = "أهلاً " + auth.user.username + "!";
-            document.getElementById('authBtn').style.display = "none";
-            document.getElementById('payBtn').style.display = "block";
+            currentUser = auth.user;
+            document.getElementById('user-balance').innerText = "125.56 Pi"; // مثال كالصورة
+            document.getElementById('auth-section').style.display = "none";
+            document.getElementById('game-dashboard').style.display = "block";
         } catch (err) {
-            msgDiv.innerText = "فشل الاتصال. تأكد من فتح الرابط داخل Pi Browser";
-            console.error(err);
+            alert("فشل الدخول: افتح التطبيق من Pi Browser");
+            btn.innerText = "حاول مرة أخرى";
         }
+    }
+
+    function requestGamePayment(gameName) {
+        document.getElementById('pay-overlay').style.display = "flex";
     }
 
     async function createPiPayment() {
         try {
             await Pi.createPayment({
                 amount: 0.1,
-                memo: "تفعيل لعبة الدومينو",
-                metadata: { orderId: "DOMINO-" + Date.now() }
+                memo: "فتح لعبة الدومينو الاحترافية",
+                metadata: { orderId: "GAME-" + Date.now() }
             }, {
                 onReadyForServerApproval: (id) => handleServer(id, 'approve'),
                 onReadyForServerCompletion: (id, txid) => {
                     handleServer(id, 'complete', txid);
-                    showGame();
+                    alert("تم التفعيل بنجاح! استمتع باللعب");
+                    document.getElementById('pay-overlay').style.display = "none";
                 },
-                onCancel: () => alert("تم إلغاء عملية الدفع"),
-                onError: (err) => alert("خطأ في الدفع: " + err.message)
+                onCancel: () => {},
+                onError: (err) => alert("خطأ: " + err.message)
             });
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     async function handleServer(paymentId, action, txid = null) {
@@ -80,32 +178,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentId, action, txid })
             });
-        } catch (error) {
-            console.error("Server Error:", error);
-        }
+        } catch (error) { console.error("Server Error:", error); }
     }
 
     function onIncompletePaymentFound(p) {
         handleServer(p.identifier, 'complete', p.transaction.txid);
     }
-
-    function showGame() {
-        document.getElementById('auth-section').style.display = "none";
-        document.getElementById('game-section').style.display = "block";
-    }
-
-    function drawDomino() {
-        const h = document.getElementById('hand');
-        const boardMsg = document.getElementById('board');
-        if (boardMsg) boardMsg.innerText = "";
-        
-        const d = document.createElement('div');
-        d.className = 'domino';
-        const r1 = Math.floor(Math.random() * 7);
-        const r2 = Math.floor(Math.random() * 7);
-        d.innerHTML = `<div class="half">${r1}</div><div class="half">${r2}</div>`;
-        h.appendChild(d);
-    }
 </script>
+
 </body>
 </html>
