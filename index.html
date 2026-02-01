@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pi App Studio Experience</title>
+    <title>Pi Game Hub - Pro</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         :root {
@@ -12,143 +12,115 @@
             --text-dark: #333;
             --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        body { 
-            margin: 0; 
-            background: var(--bg-light); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            color: var(--text-dark);
-        }
+        body { margin: 0; background: var(--bg-light); font-family: 'Segoe UI', Tahoma, sans-serif; color: var(--text-dark); }
 
-        /* شريط العلوى المحاكي لـ Pi App Studio */
+        /* شريط العلوى المطور */
         .top-bar {
-            background: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: white; padding: 10px 15px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 2px solid #eee; position: sticky; top: 0; z-index: 100;
         }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .pi-balance { background: #fff8e1; color: #f59e0b; padding: 5px 12px; border-radius: 20px; font-weight: bold; border: 1px solid #ffe082; }
+        .stats-box { display: flex; gap: 8px; font-size: 13px; }
+        .pi-balance { background: #fff8e1; color: #f59e0b; padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #ffe082; }
+        .user-level { background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 15px; font-weight: bold; border: 1px solid #c8e6c9; }
 
-        /* منطقة تسجيل الدخول */
-        #auth-section {
-            padding: 40px 20px;
-            text-align: center;
-        }
-        .auth-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--card-shadow);
-            max-width: 400px;
-            margin: 0 auto;
-        }
+        /* الأقسام الرئيسية */
+        #auth-section, #game-dashboard, #actual-game { padding: 20px; text-align: center; }
+        #game-dashboard, #actual-game { display: none; }
 
-        /* شبكة الألعاب (Dashboard) */
-        #game-dashboard {
-            display: none;
-            padding: 20px;
-        }
-        .section-title { text-align: right; font-size: 1.2rem; margin-bottom: 20px; color: var(--pi-purple); }
+        .auth-card { background: white; padding: 30px; border-radius: 20px; box-shadow: var(--card-shadow); max-width: 400px; margin: 0 auto; }
         
-        .game-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .game-card {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: var(--card-shadow);
-            transition: 0.3s;
-            border: 1px solid #f0f0f0;
-        }
-        .game-card img { width: 60px; height: 60px; border-radius: 12px; margin-bottom: 10px; }
-        .game-card h4 { margin: 5px 0; font-size: 1rem; }
-        .game-card p { font-size: 0.8rem; color: #777; margin: 0; }
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .game-card { background: white; border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); border: 1px solid #f0f0f0; cursor: pointer; }
+        .game-card img { width: 50px; }
+
+        /* واجهة الدومينو داخل اللعبة */
+        .domino-area { background: #2e7d32; padding: 20px; border-radius: 20px; min-height: 200px; margin-top: 20px; color: white; }
+        .hand { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        .domino-piece { width: 40px; height: 80px; background: white; border: 2px solid #000; color: black; display: flex; flex-direction: column; border-radius: 5px; font-weight: bold; }
+        .half { flex: 1; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ddd; }
 
         .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .btn-main { background: var(--pi-purple); color: white; }
         
         #pay-overlay {
-            display: none;
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.85); color:white;
-            z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85); color:white; z-index: 1000;
+            justify-content: center; align-items: center; flex-direction: column;
         }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <div class="user-info">
-        <strong>Pi Game Hub</strong>
+    <div id="username-display" style="font-weight: bold; color: var(--pi-purple);">Pi Game Hub</div>
+    <div class="stats-box">
+        <div class="user-level" id="level-ui">LVL 1</div>
+        <div class="pi-balance" id="user-balance">0.00 Pi</div>
     </div>
-    <div class="pi-balance" id="user-balance">0.00 Pi</div>
 </div>
 
 <div id="auth-section">
     <div class="auth-card">
-        <img src="https://minepi.com/wp-content/uploads/2021/10/logo.png" width="80" alt="Pi">
-        <h2>مرحباً بك في المنصة</h2>
-        <p>يجب تسجيل الدخول عبر متصفح Pi للاستمرار</p>
+        <img src="https://minepi.com/wp-content/uploads/2021/10/logo.png" width="60" alt="Pi">
+        <h2>أهلاً بك مطور Pi</h2>
+        <p>قم بتسجيل الدخول لبدء جمع النقاط</p>
         <button id="authBtn" class="btn btn-main" onclick="startPiAuth()">تسجيل الدخول بالهوية</button>
     </div>
 </div>
 
 <div id="game-dashboard">
-    <h3 class="section-title">ألعابك المفضلة 🎮</h3>
+    <h3 style="text-align: right;">اختر لعبتك 🎮</h3>
     <div class="game-grid">
         <div class="game-card" onclick="requestGamePayment('Domino')">
-            <div style="font-size: 40px;">🎴</div>
-            <h4>لعبة الدومينو</h4>
-            <p>1.2k لاعب</p>
-            <button class="btn btn-main" style="font-size: 12px; padding: 5px;">العب الآن</button>
+            <div style="font-size: 30px;">🎴</div>
+            <h4>الدومينو</h4>
+            <p style="font-size: 11px; color: #888;">0.1 Pi للعب</p>
+            <button class="btn btn-main" style="padding: 5px; font-size: 12px;">دفع واللعب</button>
         </div>
-        <div class="game-card" onclick="alert('ستتوفر قريباً!')">
-            <div style="font-size: 40px;">🎲</div>
-            <h4>لودو باى</h4>
-            <p>500 لاعب</p>
-            <button class="btn" style="background: #eee; font-size: 12px; padding: 5px;">قريباً</button>
+        <div class="game-card" style="opacity: 0.6;">
+            <div style="font-size: 30px;">🎲</div>
+            <h4>لودو</h4>
+            <p style="font-size: 11px;">قريباً</p>
         </div>
     </div>
 </div>
 
+<div id="actual-game">
+    <button onclick="backToDashboard()" style="float: right; background: none; border: none; color: var(--pi-purple); font-weight: bold;">✕ خروج</button>
+    <h3>طاولة الدومينو 🃏</h3>
+    <div class="domino-area" id="board">
+        <p id="game-status">اضغط على "سحب قطعة" للبدء</p>
+        <div class="hand" id="player-hand"></div>
+    </div>
+    <button class="btn btn-main" onclick="drawDomino()">سحب قطعة (+10 نقاط)</button>
+    <div style="margin-top: 15px; color: #666;">النقاط الحالية: <span id="score-val">0</span></div>
+</div>
+
 <div id="pay-overlay">
-    <h3>تنشيط اللعبة</h3>
-    <p>سيتم خصم 0.1 Pi من رصيدك</p>
-    <button class="btn btn-main" onclick="createPiPayment()" style="width: 200px;">تأكيد الدفع</button>
-    <button onclick="document.getElementById('pay-overlay').style.display='none'" style="background:none; border:none; color:white; margin-top:20px;">إلغاء</button>
+    <h3>تأكيد المعاملة</h3>
+    <p>فتح "لعبة الدومينو" مقابل 0.1 Pi</p>
+    <button class="btn btn-main" onclick="createPiPayment()" style="width: 200px;">إرسال العملات</button>
+    <button onclick="document.getElementById('pay-overlay').style.display='none'" style="background:none; border:none; color:white; margin-top:20px;">تراجع</button>
 </div>
 
 <script>
     const Pi = window.Pi;
     Pi.init({ version: "2.0", sandbox: false });
 
-    let currentUser = null;
+    let score = 0;
+    let level = 1;
 
     async function startPiAuth() {
-        const btn = document.getElementById('authBtn');
         try {
-            btn.innerText = "جاري التحقق...";
             const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
-            currentUser = auth.user;
-            document.getElementById('user-balance').innerText = "125.56 Pi"; // مثال كالصورة
+            document.getElementById('username-display').innerText = "@" + auth.user.username;
+            document.getElementById('user-balance').innerText = "125.56 Pi"; 
             document.getElementById('auth-section').style.display = "none";
             document.getElementById('game-dashboard').style.display = "block";
-        } catch (err) {
-            alert("فشل الدخول: افتح التطبيق من Pi Browser");
-            btn.innerText = "حاول مرة أخرى";
-        }
+        } catch (err) { alert("يجب استخدام Pi Browser"); }
     }
 
-    function requestGamePayment(gameName) {
+    function requestGamePayment(game) {
         document.getElementById('pay-overlay').style.display = "flex";
     }
 
@@ -156,19 +128,50 @@
         try {
             await Pi.createPayment({
                 amount: 0.1,
-                memo: "فتح لعبة الدومينو الاحترافية",
-                metadata: { orderId: "GAME-" + Date.now() }
+                memo: "تنشيط اللعبة الاحترافية",
+                metadata: { orderId: "PRO-" + Date.now() }
             }, {
                 onReadyForServerApproval: (id) => handleServer(id, 'approve'),
                 onReadyForServerCompletion: (id, txid) => {
                     handleServer(id, 'complete', txid);
-                    alert("تم التفعيل بنجاح! استمتع باللعب");
-                    document.getElementById('pay-overlay').style.display = "none";
+                    launchGame();
                 },
                 onCancel: () => {},
-                onError: (err) => alert("خطأ: " + err.message)
+                onError: (err) => alert(err.message)
             });
         } catch (e) { console.error(e); }
+    }
+
+    function launchGame() {
+        document.getElementById('pay-overlay').style.display = "none";
+        document.getElementById('game-dashboard').style.display = "none";
+        document.getElementById('actual-game').style.display = "block";
+    }
+
+    function drawDomino() {
+        const hand = document.getElementById('player-hand');
+        document.getElementById('game-status').innerText = "جاري اللعب...";
+        
+        const piece = document.createElement('div');
+        piece.className = 'domino-piece';
+        const v1 = Math.floor(Math.random() * 7);
+        const v2 = Math.floor(Math.random() * 7);
+        piece.innerHTML = `<div class="half">${v1}</div><div class="half">${v2}</div>`;
+        hand.appendChild(piece);
+
+        // زيادة النقاط والمستوى
+        score += 10;
+        document.getElementById('score-val').innerText = score;
+        if(score >= 100) {
+            level = 2;
+            document.getElementById('level-ui').innerText = "LVL 2";
+            document.getElementById('level-ui').style.background = "#fff3e0";
+        }
+    }
+
+    function backToDashboard() {
+        document.getElementById('actual-game').style.display = "none";
+        document.getElementById('game-dashboard').style.display = "block";
     }
 
     async function handleServer(paymentId, action, txid = null) {
@@ -178,7 +181,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ paymentId, action, txid })
             });
-        } catch (error) { console.error("Server Error:", error); }
+        } catch (e) { console.error(e); }
     }
 
     function onIncompletePaymentFound(p) {
