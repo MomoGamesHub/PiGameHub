@@ -3,231 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pi Game's Hub</title>
+    <title>Pi Game's Hub | النسخة الاحترافية</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
         :root {
-            --pi-color: #ffa500; /* لون باي المميز */
+            --pi-color: #ffa500;
             --bg-dark: #0f0a1e;
             --card-bg: #1e1b4b;
             --glass: rgba(255, 255, 255, 0.05);
-            --primary: #6366f1;
+            --danger: #ef4444;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
             background: linear-gradient(135deg, #0f0a1e 0%, #1e1b4b 100%);
-            color: white;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            color: white; margin: 0; min-height: 100vh; overflow-x: hidden;
         }
 
-        /* شريط الأدوات العلوي */
+        /* Navbar */
         .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 5%;
-            background: rgba(15, 10, 30, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 5%; background: rgba(15, 10, 30, 0.9);
+            backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000;
             border-bottom: 1px solid rgba(255, 165, 0, 0.2);
         }
 
-        .nav-actions { display: flex; gap: 10px; }
-
         .nav-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.3s;
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; font-weight: bold; font-size: 0.9rem;
         }
 
         .nav-btn:hover { background: var(--pi-color); color: #000; border-color: var(--pi-color); }
 
-        /* قسم الترحيب */
-        .hero {
-            text-align: center;
-            padding: 50px 20px;
-        }
-
+        /* Hero */
+        .hero { text-align: center; padding: 30px 20px; }
         .pi-logo {
-            width: 80px;
-            height: 80px;
-            background: var(--pi-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2.5rem;
-            box-shadow: 0 0 30px rgba(255, 165, 0, 0.4);
+            width: 60px; height: 60px; background: var(--pi-color); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px; font-size: 1.8rem; color: #000; font-weight: bold;
+            box-shadow: 0 0 25px rgba(255, 165, 0, 0.3);
         }
 
-        .hero h1 { margin: 10px 0; font-size: 2.2rem; }
-        .hero p { color: #cbd5e1; font-size: 1.1rem; }
-
-        /* شبكة الألعاب */
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
+        /* Grid */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        
         .game-card {
-            background: var(--card-bg);
-            border-radius: 25px;
-            padding: 25px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.4s;
-            cursor: pointer;
-            position: relative;
+            background: var(--card-bg); border-radius: 25px; padding: 20px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.4s; cursor: pointer; position: relative;
         }
 
-        .game-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--pi-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .game-card:hover { transform: translateY(-8px); border-color: var(--pi-color); }
+        .game-card i { font-size: 3.5rem; display: block; margin-bottom: 10px; }
+
+        /* Game Arena (طاولة اللعب) */
+        #gameArena {
+            position: fixed; inset: 0; background: #064e3b; z-index: 2000;
+            display: none; flex-direction: column; align-items: center; padding: 20px;
         }
 
-        .game-card i { font-size: 4rem; display: block; margin-bottom: 15px; }
-
-        .game-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: #94a3b8;
+        .domino-table {
+            flex: 1; width: 100%; max-width: 700px; background: #065f46; 
+            border: 8px solid #047857; border-radius: 40px; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
         }
 
-        /* النافذة المنبثقة (Modal) */
+        .hand-panel {
+            width: 100%; max-width: 700px; padding: 15px; background: rgba(0,0,0,0.4);
+            border-radius: 20px; margin-top: 15px; display: flex; justify-content: center; gap: 10px;
+        }
+
+        .domino-tile {
+            background: white; color: black; padding: 10px 15px; border-radius: 8px;
+            font-weight: bold; font-size: 1.5rem; cursor: pointer; border: 2px solid #ccc;
+        }
+
+        .domino-tile:hover { transform: scale(1.1); border-color: var(--pi-color); }
+
+        /* Modals */
         .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-            display: none; align-items: center; justify-content: center; z-index: 200;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: none; align-items: center; justify-content: center; z-index: 3000;
         }
-
         .modal-content {
-            background: #1e1b4b; width: 90%; max-width: 400px;
-            padding: 30px; border-radius: 25px; border: 1px solid var(--pi-color);
-            position: relative;
+            background: #1e1b4b; width: 85%; max-width: 380px;
+            padding: 25px; border-radius: 25px; border: 1px solid var(--pi-color);
         }
 
-        /* رصيد العملات */
-        .balance-tag {
-            color: var(--pi-color);
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .btn-close { width: 100%; padding: 12px; margin-top: 15px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; background: #334155; color: white; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="nav-actions">
-            <button class="nav-btn" onclick="openModal('chat')">💬 شات</button>
-            <button class="nav-btn" onclick="openModal('leader')">🏆 الترتيب</button>
-            <button class="nav-btn" onclick="openModal('shop')">🛒 المتجر</button>
+        <div style="display:flex; gap:8px;">
+            <button class="nav-btn" onclick="openUI('chat')">💬 شات</button>
+            <button class="nav-btn" onclick="openUI('shop')">🛒 المتجر</button>
         </div>
-        <div class="balance-tag">
-            <span>1,400</span> 💰
-        </div>
+        <div style="color:var(--pi-color); font-weight:bold;">💰 <span id="userBalance">1400</span> π</div>
     </nav>
 
     <section class="hero">
         <div class="pi-logo">π</div>
-        <h1>أهلاً بالرواد في Pi Game's Hub</h1>
-        <p>استمتع بتجربة ألعاب ويب 3 الأكثر انسيابية</p>
+        <h2 style="margin:0;">أهلاً بالرواد في Pi Game's Hub</h2>
+        <p style="opacity: 0.8; font-size: 0.9rem;">استمتع بتجربة ألعاب ويب 3</p>
     </section>
 
     <div class="container">
         <div class="game-grid">
-            
-            <div class="game-card" onclick="alert('جاري التحميل...')">
-                <i>♟️</i>
-                <h3>الشطرنج (Chess)</h3>
-                <div class="game-info">
-                    <span>الرهان: 100 π</span>
-                    <span>120 لاعب</span>
-                </div>
-            </div>
-
-            <div class="game-card" onclick="alert('جاري التحميل...')">
+            <div class="game-card" onclick="startLoading('الدومينو', 100)">
                 <i>🀄</i>
                 <h3>الدومينو (Domino)</h3>
-                <div class="game-info">
-                    <span>الرهان: 50 π</span>
-                    <span>85 لاعب</span>
-                </div>
+                <p>الرهان: 100 π</p>
+                <div style="color:var(--pi-color); font-size: 0.8rem;">● متصل الآن</div>
             </div>
 
-            <div class="game-card" onclick="alert('جاري التحميل...')">
+            <div class="game-card" style="opacity: 0.5; cursor: not-allowed;">
+                <i>♟️</i>
+                <h3>الشطرنج</h3>
+                <p>قريباً..</p>
+            </div>
+            
+            <div class="game-card" style="opacity: 0.5; cursor: not-allowed;">
                 <i>🎲</i>
-                <h3>اللودو (Ludo)</h3>
-                <div class="game-info">
-                    <span>الرهان: 200 π</span>
-                    <span>300 لاعب</span>
-                </div>
+                <h3>اللودو</h3>
+                <p>قريباً..</p>
             </div>
-
-            <div class="game-card" onclick="alert('جاري التحميل...')">
-                <i>🔘</i>
-                <h3>طاولة 31 (Backgammon)</h3>
-                <div class="game-info">
-                    <span>الرهان: 150 π</span>
-                    <span>45 لاعب</span>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <div class="modal" id="mainModal">
+    <div id="gameArena">
+        <div style="width: 100%; max-width: 700px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span style="font-weight: bold;">رهان الغرفة: 100 π</span>
+            <button class="nav-btn" style="background: var(--danger);" onclick="exitGame()">🚩 انسحاب</button>
+        </div>
+
+        <div class="domino-table">
+            <div style="color: rgba(255,255,255,0.4); margin-bottom: 20px;">الخصم: رائد_001</div>
+            <div id="tableTiles" style="display:flex; gap:5px; font-size: 2.5rem;">
+                🀲 🀱
+            </div>
+            <div style="position: absolute; bottom: 15px; color: var(--pi-color);">دورك الآن</div>
+        </div>
+
+        <div class="hand-panel">
+            <div class="domino-tile" onclick="playTile('🀰')">🀰</div>
+            <div class="domino-tile" onclick="playTile('🀳')">🀳</div>
+            <div class="domino-tile" onclick="playTile('🀴')">🀴</div>
+        </div>
+    </div>
+
+    <div class="modal" id="uiModal">
         <div class="modal-content">
-            <h2 id="modalTitle">العنوان</h2>
-            <div id="modalBody" style="min-height: 200px; max-height: 400px; overflow-y: auto; text-align: right;">
-                </div>
-            <button class="nav-btn" style="width: 100%; justify-content: center; margin-top: 20px;" onclick="closeModal()">إغلاق</button>
+            <h2 id="modalTitle" style="color: var(--pi-color); margin-top: 0;"></h2>
+            <div id="modalBody" style="min-height: 100px; font-size: 0.9rem;"></div>
+            <button class="btn-close" onclick="closeUI()">إغلاق</button>
         </div>
     </div>
 
     <script>
-        const modal = document.getElementById('mainModal');
-        const mTitle = document.getElementById('modalTitle');
-        const mBody = document.getElementById('modalBody');
+        let balance = 1400;
 
-        function openModal(type) {
-            modal.style.display = 'flex';
-            if(type === 'chat') {
-                mTitle.innerText = "الدردشة العامة";
-                mBody.innerHTML = "<p>أحمد: متاح تحدي؟</p><p>سارة: أهلاً بكل الرواد!</p>";
-            } else if(type === 'leader') {
-                mTitle.innerText = "قائمة المتصدرين";
-                mBody.innerHTML = "<p>1. محمد (5000 XP)</p><p>2. علي (4200 XP)</p>";
-            } else if(type === 'shop') {
-                mTitle.innerText = "متجر المكافآت";
-                mBody.innerHTML = "<div style='display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333;'><span>اسم ملون</span> <span>500 π</span></div>";
+        function startLoading(game, bet) {
+            if(balance < bet) return alert("الرصيد غير كافٍ!");
+            
+            balance -= bet;
+            document.getElementById('userBalance').innerText = balance;
+            
+            // تأثير التحميل
+            const card = event.currentTarget;
+            const originalContent = card.innerHTML;
+            card.innerHTML = "<i>⏳</i><h3>جاري الدخول...</h3>";
+            
+            setTimeout(() => {
+                document.getElementById('gameArena').style.display = 'flex';
+                card.innerHTML = originalContent;
+            }, 1200);
+        }
+
+        function playTile(icon) {
+            const table = document.getElementById('tableTiles');
+            table.innerHTML += ` <span>${icon}</span>`;
+            event.target.style.display = 'none'; // اخفاء القطعة بعد لعبها
+        }
+
+        function exitGame() {
+            if(confirm("هل تريد الانسحاب وخسارة الرهان؟")) {
+                document.getElementById('gameArena').style.display = 'none';
             }
         }
 
-        function closeModal() { modal.style.display = 'none'; }
+        function openUI(type) {
+            const modal = document.getElementById('uiModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            modal.style.display = 'flex';
 
-        // غلق عند الضغط خارج النافذة
-        window.onclick = (e) => { if(e.target == modal) closeModal(); }
+            if(type === 'chat') {
+                title.innerText = "الدردشة العامة";
+                body.innerHTML = "💬 <b>محمد:</b> بالتوفيق للجميع!<br>💬 <b>أحمد:</b> هل من تحدي؟";
+            } else {
+                title.innerText = "متجر الرواد";
+                body.innerHTML = "🛍️ متاح حالياً: تغيير لون الاسم (300 π)";
+            }
+        }
+
+        function closeUI() { document.getElementById('uiModal').style.display = 'none'; }
     </script>
 </body>
 </html>
