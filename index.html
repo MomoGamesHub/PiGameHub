@@ -3,135 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pi Game's Hub | Domino AI</title>
+    <title>Pi Domino | Pro Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        :root { --pi-color: #ffa500; --bg-dark: #0f0a1e; --card-bg: #1e1b4b; --danger: #ef4444; }
+        :root { --pi-color: #ffa500; --bg-dark: #0f0a1e; --table-green: #064e3b; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg-dark); color: white; margin: 0; overflow: hidden; }
         
-        body { font-family: 'Cairo', sans-serif; background: var(--bg-dark); color: white; margin: 0; overflow-x: hidden; }
+        /* النوافذ العلوية */
+        .game-header { display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.3); }
+        .score-board { background: rgba(255,165,0,0.1); padding: 5px 15px; border-radius: 10px; border: 1px solid var(--pi-color); font-size: 0.8rem; }
+
+        /* الطاولة */
+        #gameArena { height: 100vh; display: flex; flex-direction: column; background: var(--table-green); }
+        .domino-table { flex: 1; position: relative; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 5px; padding: 20px; overflow-y: auto; }
         
-        /* Navbar */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 5%; background: rgba(15,10,30,0.9); border-bottom: 1px solid rgba(255,165,0,0.2); position: sticky; top:0; z-index:100; }
-        .nav-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
-        .nav-btn:hover { background: var(--pi-color); color: #000; }
+        /* القطع */
+        .tile { background: white; color: black; width: 45px; height: 70px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; cursor: pointer; border: 2px solid #ccc; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); position: relative; }
+        .tile.ai { background: #e2e8f0; cursor: default; }
+        .tile.disabled { opacity: 0.5; pointer-events: none; }
 
-        /* Hero */
-        .hero { text-align: center; padding: 25px; }
-        .pi-logo { width: 60px; height: 60px; background: var(--pi-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.5rem; color: #000; box-shadow: 0 0 20px var(--pi-color); }
-
-        /* Grid */
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .game-card { background: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; }
-        .game-card:hover { border-color: var(--pi-color); transform: translateY(-5px); }
-
-        /* Arena */
-        #gameArena { position: fixed; inset: 0; background: #064e3b; z-index: 2000; display: none; flex-direction: column; align-items: center; padding: 20px; }
-        .domino-table { flex: 1; width: 100%; max-width: 600px; background: #065f46; border: 8px solid #047857; border-radius: 40px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
-        .hand-panel { width: 100%; max-width: 600px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 20px; margin-top: 15px; display: flex; justify-content: center; gap: 8px; }
+        /* لوحة التحكم والسحب */
+        .controls { background: rgba(0,0,0,0.5); padding: 15px; border-top-left-radius: 30px; border-top-right-radius: 30px; }
+        .hand { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; min-height: 80px; }
+        .boneyard-btn { background: var(--pi-color); color: black; border: none; padding: 8px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         
-        .domino-tile { background: white; color: black; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 1.1rem; cursor: pointer; border: 2px solid #ddd; transition: 0.2s; }
-        .domino-tile.ai { background: #e2e8f0; color: #1e293b; border-color: #94a3b8; cursor: default; }
-
-        /* Modals */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .modal-content { background: var(--card-bg); width: 85%; max-width: 400px; padding: 25px; border-radius: 25px; border: 1px solid var(--pi-color); }
+        /* Modal النتيجة */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <div style="display:flex; gap:10px;">
-            <button class="nav-btn" onclick="openUI('chat')">💬 شات</button>
-            <button class="nav-btn" onclick="openUI('shop')">🛒 المتجر</button>
+<div id="gameArena">
+    <div class="game-header">
+        <div class="score-board">
+            👤 أنت: <span id="pScore">0</span> | 🤖 الخصم: <span id="aiScore">0</span>
+            <div style="font-size: 0.6rem; text-align: center; color: var(--pi-color);">الهدف: 101 نقطة</div>
         </div>
-        <div style="color:var(--pi-color); font-weight:bold;">💰 <span id="userBalance">1400</span> π</div>
-    </nav>
-
-    <section class="hero">
-        <div class="pi-logo">π</div>
-        <h2>أهلاً بالرواد في Pi Game's Hub</h2>
-        <p>استمتع بتجربة ألعاب ويب 3</p>
-    </section>
-
-    <div class="container">
-        <div class="game-grid">
-            <div class="game-card" onclick="startLoading(100)">
-                <div style="font-size: 3rem;">🀄</div>
-                <h3>الدومينو (Domino)</h3>
-                <p>الرهان: 100 π</p>
-            </div>
-        </div>
+        <button onclick="location.reload()" style="background:red; color:white; border:none; border-radius:10px; padding:5px 10px;">انسحاب</button>
     </div>
 
-    <div id="gameArena">
-        <div style="width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <button class="nav-btn" style="font-size: 0.8rem;" onclick="showRules()">📜 القوانين</button>
-            <div id="aiThinking" style="visibility: hidden; color: var(--pi-color); font-size: 0.9rem;">الخصم يفكر... ⏳</div>
-            <button class="nav-btn" style="background:var(--danger);" onclick="exitGame()">انسحاب</button>
+    <div class="domino-table" id="table">
         </div>
 
-        <div class="domino-table">
-            <div style="position: absolute; top: 20px; opacity: 0.5;">الخصم: بوت_باي 🤖</div>
-            <div id="tableTiles" style="display:flex; flex-wrap: wrap; justify-content: center; gap: 5px; padding: 20px;">
-                </div>
-            <div id="gameStatus" style="position: absolute; bottom: 20px; color: var(--pi-color); font-weight: bold;">دورك الآن.. العب قطعة</div>
+    <div class="controls">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button class="boneyard-btn" id="drawBtn" onclick="drawFromBoneyard()">سحب من الاحتياطي (<span id="boneCount">14</span>)</button>
+            <span id="turnStatus" style="color: var(--pi-color); font-size: 0.9rem;">انتظر توزيع الورق...</span>
         </div>
-
-        <div class="hand-panel" id="playerHand">
-            <div class="domino-tile" onclick="playTile(this, '3|4')">3|4</div>
-            <div class="domino-tile" onclick="playTile(this, '4|6')">4|6</div>
-            <div class="domino-tile" onclick="playTile(this, '6|6')">6|6</div>
-            <div class="domino-tile" onclick="playTile(this, '1|3')">1|3</div>
-        </div>
+        <div class="hand" id="playerHand"></div>
     </div>
+</div>
 
-    <div class="modal" id="rulesModal">
-        <div class="modal-content">
-            <h3 style="color:var(--pi-color); text-align:center;">📜 قوانين الدومينو</h3>
-            <p style="font-size: 0.9rem; line-height: 1.6;">1. طابق الأرقام مع القطع الموجودة على الطاولة.<br>2. الفائز هو من ينهي قطعه أولاً.<br>3. إذا أغلقت اللعبة، يفوز صاحب النقاط الأقل.</p>
-            <button class="nav-btn" style="width:100%;" onclick="closeRules()">فهمت</button>
-        </div>
+<div id="resultModal" class="modal">
+    <div style="background: var(--bg-dark); padding: 30px; border-radius: 20px; border: 2px solid var(--pi-color);">
+        <h2 id="winMsg">فزت بالدور!</h2>
+        <p id="pointsMsg"></p>
+        <button class="boneyard-btn" onclick="startNewRound()">بدء الدور التالي</button>
     </div>
+</div>
 
-    <script>
-        let balance = 1400;
-        const aiPieces = ['2|2', '4|5', '1|1', '0|6']; // قطع البوت
+<script>
+    let allTiles = [];
+    let playerHand = [];
+    let aiHand = [];
+    let boneyard = [];
+    let tableTiles = [];
+    let scores = { player: 0, ai: 0 };
 
-        function startLoading(bet) {
-            if(balance < bet) return alert("رصيدك غير كافٍ");
-            balance -= bet;
-            document.getElementById('userBalance').innerText = balance;
-            document.getElementById('gameArena').style.display = 'flex';
-            document.getElementById('tableTiles').innerHTML = '<div class="domino-tile ai">5|5</div>'; // قطعة البداية
+    // 1. توليد الـ 28 قطعة
+    function createDeck() {
+        const deck = [];
+        for (let i = 0; i <= 6; i++) {
+            for (let j = i; j <= 6; j++) deck.push({ a: i, b: j, val: `${i}|${j}`, sum: i + j });
         }
+        return deck.sort(() => Math.random() - 0.5);
+    }
 
-        function playTile(element, value) {
-            // إضافة قطعة اللاعب للطاولة
-            const table = document.getElementById('tableTiles');
-            table.innerHTML += `<div class="domino-tile">${value}</div>`;
-            element.style.display = 'none';
-            
-            document.getElementById('gameStatus').innerText = "انتظر رد الخصم...";
-            document.getElementById('aiThinking').style.visibility = 'visible';
-            document.getElementById('playerHand').style.pointerEvents = 'none'; // منع اللاعب من اللعب مرتين
+    function initGame() {
+        allTiles = createDeck();
+        playerHand = allTiles.splice(0, 7);
+        aiHand = allTiles.splice(0, 7);
+        boneyard = allTiles;
+        renderHand();
+        updateUI();
+        document.getElementById('turnStatus').innerText = "دورك: العب قطعة مطابقة";
+    }
 
-            // رد فعل البوت بعد 2 ثانية
-            setTimeout(() => {
-                if(aiPieces.length > 0) {
-                    const aiMove = aiPieces.shift();
-                    table.innerHTML += `<div class="domino-tile ai">${aiMove}</div>`;
-                    document.getElementById('aiThinking').style.visibility = 'hidden';
-                    document.getElementById('gameStatus').innerText = "دورك الآن..";
-                    document.getElementById('playerHand').style.pointerEvents = 'auto';
-                }
-            }, 2000);
+    function renderHand() {
+        const handDiv = document.getElementById('playerHand');
+        handDiv.innerHTML = '';
+        playerHand.forEach((tile, index) => {
+            const el = document.createElement('div');
+            el.className = 'tile';
+            el.innerText = tile.val;
+            el.onclick = () => playTile(index);
+            handDiv.appendChild(el);
+        });
+    }
+
+    function playTile(index) {
+        const tile = playerHand[index];
+        // في هذه النسخة المبسطة سنسمح باللعب لتجربة المنطق، 
+        // يمكنك لاحقاً إضافة شرط المطابقة (tile.a == openEnd || tile.b == openEnd)
+        tableTiles.push(tile);
+        playerHand.splice(index, 1);
+        renderTable();
+        renderHand();
+        
+        if (playerHand.length === 0) return endRound('player');
+        
+        aiTurn();
+    }
+
+    function aiTurn() {
+        document.getElementById('turnStatus').innerText = "الخصم يفكر...";
+        document.getElementById('playerHand').style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+            if (aiHand.length > 0) {
+                const tile = aiHand.shift();
+                tableTiles.push(tile);
+                renderTable();
+                if (aiHand.length === 0) return endRound('ai');
+            }
+            document.getElementById('playerHand').style.pointerEvents = 'auto';
+            document.getElementById('turnStatus').innerText = "دورك الآن";
+        }, 1500);
+    }
+
+    function drawFromBoneyard() {
+        if (boneyard.length > 0) {
+            playerHand.push(boneyard.shift());
+            renderHand();
+            updateUI();
+        } else {
+            alert("الاحتياطي فارغ!");
         }
+    }
 
-        function showRules() { document.getElementById('rulesModal').style.display = 'flex'; }
-        function closeRules() { document.getElementById('rulesModal').style.display = 'none'; }
-        function exitGame() { if(confirm("انسحاب؟")) location.reload(); }
-        function openUI(t) { alert("سيتم تفعيل " + t + " قريباً في تحديث الشبكة."); }
-    </script>
+    function renderTable() {
+        const tableDiv = document.getElementById('table');
+        tableDiv.innerHTML = '';
+        tableTiles.forEach(t => {
+            const el = document.createElement('div');
+            el.className = `tile ${t.isAi ? 'ai' : ''}`;
+            el.innerText = t.val;
+            tableDiv.appendChild(el);
+        });
+    }
+
+    function updateUI() {
+        document.getElementById('boneCount').innerText = boneyard.length;
+        document.getElementById('pScore').innerText = scores.player;
+        document.getElementById('aiScore').innerText = scores.ai;
+    }
+
+    function endRound(winner) {
+        let roundPoints = 0;
+        if (winner === 'player') {
+            aiHand.forEach(t => roundPoints += t.sum);
+            scores.player += roundPoints;
+            document.getElementById('winMsg').innerText = "لقد فزت بهذا الدور! 🎉";
+        } else {
+            playerHand.forEach(t => roundPoints += t.sum);
+            scores.ai += roundPoints;
+            document.getElementById('winMsg').innerText = "فاز الخصم بهذا الدور 🤖";
+        }
+        
+        document.getElementById('pointsMsg').innerText = `نقاط الدور: ${roundPoints} | الإجمالي: ${scores[winner]}`;
+        document.getElementById('resultModal').style.display = 'flex';
+        updateUI();
+
+        if (scores.player >= 101 || scores.ai >= 101) {
+            document.getElementById('winMsg').innerText = scores.player >= 101 ? "مبروك! فزت بالمباراة كاملة 🏆" : "للأسف خسر الحريف! 💀";
+            document.getElementById('resultModal').querySelector('button').innerText = "بدء مباراة جديدة";
+            scores = { player: 0, ai: 0 };
+        }
+    }
+
+    function startNewRound() {
+        tableTiles = [];
+        document.getElementById('table').innerHTML = '';
+        document.getElementById('resultModal').style.display = 'none';
+        initGame();
+    }
+
+    initGame();
+</script>
 </body>
 </html>
