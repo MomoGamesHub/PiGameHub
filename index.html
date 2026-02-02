@@ -2,195 +2,187 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pi Domino Pro</title>
+    <title>دومينو المحترفين - المسار الحر</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap');
-        :root { --bone: #f0f0f0; --gold: #ffd700; --table: #1a4731; }
-        
-        body { font-family: 'Cairo', sans-serif; background: #050505; color: white; margin: 0; overflow: hidden; }
+        :root { --bone: #ffffff; --table: #0a4d34; --gold: #ffcc00; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
 
-        /* منطقة اللعب الرئيسية */
-        #table { 
-            height: 100vh; display: flex; flex-direction: column; 
-            background: radial-gradient(circle, #2d5a44 0%, #1a3a2a 100%); 
-        }
-
-        /* حاوية الثعبان - تضمن بقاء اللعب في المنتصف */
-        .board-container { 
-            flex: 1; position: relative; overflow: auto; 
+        /* الطاولة: تسمح بالتمرير الأفقي والعمودي لمنع اختفاء القطع */
+        #game-world {
+            height: 70vh; width: 100vw; overflow: auto;
+            background: radial-gradient(circle, var(--table) 0%, #052218 100%);
             display: flex; align-items: center; justify-content: center;
-            padding: 50px;
+            border-bottom: 4px solid var(--gold); position: relative;
         }
 
-        #domino-chain { 
-            display: flex; align-items: center; gap: 4px; 
-            padding: 20px; border-radius: 10px; background: rgba(0,0,0,0.2);
-            min-height: 100px; transition: all 0.5s ease;
+        /* حاوية السلسلة: تتمدد مع إضافة القطع */
+        #snake-chain {
+            display: flex; align-items: center; gap: 5px; padding: 100px;
+            min-width: min-content; transition: all 0.3s ease;
         }
 
-        /* تصميم القطعة - احترافي وواضح */
-        .tile { 
-            width: 35px; height: 70px; background: var(--bone); border-radius: 4px; 
-            display: flex; flex-direction: column; box-shadow: 2px 4px 8px rgba(0,0,0,0.5);
-            border: 1px solid #999; flex-shrink: 0; cursor: pointer; position: relative;
+        /* تصميم القطعة المحترف */
+        .domino {
+            width: 40px; height: 80px; background: var(--bone);
+            border-radius: 5px; display: flex; flex-direction: column;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.5); border: 1px solid #999;
+            flex-shrink: 0; position: relative;
         }
-        .tile.horizontal { transform: rotate(90deg); margin: 0 15px; }
-        
-        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; gap: 2px; }
-        .dot { background: #222; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; align-self: center; justify-self: center; }
-        .line { height: 1px; background: #ccc; width: 80%; margin: 0 auto; }
-        
+        .on-table { transform: rotate(90deg); margin: 0 15px; } /* وضعية النوم على الطاولة */
+
+        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; }
+        .dot { background: #000; border-radius: 50%; width: 6px; height: 6px; visibility: hidden; align-self: center; justify-self: center; }
+        .line { height: 2px; background: #ddd; width: 80%; margin: 0 auto; }
+
         /* تفعيل النقاط */
-        .d-1 .dot:nth-child(5), .d-2 .dot:nth-child(1), .d-2 .dot:nth-child(9),
-        .d-3 .dot:nth-child(1), .d-3 .dot:nth-child(5), .d-3 .dot:nth-child(9),
-        .d-4 .dot:nth-child(1), .d-4 .dot:nth-child(3), .d-4 .dot:nth-child(7), .d-4 .dot:nth-child(9),
-        .d-5 .dot:nth-child(1), .d-5 .dot:nth-child(3), .d-5 .dot:nth-child(5), .d-5 .dot:nth-child(7), .d-5 .dot:nth-child(9),
-        .d-6 .dot:nth-child(1), .d-6 .dot:nth-child(3), .d-6 .dot:nth-child(4), .d-6 .dot:nth-child(6), .d-6 .dot:nth-child(7), .d-6 .dot:nth-child(9) 
+        .v-1 .dot:nth-child(5), .v-2 .dot:nth-child(1), .v-2 .dot:nth-child(9),
+        .v-3 .dot:nth-child(1), .v-3 .dot:nth-child(5), .v-3 .dot:nth-child(9),
+        .v-4 .dot:nth-child(1), .v-4 .dot:nth-child(3), .v-4 .dot:nth-child(7), .v-4 .dot:nth-child(9),
+        .v-5 .dot:nth-child(1), .v-5 .dot:nth-child(3), .v-5 .dot:nth-child(5), .v-5 .dot:nth-child(7), .v-5 .dot:nth-child(9),
+        .v-6 .dot:nth-child(1), .v-6 .dot:nth-child(3), .v-6 .dot:nth-child(4), .v-6 .dot:nth-child(6), .v-6 .dot:nth-child(7), .v-6 .dot:nth-child(9) 
         { visibility: visible; }
 
-        /* واجهة التحكم */
-        .gui { background: rgba(0,0,0,0.9); padding: 15px; border-top: 3px solid var(--gold); z-index: 100; }
-        .player-hand { display: flex; gap: 10px; justify-content: center; height: 80px; margin-bottom: 10px; }
-        .player-hand .tile { transform: rotate(0deg); border: 2px solid transparent; }
-        .player-hand .tile:hover { border-color: var(--gold); transform: translateY(-10px); }
-
-        .controls { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; }
-        .btn { background: var(--gold); color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .btn:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+        /* منطقة التحكم واليد */
+        .hud { height: 30vh; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .hand { display: flex; gap: 10px; margin-bottom: 20px; height: 90px; }
+        .hand .domino { cursor: pointer; transition: 0.2s; }
+        .hand .domino:hover { transform: translateY(-15px); border-color: var(--gold); }
         
-        .info-panel { background: #222; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); font-size: 0.9rem; }
+        .controls { display: flex; gap: 20px; align-items: center; }
+        .btn { background: var(--gold); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .btn:disabled { background: #444; color: #888; }
+        .info { font-size: 1.2rem; color: var(--gold); }
     </style>
 </head>
 <body>
 
-<div id="table">
-    <div style="display:flex; justify-content: space-between; padding: 10px 20px; background: rgba(0,0,0,0.5);">
-        <div class="info-panel">🏆 مجموع النقاط: <span id="pScore">0</span> / 101</div>
-        <div id="status" style="color:var(--gold)">دورك الآن</div>
-        <div class="info-panel">الأطراف: <b id="L">؟</b> | <b id="R">؟</b></div>
-    </div>
-
-    <div class="board-container">
-        <div id="domino-chain"></div>
-    </div>
-
-    <div class="gui">
-        <div class="player-hand" id="hand"></div>
-        <div class="controls">
-            <button class="btn" id="drawBtn" onclick="draw()">سحب (<span id="bCount"></span>)</button>
-            <button class="btn" id="passBtn" onclick="pass()" disabled>تمرير الدور (Pass)</button>
+<div id="game-world">
+    <div id="snake-chain">
         </div>
+</div>
+
+<div class="hud">
+    <div class="info">أنت: <span id="pS">0</span> | الخصم: <span id="aS">0</span> | السحب: <span id="bC">0</span></div>
+    <div id="status" style="margin: 5px; color: #aaa;">اسحب قطعة أو العب</div>
+    <div class="hand" id="player-hand"></div>
+    <div class="controls">
+        <button class="btn" id="drawBtn" onclick="drawTile()">سحب قطعة</button>
+        <button class="btn" id="passBtn" onclick="passTurn()" disabled>تمرير (Pass)</button>
+        <button class="btn" style="background:#555; color:white" onclick="location.reload()">إعادة اللعبة</button>
     </div>
 </div>
 
 <script>
-    let player = [], ai = [], boneyard = [], chain = [];
-    let leftSide = -1, rightSide = -1, scores = { p: 0, ai: 0 };
-
-    function createTileUI(a, b, isTable = false) {
-        const div = document.createElement('div');
-        div.className = `tile ${isTable ? 'horizontal' : ''}`;
-        div.innerHTML = `<div class="half d-${a}">${Array(9).fill('<div class="dot"></div>').join('')}</div><div class="line"></div><div class="half d-${b}">${Array(9).fill('<div class="dot"></div>').join('')}</div>`;
-        return div;
-    }
+    let boneyard = [], pHand = [], aiHand = [], chain = [];
+    let L = -1, R = -1, scores = {p:0, ai:0};
 
     function init() {
-        let deck = [];
-        for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push({a:i, b:j});
-        deck.sort(() => Math.random() - 0.5);
-        player = deck.splice(0, 7); ai = deck.splice(0, 7); boneyard = deck;
-        chain = []; leftSide = -1; rightSide = -1;
+        boneyard = [];
+        for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) boneyard.push({a:i, b:j});
+        boneyard.sort(() => Math.random() - 0.5);
+        
+        pHand = boneyard.splice(0, 7);
+        aiHand = boneyard.splice(0, 7);
         render();
+    }
+
+    function createUI(a, b, onTable) {
+        const d = document.createElement('div');
+        d.className = `domino ${onTable ? 'on-table' : ''}`;
+        d.innerHTML = `<div class="half v-${a}">${Array(9).fill('<div class="dot"></div>').join('')}</div><div class="line"></div><div class="half v-${b}">${Array(9).fill('<div class="dot"></div>').join('')}</div>`;
+        return d;
     }
 
     function render() {
-        const h = document.getElementById('hand'); h.innerHTML = '';
-        player.forEach((t, i) => {
-            const el = createTileUI(t.a, t.b);
+        const handDiv = document.getElementById('player-hand');
+        handDiv.innerHTML = '';
+        pHand.forEach((t, i) => {
+            const el = createUI(t.a, t.b, false);
             el.onclick = () => play(i);
-            h.appendChild(el);
+            handDiv.appendChild(el);
         });
 
-        const c = document.getElementById('domino-chain'); c.innerHTML = '';
-        chain.forEach(t => c.appendChild(createTileUI(t.a, t.b, true)));
+        const chainDiv = document.getElementById('snake-chain');
+        chainDiv.innerHTML = '';
+        chain.forEach(t => chainDiv.appendChild(createUI(t.a, t.b, true)));
 
-        document.getElementById('L').innerText = leftSide === -1 ? '؟' : leftSide;
-        document.getElementById('R').innerText = rightSide === -1 ? '؟' : rightSide;
-        document.getElementById('bCount').innerText = boneyard.length;
-        document.getElementById('pScore').innerText = scores.p;
+        document.getElementById('bC').innerText = boneyard.length;
+        document.getElementById('pS').innerText = scores.p;
+        document.getElementById('aS').innerText = scores.ai;
 
-        validateControls();
+        checkRules();
+        // تمرير تلقائي لآخر قطعة مضافة
+        document.getElementById('game-world').scrollLeft = 10000; 
     }
 
     function play(idx) {
-        let t = player[idx];
-        let ok = false;
+        let t = pHand[idx];
+        let played = false;
 
-        if (leftSide === -1) { 
-            leftSide = t.a; rightSide = t.b; chain.push(t); ok = true; 
-        } else if (t.a === leftSide || t.b === leftSide) {
-            if (t.a === leftSide) [t.a, t.b] = [t.b, t.a];
-            leftSide = t.a; chain.unshift(t); ok = true;
-        } else if (t.a === rightSide || t.b === rightSide) {
-            if (t.b === rightSide) [t.a, t.b] = [t.b, t.a];
-            rightSide = t.b; chain.push(t); ok = true;
+        if (L === -1) { 
+            L = t.a; R = t.b; chain.push(t); played = true; 
+        } else if (t.a === L || t.b === L) {
+            if (t.a === L) [t.a, t.b] = [t.b, t.a];
+            L = t.a; chain.unshift(t); played = true;
+        } else if (t.a === R || t.b === R) {
+            if (t.b === R) [t.a, t.b] = [t.b, t.a];
+            R = t.b; chain.push(t); played = true;
         }
 
-        if (ok) {
-            player.splice(idx, 1);
+        if (played) {
+            pHand.splice(idx, 1);
+            if (pHand.length === 0) return endRound('p');
             render();
-            if (player.length === 0) return end('player');
-            document.getElementById('status').innerText = "الخصم يلعب...";
-            setTimeout(aiPlay, 800);
+            setTimeout(aiMove, 800);
         }
     }
 
-    function aiPlay() {
-        let idx = ai.findIndex(t => t.a === leftSide || t.b === leftSide || t.a === rightSide || t.b === rightSide);
+    function aiMove() {
+        let idx = aiHand.findIndex(t => t.a === L || t.b === L || t.a === R || t.b === R);
         if (idx !== -1) {
-            let t = ai[idx];
-            if (t.a === leftSide || t.b === leftSide) {
-                if (t.a === leftSide) [t.a, t.b] = [t.b, t.a];
-                leftSide = t.a; chain.unshift(t);
+            let t = aiHand[idx];
+            if (t.a === L || t.b === L) {
+                if (t.a === L) [t.a, t.b] = [t.b, t.a];
+                L = t.a; chain.unshift(t);
             } else {
-                if (t.b === rightSide) [t.a, t.b] = [t.b, t.a];
-                rightSide = t.b; chain.push(t);
+                if (t.b === R) [t.a, t.b] = [t.b, t.a];
+                R = t.b; chain.push(t);
             }
-            ai.splice(idx, 1);
-            if (ai.length === 0) return end('ai');
+            aiHand.splice(idx, 1);
+            if (aiHand.length === 0) return endRound('ai');
         } else if (boneyard.length > 0) {
-            ai.push(boneyard.shift());
-            return aiPlay();
+            aiHand.push(boneyard.shift());
+            return aiMove();
         }
-        document.getElementById('status').innerText = "دورك الآن";
         render();
     }
 
-    function validateControls() {
-        const canPlay = player.some(t => t.a === leftSide || t.b === leftSide || t.a === rightSide || t.b === rightSide || leftSide === -1);
-        document.getElementById('passBtn').disabled = (canPlay || boneyard.length > 0);
+    function checkRules() {
+        const canP = pHand.some(t => t.a === L || t.b === L || t.a === R || t.b === R || L === -1);
+        const canAI = aiHand.some(t => t.a === L || t.b === L || t.a === R || t.b === R);
         
-        // القفلة (Block)
-        const aiCanPlay = ai.some(t => t.a === leftSide || t.b === leftSide || t.a === rightSide || t.b === rightSide);
-        if (!canPlay && !aiCanPlay && boneyard.length === 0) {
-            let pSum = player.reduce((s, t) => s + t.a + t.b, 0);
-            let aiSum = ai.reduce((s, t) => s + t.a + t.b, 0);
-            alert(`قفلة! نقاطك: ${pSum}, الخصم: ${aiSum}`);
-            end(pSum < aiSum ? 'player' : 'ai');
+        document.getElementById('drawBtn').disabled = (boneyard.length === 0);
+        document.getElementById('passBtn').disabled = (canP || boneyard.length > 0);
+
+        // منطق القفلة
+        if (!canP && !canAI && boneyard.length === 0) {
+            let pSum = pHand.reduce((s, t) => s + t.a + t.b, 0);
+            let aiSum = aiHand.reduce((s, t) => s + t.a + t.b, 0);
+            alert(`القفلة! مجموعك: ${pSum} | مجموع الخصم: ${aiSum}`);
+            endRound(pSum < aiSum ? 'p' : 'ai');
         }
     }
 
-    function draw() { if(boneyard.length > 0) { player.push(boneyard.shift()); render(); } }
-    function pass() { document.getElementById('status').innerText = "مررت الدور"; setTimeout(aiPlay, 500); }
+    function drawTile() { if(boneyard.length > 0) { pHand.push(boneyard.shift()); render(); } }
+    function passTurn() { setTimeout(aiMove, 500); }
 
-    function end(winner) {
+    function endRound(winner) {
         let pts = 0;
-        if (winner === 'player') ai.forEach(t => pts += (t.a + t.b));
-        else player.forEach(t => pts += (t.a + t.b));
-        scores[winner === 'player' ? 'p' : 'ai'] += pts;
-        alert(`فاز ${winner === 'player' ? 'اللاعب' : 'الخصم'} بـ ${pts} نقطة`);
-        if(scores.p >= 101) alert("انتهت المباراة!");
+        if (winner === 'p') aiHand.forEach(t => pts += (t.a + t.b));
+        else pHand.forEach(t => pts += (t.a + t.b));
+        scores[winner] += pts;
+        alert(`نهاية الدور! فاز ${winner==='p'?'أنت':'الخصم'} بـ ${pts} نقطة`);
+        chain = []; L = -1; R = -1;
         init();
     }
 
