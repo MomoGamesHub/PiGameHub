@@ -3,152 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ألعاب باي - Pi Games</title>
+    <title>Pi Game Hub</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --main-purple: #673ab7; --accent-gold: #ffc107; }
-        body { font-family: 'Cairo', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; overflow-x: hidden; }
-        .header { background: linear-gradient(135deg, #673ab7, #512da8); color: white; padding: 30px 20px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; }
-        .container { padding: 20px; max-width: 500px; margin: auto; }
-        .card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .game-item { background: #fff; border-radius: 20px; padding: 10px; border: 2px solid #eee; text-align: center; cursor: pointer; }
-        .game-item img { width: 80px; height: 80px; margin-bottom: 10px; }
-        .btn { background: var(--main-purple); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .btn:active { transform: scale(0.95); }
-        
-        /* Sudoku */
-        #sudoku-board { display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; background: #333; border: 2px solid #333; margin: 20px auto; width: 100%; }
-        .sudoku-cell { width: 100%; aspect-ratio: 1; background: white; border: none; text-align: center; font-size: 14px; font-weight: bold; -moz-appearance: textfield; }
-        .sudoku-cell::-webkit-inner-spin-button, .sudoku-cell::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        .fixed-cell { background: #eee; color: var(--main-purple); }
-        
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; text-align: center; }
+        .header { background: #673ab7; color: white; padding: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+        .container { padding: 20px; }
+        /* نظام المربعات للألعاب */
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .game-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: 0.3s; border: 1px solid #eee; }
+        .game-card:active { transform: scale(0.95); }
+        .game-card img { width: 50px; height: 50px; margin-bottom: 10px; }
+        .game-card h4 { margin: 10px 0 5px; color: #333; }
+        .game-card p { font-size: 12px; color: #777; margin: 0; }
+        .btn-login { background: #673ab7; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; margin-top: 50px; cursor: pointer; }
+        #main-interface { display: none; }
+        .price-tag { color: #673ab7; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1 style="margin:0;">ألعاب باي الذكية</h1>
-    <p id="username-display" style="opacity: 0.9;">جاري التعرف على المحفظة...</p>
-</div>
-
-<div class="container">
-    <div id="auth-section" class="card">
-        <h3>مرحباً بك مجدداً! 👋</h3>
-        <p>اضغط على الزر أدناه للدخول إلى حسابك وبدء التحدي.</p>
-        <button class="btn" onclick="startPiAuth()">دخول آمن عبر Pi</button>
+    <div class="header">
+        <h1>ألعاب باي الذكية</h1>
+        <p id="user-status">مرحباً بك في مجتمع PiOS</p>
     </div>
 
-    <div id="game-dashboard" style="display:none;">
-        <div class="card" style="border-right: 5px solid var(--accent-gold);">
-            <p style="margin:0; color:#666;">رصيدك في اللعبة</p>
-            <h2 id="user-balance" style="margin:5px 0; color:var(--main-purple);">10.00 Pi Test</h2>
-        </div>
-        
-        <h3>اختر لعبتك المفضلة:</h3>
+    <div id="login-screen" class="container">
+        <p>الرجاء تسجيل الدخول عبر متصفح Pi لبدء اللعب</p>
+        <button class="btn-login" onclick="login()">دخول آمن عبر Pi</button>
+    </div>
+
+    <div id="main-interface" class="container">
+        <h3>اختر تحدي اليوم 🚀</h3>
         <div class="game-grid">
-            <div class="game-item" onclick="requestPayment('sudoku')">
-                <div style="font-size: 40px;">🧩</div>
-                <p>سودوكو</p>
-                <small style="color:var(--main-purple)">0.1 Pi</small>
+            
+            <div class="game-card" onclick="handlePayment('sudoku', 0.1)">
+                <img src="https://cdn-icons-png.flaticon.com/512/517/517505.png" alt="sudoku">
+                <h4>سودوكو</h4>
+                <p class="price-tag">0.1 Pi</p>
             </div>
-            <div class="game-item" onclick="requestPayment('domino')">
-                <div style="font-size: 40px;">🎲</div>
-                <p>دومينو</p>
-                <small style="color:#888">قريباً</small>
+
+            <div class="game-card" onclick="handlePayment('domino', 0.1)">
+                <img src="https://cdn-icons-png.flaticon.com/512/2388/2388040.png" alt="domino">
+                <h4>دومينو</h4>
+                <p class="price-tag">0.1 Pi</p>
             </div>
+
+            <div class="game-card" onclick="alert('قريباً...')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3406/3406828.png" alt="quiz">
+                <h4>اختبار ذكاء</h4>
+                <p>قريباً</p>
+            </div>
+
         </div>
     </div>
 
-    <div id="sudoku-view" class="card" style="display:none;">
-        <h3>لعبة السودوكو</h3>
-        <div id="sudoku-board"></div>
-        <button class="btn" onclick="checkSudoku()">تأكيد الحل ✅</button>
-        <button class="btn" style="background:#f1f1f1; color:#333; margin-top:10px;" onclick="location.reload()">خروج</button>
-    </div>
-</div>
+    <script>
+        // تهيئة الـ SDK
+        Pi.init({ version: "2.0", sandbox: true });
 
-<div id="pay-overlay" class="overlay">
-    <div class="card" style="width:80%; text-align:center;">
-        <div style="font-size:50px;">💎</div>
-        <h3>تنشيط اللعبة</h3>
-        <p>تكلفة الدخول هي 0.1 Pi. هل أنت مستعد للبدء؟</p>
-        <button class="btn" onclick="confirmAndPay()">نعم، أدفع الآن</button>
-        <p onclick="document.getElementById('pay-overlay').style.display='none'" style="color:red; cursor:pointer; margin-top:15px;">إلغاء</p>
-    </div>
-</div>
-
-<script>
-    const Pi = window.Pi;
-    Pi.init({ version: "2.0", sandbox: true });
-
-    let activeGame = '';
-
-    async function startPiAuth() {
-        try {
-            const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
-            document.getElementById('username-display').innerText = "مرحباً: " + auth.user.username;
-            document.getElementById('auth-section').style.display = "none";
-            document.getElementById('game-dashboard').style.display = "block";
-        } catch (err) {
-            alert("يرجى فتح التطبيق من متصفح باي الرسمي.");
-        }
-    }
-
-    function requestPayment(game) {
-        if(game === 'domino') return alert("هذه اللعبة تحت التطوير حالياً.");
-        activeGame = game;
-        document.getElementById('pay-overlay').style.display = 'flex';
-    }
-
-    async function confirmAndPay() {
-        try {
-            const payment = await Pi.createPayment({
-                amount: 0.1,
-                memo: "دخول لعبة " + activeGame,
-                metadata: { game: activeGame }
-            }, {
-                onReadyForServerApproval: (pId) => handleServer(pId, 'approve'),
-                onReadyForServerCompletion: (pId, txid) => {
-                    handleServer(pId, 'complete', txid);
-                    document.getElementById('pay-overlay').style.display = 'none';
-                    if(activeGame === 'sudoku') startGame();
-                },
-                onCancel: (pId) => {},
-                onError: (err) => alert("حدث خطأ في الدفع")
+        function login() {
+            Pi.authenticate(['payments', 'username'], onIncompletePaymentFound)
+            .then(function(auth) {
+                document.getElementById('user-status').innerText = "مرحباً: " + auth.user.username;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-interface').style.display = 'block';
+            })
+            .catch(function(error) {
+                console.error(error);
+                alert("خطأ في تسجيل الدخول. تأكد أنك داخل متصفح Pi");
             });
-        } catch (e) { alert("فشل الاتصال بالمحفظة"); }
-    }
+        }
 
-    async function handleServer(paymentId, action, txid = null) {
-        return await fetch('/api/pi-handler', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId, action, txid })
-        }).then(res => res.json());
-    }
+        function handlePayment(gameName, amount) {
+            const paymentData = {
+                amount: amount,
+                memo: "فتح لعبة " + gameName,
+                metadata: { game: gameName }
+            };
 
-    function onIncompletePaymentFound(p) { handleServer(p.identifier, 'complete', p.transaction.txid); }
+            const callbacks = {
+                onReadyForServerApproval: function(paymentId) {
+                    fetch('/api/pi-handler', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ paymentId, action: 'approve' })
+                    });
+                },
+                onReadyForServerCompletion: function(paymentId, txid) {
+                    fetch('/api/pi-handler', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ paymentId, action: 'complete', txid })
+                    }).then(() => {
+                        alert("تم الدفع بنجاح! استمتعي بـ " + gameName);
+                        // هنا نفتح اللعبة
+                    });
+                },
+                onCancel: function(paymentId) { console.log("Cancelled"); },
+                onError: function(error, payment) { console.error(error); }
+            };
 
-    function startGame() {
-        document.getElementById('game-dashboard').style.display = 'none';
-        document.getElementById('sudoku-view').style.display = 'block';
-        const board = document.getElementById('sudoku-board');
-        board.innerHTML = '';
-        // شبكة مبسطة
-        const puzzle = [5,3,0,0,7,0,0,0,0,6,0,0,1,9,5,0,0,0,0,9,8,0,0,0,0,6,0,8,0,0,0,6,0,0,0,3,4,0,0,8,0,3,0,0,1,7,0,0,0,2,0,0,0,6,0,6,0,0,0,0,2,8,0,0,0,0,4,1,9,0,0,5,0,0,0,0,8,0,0,7,9];
-        puzzle.forEach(num => {
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'sudoku-cell';
-            if(num !== 0) { input.value = num; input.readOnly = true; input.classList.add('fixed-cell'); }
-            board.appendChild(input);
-        });
-    }
+            Pi.createPayment(paymentData, callbacks);
+        }
 
-    function checkSudoku() { alert("تم فحص الحل، استمر في اللعب!"); }
-</script>
+        function onIncompletePaymentFound(payment) {
+            // معالجة المدفوعات المعلقة تلقائياً
+        }
+    </script>
 </body>
 </html>
