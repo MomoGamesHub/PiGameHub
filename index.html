@@ -3,43 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pi Domino | Snake Path Edition</title>
+    <title>دومينو المحترفين | نظام الثعبان</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        :root { --pi-orange: #ffa500; --table-green: #064e3b; --bg-dark: #0f0a1e; }
+        :root { --pi-gold: #ffcf33; --table-green: #074e36; --bone-white: #f8f9fa; }
         
-        body { font-family: 'Cairo', sans-serif; background: var(--bg-dark); color: white; margin: 0; overflow: hidden; }
+        body { font-family: 'Cairo', sans-serif; background: #0b0b1a; color: white; margin: 0; overflow: hidden; }
 
-        /* اللوبي */
-        #lobby { position: fixed; inset: 0; background: var(--bg-dark); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .lobby-box { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 2px solid var(--pi-orange); text-align: center; }
-        
         /* الطاولة */
-        #gameScreen { display: none; height: 100vh; flex-direction: column; background: radial-gradient(circle, #0a5a46 0%, #042f2e 100%); }
-        .header { display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.5); z-index: 10; }
-
-        /* منطقة الثعبان - ترتيب مرن */
-        .table-area { 
-            flex: 1; position: relative; overflow: auto; padding: 40px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        #snake { 
-            display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; 
-            max-width: 85%; transition: all 0.5s ease;
-        }
-
-        /* تصميم الدومينو */
-        .domino { 
-            width: 35px; height: 70px; background: #fdfdfd; border-radius: 4px; 
-            display: flex; flex-direction: column; box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-            border: 1px solid #bbb; flex-shrink: 0; transition: transform 0.3s;
-        }
-        .domino.horizontal { transform: rotate(90deg); margin: 0 10px; }
-        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; }
-        .dot { background: #222; border-radius: 50%; width: 5px; height: 5px; visibility: hidden; align-self: center; justify-self: center; }
-        .line { height: 1px; background: #ddd; width: 80%; margin: 0 auto; }
+        #gameArea { height: 100vh; display: flex; flex-direction: column; background: radial-gradient(circle, #0a5c43 0%, #052c21 100%); }
         
-        /* تفعيل النقاط */
+        .header { display: flex; justify-content: space-between; padding: 10px 20px; background: rgba(0,0,0,0.5); border-bottom: 2px solid var(--pi-gold); z-index: 100; }
+        .score-pills { display: flex; gap: 10px; font-weight: bold; }
+        .pill { background: var(--pi-gold); color: #000; padding: 2px 12px; border-radius: 15px; font-size: 0.9rem; }
+
+        /* منطقة الثعبان المحترفة */
+        .table-container { 
+            flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; 
+            padding: 100px; scroll-behavior: smooth;
+        }
+        #snakeChain { 
+            display: flex; align-items: center; gap: 4px; padding: 20px;
+            min-width: max-content; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* تصميم القطعة الاحترافي */
+        .domino { 
+            width: 38px; height: 76px; background: var(--bone-white); border-radius: 5px; 
+            display: flex; flex-direction: column; box-shadow: 3px 5px 10px rgba(0,0,0,0.4);
+            border: 1px solid #aaa; flex-shrink: 0; position: relative; transform: rotate(90deg); /* الوضع الأفقي الافتراضي */
+        }
+        .half { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; pointer-events: none; }
+        .dot { background: #111; border-radius: 50%; width: 6px; height: 6px; visibility: hidden; align-self: center; justify-self: center; }
+        .divider { height: 2px; background: #333; width: 80%; margin: 0 auto; opacity: 0.2; }
+        
+        /* النقاط */
         .d-1 .dot:nth-child(5) { visibility: visible; }
         .d-2 .dot:nth-child(1), .d-2 .dot:nth-child(9) { visibility: visible; }
         .d-3 .dot:nth-child(1), .d-3 .dot:nth-child(5), .d-3 .dot:nth-child(9) { visibility: visible; }
@@ -47,188 +45,199 @@
         .d-5 .dot:nth-child(1), .d-5 .dot:nth-child(3), .d-5 .dot:nth-child(5), .d-5 .dot:nth-child(7), .d-5 .dot:nth-child(9) { visibility: visible; }
         .d-6 .dot:nth-child(1), .d-6 .dot:nth-child(3), .d-6 .dot:nth-child(4), .d-6 .dot:nth-child(6), .d-6 .dot:nth-child(7), .d-6 .dot:nth-child(9) { visibility: visible; }
 
-        /* التحكم */
-        .controls { background: rgba(0,0,0,0.7); padding: 15px; border-top: 2px solid var(--pi-orange); }
-        .hand { display: flex; gap: 8px; justify-content: center; padding: 10px; height: 80px; }
-        .btn-action { background: var(--pi-orange); border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; color: #000; }
-        .btn-action:disabled { background: #555; cursor: not-allowed; }
+        /* منطقة يد اللاعب */
+        .player-zone { background: rgba(0,0,0,0.8); padding: 15px; border-top: 3px solid var(--pi-gold); }
+        .hand { display: flex; gap: 12px; justify-content: center; height: 90px; perspective: 500px; }
+        .hand .domino { transform: rotate(0deg); cursor: pointer; }
+        .hand .domino:hover { transform: translateY(-15px) scale(1.1); z-index: 10; border-color: var(--pi-gold); }
 
-        /* الأطراف */
-        .ends-display { font-weight: bold; color: var(--pi-orange); background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; }
+        .controls { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto 10px auto; }
+        .btn { background: var(--pi-gold); border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+        
+        .status-badge { background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(255,165,0,0.3); }
     </style>
 </head>
 <body>
 
-<div id="lobby">
-    <div class="lobby-box">
-        <h1>🀄 دومينو الثعبان</h1>
-        <p>تحدي الـ 101 نقطة | Pi Game Hub</p>
-        <button class="btn-action" onclick="enterGame()" style="width:200px">دخول الطاولة</button>
-    </div>
-</div>
-
-<div id="gameScreen">
+<div id="gameArea">
     <div class="header">
-        <div class="ends-display">الأطراف: <span id="lEnd">?</span> ↔️ <span id="rEnd">?</span></div>
-        <div>💰 <span id="pScoreUI">0</span> / 101</div>
-        <button class="btn-action" style="background:#ff4444;" onclick="location.reload()">خروج</button>
+        <div class="score-pills">
+            <div class="pill">👤 <span id="pScore">0</span></div>
+            <div class="pill">🤖 <span id="aiScore">0</span></div>
+        </div>
+        <div class="status-badge" id="statusMsg">بانتظار البداية...</div>
+        <div class="status-badge" style="color:var(--pi-gold)">الهدف: 101</div>
     </div>
 
-    <div class="table-area">
-        <div id="snake"></div>
+    <div class="table-container" id="scrollContainer">
+        <div id="snakeChain">
+            </div>
     </div>
 
-    <div class="controls">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <button id="drawBtn" class="btn-action" onclick="playerDraw()">سحب (<span id="boneCount">14</span>)</button>
-            <div id="statusMsg" style="font-size:0.9rem;">بانتظار اللعب...</div>
-            <button id="passBtn" class="btn-action" onclick="playerPass()" disabled>تمرير (Pass)</button>
+    <div class="player-zone">
+        <div class="controls">
+            <button id="drawBtn" class="btn" onclick="playerAction('draw')">سحب (<span id="boneCount">14</span>)</button>
+            <div id="endsInfo" style="font-size: 0.9rem;">الأطراف: <b id="lV">?</b> | <b id="rV">?</b></div>
+            <button id="passBtn" class="btn" onclick="playerAction('pass')" disabled>تمرير الدور</button>
         </div>
         <div class="hand" id="playerHand"></div>
     </div>
 </div>
 
 <script>
-    let playerHand = [], aiHand = [], boneyard = [], table = [];
-    let leftVal = -1, rightVal = -1;
-    let scores = { player: 0, ai: 0 };
+    let pHand = [], aiHand = [], boneyard = [], tableChain = [];
+    let lVal = -1, rVal = -1, scores = { p: 0, ai: 0 };
 
-    function createDominoUI(a, b) {
-        const div = document.createElement('div');
-        div.className = 'domino horizontal';
-        div.innerHTML = `<div class="half d-${a}">${Array(9).fill('<div class="dot"></div>').join('')}</div><div class="line"></div><div class="half d-${b}">${Array(9).fill('<div class="dot"></div>').join('')}</div>`;
-        return div;
+    function createDomino(a, b) {
+        const d = document.createElement('div');
+        d.className = 'domino';
+        d.innerHTML = `<div class="half d-${a}">${Array(9).fill('<div class="dot"></div>').join('')}</div><div class="divider"></div><div class="half d-${b}">${Array(9).fill('<div class="dot"></div>').join('')}</div>`;
+        return d;
     }
 
-    function enterGame() {
-        document.getElementById('lobby').style.display = 'none';
-        document.getElementById('gameScreen').style.display = 'flex';
-        initRound();
-    }
-
-    function initRound() {
+    function initGame() {
         const deck = [];
         for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) deck.push({a:i, b:j});
         deck.sort(() => Math.random() - 0.5);
-        playerHand = deck.splice(0, 7);
+        
+        pHand = deck.splice(0, 7);
         aiHand = deck.splice(0, 7);
         boneyard = deck;
-        table = []; leftVal = -1; rightVal = -1;
-        refreshAll();
+        tableChain = []; lVal = -1; rVal = -1;
+        
+        refreshUI();
+        msg("دورك الآن - العب قطعة مطابقة");
     }
 
-    function refreshAll() {
-        renderHand();
-        renderTable();
-        updateUI();
-        checkPassAvailability();
-    }
-
-    function renderHand() {
+    function refreshUI() {
         const h = document.getElementById('playerHand');
         h.innerHTML = '';
-        playerHand.forEach((t, i) => {
-            const el = createDominoUI(t.a, t.b);
-            el.classList.remove('horizontal');
-            el.onclick = () => tryPlay(t, i);
+        pHand.forEach((t, i) => {
+            const el = createDomino(t.a, t.b);
+            el.onclick = () => playTile(i);
             h.appendChild(el);
         });
-    }
 
-    function renderTable() {
-        const s = document.getElementById('snake');
+        const s = document.getElementById('snakeChain');
         s.innerHTML = '';
-        table.forEach(t => s.appendChild(createDominoUI(t.a, t.b)));
-    }
+        tableChain.forEach(t => s.appendChild(createDomino(t.a, t.b)));
 
-    function updateUI() {
-        document.getElementById('lEnd').innerText = leftVal === -1 ? "?" : leftVal;
-        document.getElementById('rEnd').innerText = rightVal === -1 ? "?" : rightVal;
+        document.getElementById('lV').innerText = lVal === -1 ? '؟' : lVal;
+        document.getElementById('rV').innerText = rVal === -1 ? '؟' : rVal;
         document.getElementById('boneCount').innerText = boneyard.length;
-        document.getElementById('pScoreUI').innerText = scores.player;
+        document.getElementById('pScore').innerText = scores.p;
+        document.getElementById('aiScore').innerText = scores.ai;
+
+        checkGameStatus();
     }
 
-    function checkPassAvailability() {
-        const canPlay = playerHand.some(t => t.a === leftVal || t.b === leftVal || t.a === rightVal || t.b === rightVal || leftVal === -1);
-        document.getElementById('passBtn').disabled = (canPlay || boneyard.length > 0);
-    }
-
-    function tryPlay(tile, idx) {
+    function playTile(idx) {
+        let t = pHand[idx];
         let side = '';
-        if (leftVal === -1) side = 'first';
-        else if (tile.a === leftVal || tile.b === leftVal) side = 'left';
-        else if (tile.a === rightVal || tile.b === rightVal) side = 'right';
+
+        if (lVal === -1) side = 'first';
+        else if (t.a === lVal || t.b === lVal) side = 'left';
+        else if (t.a === rVal || t.b === rVal) side = 'right';
 
         if (!side) return;
 
         if (side === 'left') {
-            if (tile.b !== leftVal) [tile.a, tile.b] = [tile.b, tile.a];
-            leftVal = tile.a; table.unshift(tile);
+            if (t.b !== lVal) [t.a, t.b] = [t.b, t.a];
+            lVal = t.a; tableChain.unshift(t);
         } else {
-            if (side !== 'first' && tile.a !== rightVal) [tile.a, tile.b] = [tile.b, tile.a];
-            rightVal = tile.b; if(side === 'first') leftVal = tile.a;
-            table.push(tile);
+            if (side !== 'first' && t.a !== rVal) [t.a, t.b] = [t.b, t.a];
+            rVal = t.b; if(side === 'first') lVal = t.a;
+            tableChain.push(t);
         }
 
-        playerHand.splice(idx, 1);
-        refreshAll();
-        if (playerHand.length === 0) return endRound('player');
-        setTimeout(aiTurn, 1000);
-    }
-
-    function aiTurn() {
-        let moveIdx = aiHand.findIndex(t => t.a === leftVal || t.b === leftVal || t.a === rightVal || t.b === rightVal);
+        pHand.splice(idx, 1);
+        refreshUI();
+        if (pHand.length === 0) return endRound('player');
         
-        if (moveIdx === -1 && boneyard.length > 0) {
+        msg("الخصم يفكر...");
+        setTimeout(aiMove, 800);
+    }
+
+    function aiMove() {
+        let idx = aiHand.findIndex(t => t.a === lVal || t.b === lVal || t.a === rVal || t.b === rVal);
+        
+        if (idx === -1 && boneyard.length > 0) {
             aiHand.push(boneyard.shift());
-            updateUI();
-            return setTimeout(aiTurn, 500);
+            refreshUI();
+            return setTimeout(aiMove, 500);
         }
 
-        if (moveIdx !== -1) {
-            const t = aiHand[moveIdx];
-            if (t.a === leftVal || t.b === leftVal) {
-                if (t.b !== leftVal) [t.a, t.b] = [t.b, t.a];
-                leftVal = t.a; table.unshift(t);
+        if (idx !== -1) {
+            let t = aiHand[idx];
+            if (t.a === lVal || t.b === lVal) {
+                if (t.b !== lVal) [t.a, t.b] = [t.b, t.a];
+                lVal = t.a; tableChain.unshift(t);
             } else {
-                if (t.a !== rightVal) [t.a, t.b] = [t.b, t.a];
-                rightVal = t.b; table.push(t);
+                if (t.a !== rVal) [t.a, t.b] = [t.b, t.a];
+                rVal = t.b; tableChain.push(t);
             }
-            aiHand.splice(moveIdx, 1);
-            refreshAll();
+            aiHand.splice(idx, 1);
+            refreshUI();
             if (aiHand.length === 0) return endRound('ai');
+            msg("دورك الآن");
         } else {
-            document.getElementById('statusMsg').innerText = "الخصم مرر الدور (Pass)";
+            msg("الخصم مرر الدور!");
         }
     }
 
-    function playerDraw() {
-        if (boneyard.length > 0) {
-            playerHand.push(boneyard.shift());
-            refreshAll();
+    function checkGameStatus() {
+        const pCanPlay = pHand.some(t => t.a === lVal || t.b === lVal || t.a === rVal || t.b === rVal || lVal === -1);
+        const aiCanPlay = aiHand.some(t => t.a === lVal || t.b === lVal || t.a === rVal || t.b === rVal);
+        
+        document.getElementById('passBtn').disabled = (pCanPlay || boneyard.length > 0);
+        
+        // قانون القفلة (Block)
+        if (!pCanPlay && !aiCanPlay && boneyard.length === 0) {
+            handleBlock();
         }
     }
 
-    function playerPass() {
-        document.getElementById('statusMsg').innerText = "لقد مررت الدور";
-        setTimeout(aiTurn, 1000);
+    function handleBlock() {
+        let pSum = pHand.reduce((acc, t) => acc + t.a + t.b, 0);
+        let aiSum = aiHand.reduce((acc, t) => acc + t.a + t.b, 0);
+        
+        msg(`قفلة! أنت: ${pSum} | الخصم: ${aiSum}`);
+        setTimeout(() => {
+            if (pSum < aiSum) endRound('player', aiSum);
+            else if (aiSum < pSum) endRound('ai', pSum);
+            else alert("تعادل في القفلة!");
+        }, 2000);
     }
 
     function endRound(winner) {
         let pts = 0;
-        const loserHand = (winner === 'player' ? aiHand : playerHand);
-        loserHand.forEach(t => pts += (t.a + t.b));
-        scores[winner] += pts;
+        if (winner === 'player') aiHand.forEach(t => pts += (t.a + t.b));
+        else pHand.forEach(t => pts += (t.a + t.b));
         
-        alert(`${winner === 'player' ? 'أنت فزت' : 'الخصم فاز'} بـ ${pts} نقطة!`);
+        scores[winner === 'player' ? 'p' : 'ai'] += pts;
+        alert(`نهاية الدور! الفائز: ${winner === 'player' ? 'أنت' : 'الخصم'}\nنقاط الدور: ${pts}`);
         
-        if (scores[winner] >= 101) {
-            alert("المباراة انتهت!");
-            location.reload();
-        } else {
-            initRound();
+        if (scores.p >= 101 || scores.ai >= 101) {
+            alert("المباراة انتهت فوز " + (scores.p >= 101 ? "اللاعب" : "الخصم"));
+            scores = { p:0, ai:0 };
+        }
+        initGame();
+    }
+
+    function playerAction(type) {
+        if (type === 'draw' && boneyard.length > 0) {
+            pHand.push(boneyard.shift());
+            refreshUI();
+        } else if (type === 'pass') {
+            msg("لقد مررت الدور");
+            setTimeout(aiMove, 600);
         }
     }
+
+    function msg(m) { document.getElementById('statusMsg').innerText = m; }
+
+    initGame();
 </script>
 </body>
 </html>
