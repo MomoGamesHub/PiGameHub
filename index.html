@@ -3,385 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PiGameHub | Domino</title>
+<title>PiGameHub</title>
+
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-
-<style>
-body {
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f2f2f2;
-  text-align:center;
-}
-
-header {
-  background:#6a0dad;
-  color:white;
-  padding:20px;
-}
-
-.top-bar {
-  display:flex;
-  justify-content:space-between;
-  padding:10px 20px;
-  align-items:center;
-}
-
-button {
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.login {background:#ffd700;color:black;}
-.logout {background:#ff4c4c;color:white;}
-
-#usernameDisplay {
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.games-container {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:15px;
-  padding:25px;
-}
-
-.game-card {
-  background:white;
-  padding:10px;
-  border-radius:12px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
-  cursor:pointer;
-  transition:.3s;
-}
-
-.game-card img {width:80px;height:80px;}
-
-.game-card:hover {transform:scale(1.06);}
-
-/* MODAL STYLE */
-.modal {
-  display:none;
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.7);
-  justify-content:center;
-  align-items:center;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {opacity:0}
-  to {opacity:1}
-}
-
-.modal-content {
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  width:90%;
-  max-width:400px;
-  text-align:center;
-  position:relative;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from {transform:translateY(50px);}
-  to {transform:translateY(0);}
-}
-
-.close-btn {
-  position:absolute;
-  top:10px;
-  left:10px;
-  background:#ff4c4c;
-  color:white;
-  border:none;
-  border-radius:50%;
-  width:28px;
-  height:28px;
-  cursor:pointer;
-}
-
-.profile-box {
-  text-align:right;
-  line-height:1.8;
-}
-
-.points-box {
-  background:#ffd700;
-  padding:10px;
-  border-radius:10px;
-  margin:10px 0;
-  font-weight:bold;
-}
-
-#domino-board {
-  margin-top:20px;
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.domino-tile {
-  width:60px;
-  height:30px;
-  background:white;
-  border:1px solid #333;
-  border-radius:5px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-
-.result {
-  margin-top:15px;
-  font-weight:bold;
-  font-size:16px;
-  color:#6a0dad;
-}
-
-footer {
-  padding:12px;
-  background:#6a0dad;
-  color:white;
-  margin-top:20px;
-}
-</style>
-
+<link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
 <header>
-<div class="top-bar">
-<span id="usernameDisplay" onclick="showProfile()"></span>
-<button class="login" id="loginBtn" onclick="showLoginModal()">تسجيل دخول Pi</button>
-<button class="logout" id="logoutBtn" onclick="logout()" style="display:none;">تسجيل خروج</button>
-</div>
-<h1>أهلاً بكم في ألعاب باي Web3</h1>
+  <div class="top-bar">
+    <span id="usernameDisplay" onclick="UI.showProfile()"></span>
+
+    <button id="loginBtn" class="login" onclick="Auth.showLogin()">تسجيل دخول Pi</button>
+
+    <button id="logoutBtn" class="logout" onclick="Auth.logout()" style="display:none;">تسجيل خروج</button>
+
+    <button onclick="Leaderboard.show()">LeaderBoard</button>
+  </div>
+
+  <h1>أهلاً بكم في PiGameHub</h1>
 </header>
 
 <div class="games-container">
-<div class="game-card" onclick="showDomino()">
-<img src="https://cdn-icons-png.flaticon.com/512/833/833472.png">
-<h3>Domino</h3>
-</div>
+
+  <div class="game-card" onclick="Domino.open()">
+    <img src="assets/domino.png">
+    <h3>Domino</h3>
+  </div>
+
+  <div class="game-card" onclick="Ludo.open()">
+    <img src="assets/ludo.png">
+    <h3>Ludo</h3>
+  </div>
+
 </div>
 
-<!-- Login Modal -->
 <div id="loginModal" class="modal">
-<div class="modal-content">
-<button class="close-btn" onclick="closeAllModals()">X</button>
-<h3>تسجيل دخول باي</h3>
-<button class="login" onclick="piLogin()">تسجيل الدخول الآن</button>
-</div>
+  <div class="modal-content">
+    <button class="close-btn" onclick="UI.closeModals()">X</button>
+    <h3>تسجيل دخول باي</h3>
+    <button class="login" onclick="Auth.piLogin()">تسجيل الدخول الآن</button>
+  </div>
 </div>
 
-<!-- Profile Modal -->
 <div id="profileModal" class="modal">
-<div class="modal-content">
-<button class="close-btn" onclick="closeAllModals()">X</button>
+  <div class="modal-content">
+    <button class="close-btn" onclick="UI.closeModals()">X</button>
+    <h3>ملف المستخدم</h3>
 
-<h3>ملف المستخدم</h3>
+    <p>اسم المستخدم: <span id="p_username"></span></p>
+    <p>المعرف: <span id="p_uid"></span></p>
 
-<div class="profile-box">
-<p><b>اسم المستخدم:</b> <span id="p_username"></span></p>
-<p><b>المعرف:</b> <span id="p_uid"></span></p>
+    <div class="points-box">
+      رصيد النقاط: <span id="p_points"></span>
+    </div>
 
-<div class="points-box">
-رصيد النقاط: <span id="p_points"></span> نقطة
+    <h4>سجل الألعاب:</h4>
+    <ul id="gameHistory"></ul>
+  </div>
 </div>
 
-<h4>سجل الألعاب:</h4>
-<ul id="gameHistory"></ul>
-</div>
-
-<br>
-<button class="logout" onclick="logout()">تسجيل خروج</button>
-</div>
-</div>
-
-<!-- Domino Modal -->
-<div id="dominoModal" class="modal">
-<div class="modal-content">
-<button class="close-btn" onclick="closeAllModals()">X</button>
-
-<h3>لعبة Domino</h3>
-<div id="domino-board"></div>
-<div class="result" id="domino-result"></div>
-</div>
+<div id="leaderboardModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="UI.closeModals()">X</button>
+    <h3>Leaderboard</h3>
+    <ul id="leaderboardList"></ul>
+  </div>
 </div>
 
 <footer>PiGameHub © 2025</footer>
 
-<script>
-Pi.init({ version: "2.0" });
-
-function showLoginModal(){
-  document.getElementById("loginModal").style.display="flex";
-}
-
-function showProfile(){
-  loadProfileData();
-  document.getElementById("profileModal").style.display="flex";
-}
-
-function closeAllModals(){
-  document.querySelectorAll('.modal').forEach(m => m.style.display="none");
-}
-
-function piLogin(){
-
-  const btn = document.querySelector("#loginModal button.login");
-
-  btn.innerText = "جارٍ تسجيل الدخول...";
-  btn.disabled = true;
-
-  Pi.authenticate([], function(auth){
-
-      let saved = localStorage.getItem("piUser");
-
-      if(!saved){
-          let userData = {
-              username: auth.user.username,
-              uid: auth.user.uid,
-              points: 100,
-              history: []
-          };
-
-          localStorage.setItem("piUser", JSON.stringify(userData));
-          applyUser(userData);
-      } else {
-          applyUser(JSON.parse(saved));
-      }
-
-      alert("مرحباً " + auth.user.username + " 👋");
-
-      btn.innerText = "تسجيل الدخول الآن";
-      btn.disabled = false;
-
-      closeAllModals();
-  });
-}
-
-function applyUser(user){
-  document.getElementById("usernameDisplay").innerHTML="مرحباً: "+user.username;
-  document.getElementById("loginBtn").style.display="none";
-  document.getElementById("logoutBtn").style.display="inline-block";
-}
-
-function loadProfileData(){
-
-  let user = JSON.parse(localStorage.getItem("piUser"));
-  if(!user) return;
-
-  document.getElementById("p_username").innerText=user.username;
-  document.getElementById("p_uid").innerText=user.uid;
-  document.getElementById("p_points").innerText=user.points;
-
-  let historyList=document.getElementById("gameHistory");
-  historyList.innerHTML="";
-
-  user.history.forEach(item=>{
-    let li=document.createElement("li");
-    li.innerText=item;
-    historyList.appendChild(li);
-  });
-}
-
-function logout(){
-  localStorage.removeItem("piUser");
-  location.reload();
-}
-
-function checkLogin(){
-  let user=JSON.parse(localStorage.getItem("piUser"));
-  if(user) applyUser(user);
-}
-
-checkLogin();
-
-// --------- Domino Game Logic ----------
-
-function showDomino(){
-
-  let user = localStorage.getItem("piUser");
-
-  if(!user){
-    showLoginModal();
-    return;
-  }
-
-  document.getElementById("dominoModal").style.display="flex";
-  setupDomino();
-}
-
-function setupDomino(){
-
-  let board=document.getElementById("domino-board");
-  board.innerHTML="";
-
-  for(let i=0;i<6;i++){
-      let tile=document.createElement("div");
-      tile.className="domino-tile";
-
-      tile.innerText =
-        Math.floor(Math.random()*6+1) + "|" +
-        Math.floor(Math.random()*6+1);
-
-      tile.onclick=function(){
-        playDomino();
-      }
-
-      board.appendChild(tile);
-  }
-}
-
-function playDomino(){
-
-    let user = JSON.parse(localStorage.getItem("piUser"));
-
-    let playerScore = Math.floor(Math.random() * 12);
-    let cpuScore = Math.floor(Math.random() * 12);
-
-    let outcome, change;
-
-    if(playerScore > cpuScore){
-        outcome = "فوز";
-        change = 10;
-    } else if(playerScore < cpuScore){
-        outcome = "خسارة";
-        change = -5;
-    } else {
-        outcome = "تعادل";
-        change = 0;
-    }
-
-    user.points += change;
-
-    if(user.points < 0) user.points = 0;
-
-    document.getElementById("domino-result").innerText =
-      `أنت: ${playerScore} - الكمبيوتر: ${cpuScore} → ${outcome}`;
-
-    user.history.push(
-      `Domino: ${outcome} (${change > 0 ? "+" : ""}${change})`
-    );
-
-    localStorage.setItem("piUser", JSON.stringify(user));
-
-    loadProfileData();
-}
-</script>
+<script src="js/storage.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/domino.js"></script>
+<script src="js/ludo.js"></script>
+<script src="js/leaderboard.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
