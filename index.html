@@ -1,220 +1,165 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>واجهة دومينو الاحترافية</title>
-    <style>
-        /* --- 1. التصميم البصري (The UI) --- */
-        :root {
-            --wood: #2c1b0e;
-            --table-green: #155843;
-            --tile-white: #fdfdfd;
-            --accent: #ffcc00;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PiGameHub</title>
 
-        body {
-            margin: 0; background: #050505; color: white;
-            font-family: 'Cairo', sans-serif; overflow: hidden;
-        }
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
-        /* تصميم الطاولة الرئيسي */
-        #game-canvas {
-            height: 70vh; width: 100vw;
-            background: 
-                radial-gradient(circle at center, var(--table-green) 0%, #0a2b20 100%),
-                url('https://www.transparenttextures.com/patterns/felt.png'); /* ملمس قماش الطاولة */
-            display: flex; align-items: center; justify-content: center;
-            overflow: auto; border-bottom: 5px solid var(--wood);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-        }
+<style>
 
-        #domino-stream {
-            display: flex; align-items: center; gap: 10px; padding: 150px;
-            min-width: min-content; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-        }
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f2f2f2;
+    text-align: center;
+}
 
-        /* تصميم ورقة الدومينو */
-        .tile {
-            width: 45px; height: 90px; background: var(--tile-white);
-            border-radius: 8px; display: flex; flex-direction: column;
-            position: relative; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 3px solid #ddd; border-bottom: 3px solid #ccc;
-            user-select: none;
-        }
+header {
+    background: #6a0dad;
+    color: white;
+    padding: 15px;
+}
 
-        .tile.on-table { transform: rotate(90deg); margin: 0 18px; }
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
 
-        /* النقاط وتفاصيل الورقة */
-        .side { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); padding: 7px; }
-        .dot { background: #1a1a1a; border-radius: 50%; width: 7px; height: 7px; visibility: hidden; align-self: center; justify-self: center; }
-        .middle-line { height: 2px; background: rgba(0,0,0,0.08); width: 80%; margin: 0 auto; }
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
 
-        /* توزيع النقاط (CSS Classes) */
-        .p-1 .dot:nth-child(5), .p-2 .dot:nth-child(1), .p-2 .dot:nth-child(9),
-        .p-3 .dot:nth-child(1), .p-3 .dot:nth-child(5), .p-3 .dot:nth-child(9),
-        .p-4 .dot:nth-child(1), .p-4 .dot:nth-child(3), .p-4 .dot:nth-child(7), .p-4 .dot:nth-child(9),
-        .p-5 .dot:nth-child(1), .p-5 .dot:nth-child(3), .p-5 .dot:nth-child(5), .p-5 .dot:nth-child(7), .p-5 .dot:nth-child(9),
-        .p-6 .dot:nth-child(1), .p-6 .dot:nth-child(3), .p-6 .dot:nth-child(4), .p-6 .dot:nth-child(6), .p-6 .dot:nth-child(7), .p-6 .dot:nth-child(9) 
-        { visibility: visible; }
+.login {
+    background: #ffd700;
+}
 
-        /* منطقة اليد والتحكم (HUD) */
-        .player-bar {
-            height: 30vh; background: linear-gradient(to bottom, #1a1a1a, #000);
-            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
-        }
+.settings {
+    background: white;
+}
 
-        .hand-container {
-            display: flex; gap: 12px; padding: 10px 30px;
-            background: rgba(255,255,255,0.03); border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+.games-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
 
-        .tile.in-hand:hover {
-            transform: translateY(-20px) scale(1.1);
-            z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            border-color: var(--accent);
-        }
+.game-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+}
 
-        .playable { border: 2px solid var(--accent) !important; cursor: pointer; }
-        .locked { opacity: 0.4; filter: grayscale(0.8); pointer-events: none; }
+.game-card:hover {
+    transform: scale(1.05);
+}
 
-        /* الأزرار والمعلومات */
-        .controls { display: flex; gap: 20px; align-items: center; }
-        .score-board { font-size: 1.1rem; color: var(--accent); background: #222; padding: 5px 20px; border-radius: 50px; border: 1px solid #444; }
-        .btn-play {
-            background: var(--accent); color: #000; border: none; padding: 12px 30px;
-            border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
-        .btn-play:hover:not(:disabled) { transform: scale(1.05); background: #fff; }
-        .btn-play:disabled { background: #333; color: #777; }
+.disabled {
+    background: #ddd;
+    cursor: not-allowed;
+}
 
-    </style>
+footer {
+    margin-top: 20px;
+    padding: 10px;
+    background: #6a0dad;
+    color: white;
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div id="game-canvas">
-    <div id="domino-stream"></div>
-</div>
+<header>
 
-<div class="player-bar">
-    <div class="score-board">
-        👤 أنت: <span id="pScore">0</span> | 🤖 الخصم: <span id="aiScore">0</span> | 🎴 المتبقي: <span id="bCount">0</span>
+    <div class="top-bar">
+        <button class="settings">⚙ Settings</button>
+        <button class="login" onclick="piLogin()">تسجيل دخول Pi</button>
     </div>
 
-    <div class="hand-container" id="myHand"></div>
+    <h1>أهلاً بكم في ألعاب باي Web3</h1>
 
-    <div class="controls">
-        <button class="btn-play" id="drawBtn" onclick="drawTile()">سحب ورقة</button>
-        <button class="btn-play" id="passBtn" onclick="passTurn()" disabled>تمرير</button>
+</header>
+
+<div class="games-container">
+
+    <div class="game-card" onclick="openGame('domino')">
+        Domino
     </div>
+
+    <div class="game-card" onclick="openGame('tawla')">
+        Tawla 31
+    </div>
+
+    <div class="game-card" onclick="openGame('cards')">
+        Cards
+    </div>
+
+    <div class="game-card" onclick="openGame('chat')">
+        Chat
+    </div>
+
+    <div class="game-card disabled">
+        More
+        <br>
+        Coming Soon...
+    </div>
+
 </div>
+
+<footer>
+    PiGameHub © 2025
+</footer>
 
 <script>
-    /* --- 2. المنطق الأساسي (The Engine) --- */
-    let boneyard = [], pHand = [], aiHand = [], chain = [];
-    let L = -1, R = -1, scores = {p:0, ai:0};
 
-    function init() {
-        boneyard = [];
-        for(let i=0; i<=6; i++) for(let j=i; j<=6; j++) boneyard.push({a:i, b:j});
-        boneyard.sort(() => Math.random() - 0.5);
-        pHand = boneyard.splice(0, 7);
-        aiHand = boneyard.splice(0, 7);
-        render();
+Pi.init({ version: "2.0" });
+
+function piLogin() {
+    Pi.authenticate([], function(auth) {
+        alert("تم تسجيل الدخول بنجاح: " + auth.user.username);
+    });
+}
+
+function openGame(game) {
+
+    switch(game) {
+
+        case "domino":
+            alert("فتح لعبة الدومينو قريبًا");
+            break;
+
+        case "tawla":
+            alert("فتح لعبة الطاولة قريبًا");
+            break;
+
+        case "cards":
+            alert("فتح لعبة الكوتشينة قريبًا");
+            break;
+
+        case "chat":
+            alert("فتح المحادثة قريبًا");
+            break;
+
+        default:
+            alert("اللعبة غير متاحة حالياً");
     }
+}
 
-    function createTileUI(a, b, onTable) {
-        const d = document.createElement('div');
-        d.className = `tile ${onTable ? 'on-table' : 'in-hand'}`;
-        d.innerHTML = `<div class="side p-${a}">${Array(9).fill('<div class="dot"></div>').join('')}</div>
-                       <div class="middle-line"></div>
-                       <div class="side p-${b}">${Array(9).fill('<div class="dot"></div>').join('')}</div>`;
-        return d;
-    }
-
-    function render() {
-        // تحديث اليد
-        const h = document.getElementById('myHand');
-        h.innerHTML = '';
-        pHand.forEach((t, i) => {
-            const canPlay = (L === -1 || t.a === L || t.b === L || t.a === R || t.b === R);
-            const el = createTileUI(t.a, t.b, false);
-            el.classList.add(canPlay ? 'playable' : 'locked');
-            el.onclick = () => play(i);
-            h.appendChild(el);
-        });
-
-        // تحديث الطاولة
-        const s = document.getElementById('domino-stream');
-        s.innerHTML = '';
-        chain.forEach(t => s.appendChild(createTileUI(t.a, t.b, true)));
-
-        // تحديث الأرقام
-        document.getElementById('bCount').innerText = boneyard.length;
-        document.getElementById('pScore').innerText = scores.p;
-        document.getElementById('aiScore').innerText = scores.ai;
-
-        // تمرير تلقائي
-        setTimeout(() => { document.getElementById('game-canvas').scrollLeft = 5000; }, 100);
-        
-        checkGameStatus();
-    }
-
-    function play(idx) {
-        let t = pHand[idx];
-        let ok = false;
-        if (L === -1) { L=t.a; R=t.b; chain.push(t); ok=true; }
-        else if (t.a === L || t.b === L) { if(t.a===L) [t.a,t.b]=[t.b,t.a]; L=t.a; chain.unshift(t); ok=true; }
-        else if (t.a === R || t.b === R) { if(t.b===R) [t.a,t.b]=[t.b,t.a]; R=t.b; chain.push(t); ok=true; }
-        
-        if (ok) {
-            pHand.splice(idx, 1);
-            if (pHand.length === 0) return endRound('p');
-            render();
-            setTimeout(aiMove, 1000);
-        }
-    }
-
-    function aiMove() {
-        let idx = aiHand.findIndex(t => t.a === L || t.b === L || t.a === R || t.b === R);
-        if (idx !== -1) {
-            let t = aiHand[idx];
-            if (t.a === L || t.b === L) { if(t.a===L) [t.a,t.b]=[t.b,t.a]; L=t.a; chain.unshift(t); }
-            else { if(t.b===R) [t.a,t.b]=[t.b,t.a]; R=t.b; chain.push(t); }
-            aiHand.splice(idx, 1);
-            if (aiHand.length === 0) return endRound('ai');
-        } else if (boneyard.length > 0) {
-            aiHand.push(boneyard.shift());
-            return aiMove();
-        }
-        render();
-    }
-
-    function checkGameStatus() {
-        const canP = pHand.some(t => t.a === L || t.b === L || t.a === R || t.b === R || L === -1);
-        const canAI = aiHand.some(t => t.a === L || t.b === L || t.a === R || t.b === R);
-        document.getElementById('drawBtn').disabled = (boneyard.length === 0);
-        document.getElementById('passBtn').disabled = (canP || boneyard.length > 0);
-        
-        if (!canP && !canAI && boneyard.length === 0 && L !== -1) {
-            let pS = pHand.reduce((s,t)=>s+t.a+t.b, 0);
-            let aS = aiHand.reduce((s,t)=>s+t.a+t.b, 0);
-            alert(`قفلة! نقاطك: ${pS} - الخصم: ${aS}`);
-            endRound(pS < aS ? 'p' : 'ai');
-        }
-    }
-
-    function drawTile() { if(boneyard.length > 0) { pHand.push(boneyard.shift()); render(); } }
-    function passTurn() { setTimeout(aiMove, 400); }
-
-    function endRound(win) {
-        let p = (win==='p') ? aiHand.reduce((s,t)=>s+t.a+t.b,0) : pHand.reduce((s,t)=>s+t.a+t.b,0);
-        scores[win] += p;
-        alert(`فاز ${win==='p'?'اللاعب':'الخصم'} بـ ${p} نقطة`);
-        chain=[]; L=-1; R=-1; init();
-    }
-
-    init();
 </script>
+
 </body>
 </html>
