@@ -43,6 +43,11 @@ button {
     color: black;
 }
 
+.logout {
+    background: #ff4c4c;
+    color: white;
+}
+
 .settings {
     background: white;
     color: black;
@@ -51,6 +56,7 @@ button {
 #usernameDisplay {
     color: white;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .games-container {
@@ -79,12 +85,7 @@ button {
     transform: scale(1.06);
 }
 
-.disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-/* Login Modal */
+/* Modal Style */
 
 .modal {
     display: none;
@@ -102,8 +103,8 @@ button {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    width: 80%;
-    max-width: 300px;
+    width: 90%;
+    max-width: 350px;
     text-align: center;
 }
 
@@ -111,6 +112,12 @@ button {
     float: right;
     cursor: pointer;
     font-size: 20px;
+}
+
+.profile-box {
+    text-align: right;
+    padding: 10px;
+    line-height: 1.8;
 }
 
 footer {
@@ -131,9 +138,11 @@ footer {
 <div class="top-bar">
     <button class="settings">⚙ Settings</button>
 
-    <span id="usernameDisplay"></span>
+    <span id="usernameDisplay" onclick="showProfile()"></span>
 
-    <button class="login" onclick="showLoginModal()">تسجيل دخول Pi</button>
+    <button class="login" id="loginBtn" onclick="showLoginModal()">تسجيل دخول Pi</button>
+
+    <button class="logout" id="logoutBtn" onclick="logout()" style="display:none;">تسجيل خروج</button>
 </div>
 
 <h1>أهلاً بكم في ألعاب باي Web3</h1>
@@ -162,12 +171,6 @@ footer {
     <h3>Chat</h3>
 </div>
 
-<div class="game-card disabled">
-    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828843.png">
-    <h3>More</h3>
-    Coming Soon...
-</div>
-
 </div>
 
 <!-- Login Modal -->
@@ -178,6 +181,23 @@ footer {
     <h3>تسجيل دخول باي</h3>
     <p>قم بتسجيل الدخول بحساب Pi للمتابعة</p>
     <button class="login" onclick="piLogin()">تسجيل الدخول الآن</button>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+
+<div id="profileModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeProfile()">×</span>
+    <h3>ملف المستخدم</h3>
+
+    <div class="profile-box">
+        <p><b>اسم المستخدم:</b> <span id="p_username"></span></p>
+        <p><b>معرف المستخدم:</b> <span id="p_uid"></span></p>
+        <p><b>تاريخ الدخول:</b> <span id="p_date"></span></p>
+    </div>
+
+    <button class="logout" onclick="logout()">تسجيل خروج</button>
   </div>
 </div>
 
@@ -197,23 +217,72 @@ function closeLoginModal() {
     document.getElementById("loginModal").style.display = "none";
 }
 
+function showProfile() {
+    loadProfileData();
+    document.getElementById("profileModal").style.display = "flex";
+}
+
+function closeProfile() {
+    document.getElementById("profileModal").style.display = "none";
+}
+
 function piLogin() {
 
     Pi.authenticate([], function(auth) {
 
+        let userData = {
+            username: auth.user.username,
+            uid: auth.user.uid,
+            loginDate: new Date().toLocaleString()
+        };
+
+        localStorage.setItem("piUser", JSON.stringify(userData));
+
         closeLoginModal();
 
-        document.getElementById("usernameDisplay").innerHTML =
-            "مرحباً: " + auth.user.username;
-
-        document.querySelector(".login").style.display = "none";
-
+        applyUser(userData);
     });
+}
+
+function applyUser(user) {
+
+    document.getElementById("usernameDisplay").innerHTML =
+        "مرحباً: " + user.username;
+
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("logoutBtn").style.display = "inline-block";
+}
+
+function loadProfileData() {
+
+    let user = JSON.parse(localStorage.getItem("piUser"));
+
+    if (!user) return;
+
+    document.getElementById("p_username").innerText = user.username;
+    document.getElementById("p_uid").innerText = user.uid;
+    document.getElementById("p_date").innerText = user.loginDate;
+}
+
+function logout() {
+
+    localStorage.removeItem("piUser");
+
+    location.reload();
+}
+
+function checkLogin() {
+
+    let user = JSON.parse(localStorage.getItem("piUser"));
+
+    if (user) {
+        applyUser(user);
+    }
 }
 
 function openGame(game) {
 
-    let user = document.getElementById("usernameDisplay").innerHTML;
+    let user = localStorage.getItem("piUser");
 
     if (!user) {
         showLoginModal();
@@ -222,6 +291,8 @@ function openGame(game) {
 
     alert("سيتم فتح لعبة: " + game + " قريبًا");
 }
+
+checkLogin();
 
 </script>
 
