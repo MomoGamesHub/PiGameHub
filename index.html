@@ -48,11 +48,6 @@ button {
     color: white;
 }
 
-.settings {
-    background: white;
-    color: black;
-}
-
 #usernameDisplay {
     color: white;
     font-weight: bold;
@@ -78,14 +73,13 @@ button {
 .game-card img {
     width: 80px;
     height: 80px;
-    margin-top: 10px;
 }
 
 .game-card:hover {
     transform: scale(1.06);
 }
 
-/* Modal Style */
+/* Modal */
 
 .modal {
     display: none;
@@ -108,16 +102,17 @@ button {
     text-align: center;
 }
 
-.close {
-    float: right;
-    cursor: pointer;
-    font-size: 20px;
-}
-
 .profile-box {
     text-align: right;
-    padding: 10px;
     line-height: 1.8;
+}
+
+.points-box {
+    background: #ffd700;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-weight: bold;
 }
 
 footer {
@@ -134,19 +129,17 @@ footer {
 <body>
 
 <header>
-
 <div class="top-bar">
-    <button class="settings">⚙ Settings</button>
 
     <span id="usernameDisplay" onclick="showProfile()"></span>
 
     <button class="login" id="loginBtn" onclick="showLoginModal()">تسجيل دخول Pi</button>
 
     <button class="logout" id="logoutBtn" onclick="logout()" style="display:none;">تسجيل خروج</button>
+
 </div>
 
 <h1>أهلاً بكم في ألعاب باي Web3</h1>
-
 </header>
 
 <div class="games-container">
@@ -166,38 +159,37 @@ footer {
     <h3>Cards</h3>
 </div>
 
-<div class="game-card" onclick="openGame('chat')">
-    <img src="https://cdn-icons-png.flaticon.com/512/1380/1380338.png">
-    <h3>Chat</h3>
-</div>
-
 </div>
 
 <!-- Login Modal -->
-
 <div id="loginModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeLoginModal()">×</span>
     <h3>تسجيل دخول باي</h3>
-    <p>قم بتسجيل الدخول بحساب Pi للمتابعة</p>
     <button class="login" onclick="piLogin()">تسجيل الدخول الآن</button>
   </div>
 </div>
 
 <!-- Profile Modal -->
-
 <div id="profileModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeProfile()">×</span>
+
     <h3>ملف المستخدم</h3>
 
     <div class="profile-box">
         <p><b>اسم المستخدم:</b> <span id="p_username"></span></p>
-        <p><b>معرف المستخدم:</b> <span id="p_uid"></span></p>
-        <p><b>تاريخ الدخول:</b> <span id="p_date"></span></p>
+        <p><b>المعرف:</b> <span id="p_uid"></span></p>
+
+        <div class="points-box">
+            رصيد النقاط: <span id="p_points"></span> نقطة
+        </div>
     </div>
 
+    <button onclick="addPoints()">احصل على 10 نقاط مكافأة</button>
+
+    <br><br>
+
     <button class="logout" onclick="logout()">تسجيل خروج</button>
+
   </div>
 </div>
 
@@ -213,34 +205,35 @@ function showLoginModal() {
     document.getElementById("loginModal").style.display = "flex";
 }
 
-function closeLoginModal() {
-    document.getElementById("loginModal").style.display = "none";
-}
-
 function showProfile() {
     loadProfileData();
     document.getElementById("profileModal").style.display = "flex";
-}
-
-function closeProfile() {
-    document.getElementById("profileModal").style.display = "none";
 }
 
 function piLogin() {
 
     Pi.authenticate([], function(auth) {
 
-        let userData = {
-            username: auth.user.username,
-            uid: auth.user.uid,
-            loginDate: new Date().toLocaleString()
-        };
+        let saved = localStorage.getItem("piUser");
 
-        localStorage.setItem("piUser", JSON.stringify(userData));
+        if (!saved) {
 
-        closeLoginModal();
+            let userData = {
+                username: auth.user.username,
+                uid: auth.user.uid,
+                points: 100,   // نقاط ترحيبية
+                loginDate: new Date().toLocaleString()
+            };
 
-        applyUser(userData);
+            localStorage.setItem("piUser", JSON.stringify(userData));
+
+            applyUser(userData);
+
+        } else {
+            applyUser(JSON.parse(saved));
+        }
+
+        document.getElementById("loginModal").style.display = "none";
     });
 }
 
@@ -261,13 +254,22 @@ function loadProfileData() {
 
     document.getElementById("p_username").innerText = user.username;
     document.getElementById("p_uid").innerText = user.uid;
-    document.getElementById("p_date").innerText = user.loginDate;
+    document.getElementById("p_points").innerText = user.points;
+}
+
+function addPoints() {
+
+    let user = JSON.parse(localStorage.getItem("piUser"));
+
+    user.points += 10;
+
+    localStorage.setItem("piUser", JSON.stringify(user));
+
+    loadProfileData();
 }
 
 function logout() {
-
     localStorage.removeItem("piUser");
-
     location.reload();
 }
 
@@ -289,7 +291,7 @@ function openGame(game) {
         return;
     }
 
-    alert("سيتم فتح لعبة: " + game + " قريبًا");
+    alert("سيتم ربط اللعبة بنظام النقاط قريبًا");
 }
 
 checkLogin();
