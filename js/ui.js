@@ -1,10 +1,11 @@
 const UI = {
   showModal(id) {
-    document.getElementById(id).style.display = "flex";
+    const modal = document.getElementById(id);
+    modal.classList.add("show");
   },
 
   closeModals() {
-    document.querySelectorAll(".modal").forEach(m => m.style.display="none");
+    document.querySelectorAll(".modal").forEach(m => m.classList.remove("show"));
   },
 
   updateUserUI(user) {
