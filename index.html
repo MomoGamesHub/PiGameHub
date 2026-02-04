@@ -23,6 +23,7 @@
   <h1>أهلاً بكم في PiGameHub</h1>
 </header>
 
+<!-- ==================== Games Container ==================== -->
 <div class="games-container">
   <div class="game-card" onclick="Domino.open()">
     <img src="public/images/domino.jpg" alt="Domino">
@@ -34,27 +35,23 @@
     <h3>Ludo</h3>
   </div>
 
-  <!-- كروت جاهزة للألعاب الجديدة -->
   <div class="game-card" onclick="Chess.open()">
     <img src="public/images/chess.jpg" alt="Chess">
     <h3>Chess</h3>
   </div>
+
   <div class="game-card" onclick="Cards.open()">
     <img src="public/images/cards.jpg" alt="Cards">
     <h3>Cards</h3>
   </div>
+
   <div class="game-card" onclick="LudoClassic.open()">
     <img src="public/images/ludo_classic.jpg" alt="Ludo Classic">
     <h3>Ludo Classic</h3>
   </div>
-      </div>
-
-  <div class="game-card" onclick="Ludo.open()">
-    <img src="assets/ludo.png">
-    <h3>Ludo</h3>
-  </div>
 </div>
 
+<!-- ==================== Modals ==================== -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
     <button class="close-btn" onclick="UI.closeModals()">X</button>
@@ -88,8 +85,10 @@
   </div>
 </div>
 
+<!-- ==================== Footer ==================== -->
 <footer>PiGameHub © 2025</footer>
 
+<!-- ==================== Scripts ==================== -->
 <script src="js/storage.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/auth.js"></script>
