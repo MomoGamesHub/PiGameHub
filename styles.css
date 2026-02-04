@@ -1,7 +1,9 @@
-/* Body Fade In */
+/* ======================== */
+/* Body Fade In             */
+/* ======================== */
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   text-align: center;
   background: #f2f2f2;
   opacity: 0;
@@ -9,7 +11,9 @@ body {
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
+/* ======================== */
 /* Header Animated Gradient */
+/* ======================== */
 header {
   background: linear-gradient(270deg, #6a0dad, #ff4c4c, #ffd700);
   background-size: 600% 600%;
@@ -24,10 +28,18 @@ header {
   100% {background-position:0% 50%;}
 }
 
-/* Top Bar */
-.top-bar { display: flex; justify-content: space-between; padding: 10px 20px; }
+/* ======================== */
+/* Top Bar                  */
+/* ======================== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
 
-/* Buttons */
+/* ======================== */
+/* Buttons                  */
+/* ======================== */
 button {
   padding: 10px;
   border: none;
@@ -42,52 +54,99 @@ button:hover {
 .login { background: #ffd700; }
 .logout { background: #ff4c4c; color:white; }
 
-/* Games Container */
+/* ======================== */
+/* Games Container          */
+/* ======================== */
 .games-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
   padding: 20px;
 }
+
+/* ======================== */
+/* Game Card Styling         */
+/* ======================== */
 .game-card {
-  background:white;
-  padding:10px;
-  border-radius:12px;
-  cursor:pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
+  padding: 15px;
+  border-radius: 15px;
+  cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .game-card:hover {
   transform: translateY(-10px) scale(1.05);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
 
-/* Modals */
+/* ======================== */
+/* Game Card Images         */
+/* ======================== */
+.game-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+/* ======================== */
+/* Modals                   */
+/* ======================== */
 .modal {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
   display: flex;
-  justify-content:center;
-  align-items:center;
+  justify-content: center;
+  align-items: center;
 }
 .modal.show {
   opacity: 1;
   pointer-events: auto;
 }
 .modal-content {
-  background:white;
-  padding:20px;
-  border-radius:10px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
   transform: translateY(-50px);
   transition: transform 0.4s ease;
+  max-width: 90%;
+  width: 400px;
+  text-align: right;
 }
 .modal.show .modal-content {
   transform: translateY(0);
 }
 
-/* Points Box */
+/* ======================== */
+/* Points Box               */
+/* ======================== */
 .points-box {
-  background:#ffd700;
-  padding:10px;
-  border-radius:10px;
+  background: #ffd700;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+/* ======================== */
+/* Responsive Text          */
+/* ======================== */
+h1, h3, h4, p {
+  margin: 10px 0;
+}
+
+/* ======================== */
+/* Footer                   */
+/* ======================== */
+footer {
+  margin-top: 30px;
+  padding: 15px;
+  background: #6a0dad;
+  color: white;
+  font-weight: bold;
 }
