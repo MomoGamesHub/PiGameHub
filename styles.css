@@ -92,6 +92,10 @@ button:hover {
   object-fit: contain;
   margin-bottom: 10px;
   border-radius: 8px;
+  transition: transform 0.3s;
+}
+.game-card img:hover {
+  transform: scale(1.05);
 }
 
 /* ======================== */
@@ -138,6 +142,7 @@ button:hover {
 /* ======================== */
 h1, h3, h4, p {
   margin: 10px 0;
+  word-break: break-word;
 }
 
 /* ======================== */
@@ -149,4 +154,17 @@ footer {
   background: #6a0dad;
   color: white;
   font-weight: bold;
+}
+
+/* ======================== */
+/* Responsive Adjustments   */
+/* ======================== */
+@media (max-width: 500px) {
+  .game-card img {
+    width: 100px;
+    height: 100px;
+  }
+  .game-card h3 {
+    font-size: 14px;
+  }
 }
