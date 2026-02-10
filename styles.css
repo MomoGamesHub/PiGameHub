@@ -57,27 +57,40 @@ body {
 /* Icons Grid */
 .icons-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 25px;
   max-width: 600px;
   margin: 30px auto;
 }
 
 .game-icon {
-  font-size: 30px;
   background: rgba(255,255,255,0.05);
   border: 2px solid #b8860b;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-icon img {
+  width: 50%;
+  height: 50%;
+  filter: drop-shadow(0 0 5px #ffd700);
   transition: 0.3s;
 }
 
 .game-icon:hover {
   background: #b8860b;
-  transform: scale(1.1);
-  box-shadow: 0 0 10px #ffd700;
+  transform: scale(1.15);
+  box-shadow: 0 0 15px #ffd700;
+}
+
+.game-icon:hover img {
+  filter: drop-shadow(0 0 15px #fff700);
 }
 
 /* Footer */
