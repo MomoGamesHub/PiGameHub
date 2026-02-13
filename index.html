@@ -1,49 +1,100 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PiGameHub Dashboard</title>
-<link rel="stylesheet" href="styles.css">
+<title>PiGameHub</title>
+
+<style>
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #1a002b, #2e004f);
+    font-family: Arial, sans-serif;
+    text-align: center;
+    color: white;
+}
+
+/* حركة الظهور */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* حركة النيون */
+@keyframes neonPulse {
+    0% {
+        text-shadow:
+            0 0 5px #b833ff,
+            0 0 10px #b833ff,
+            0 0 20px #b833ff;
+    }
+    50% {
+        text-shadow:
+            0 0 15px #d966ff,
+            0 0 30px #d966ff,
+            0 0 50px #d966ff;
+    }
+    100% {
+        text-shadow:
+            0 0 5px #b833ff,
+            0 0 10px #b833ff,
+            0 0 20px #b833ff;
+    }
+}
+
+.title-box {
+    background: rgba(255, 255, 255, 0.05);
+    margin: 30px auto;
+    padding: 25px;
+    width: 80%;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(184, 51, 255, 0.4);
+    animation: fadeSlideUp 1s ease forwards;
+}
+
+/* تأخير لكل عنصر */
+.title-box:nth-child(1) { animation-delay: 0.2s; }
+.title-box:nth-child(2) { animation-delay: 0.4s; }
+.title-box:nth-child(3) { animation-delay: 0.6s; }
+.title-box:nth-child(4) { animation-delay: 0.8s; }
+
+h1 {
+    margin: 0;
+    font-size: 26px;
+    color: #ffffff;
+    animation: neonPulse 2s infinite ease-in-out;
+    transition: transform 0.3s ease;
+}
+
+.title-box:hover h1 {
+    transform: scale(1.05);
+}
+</style>
+
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">PiGameHub</div>
-  <div class="actions">
-    <button id="loginBtn">تسجيل الدخول</button>
-    <button id="settingsBtn">الإعدادات</button>
-  </div>
-</header>
+<div class="title-box">
+<h1>Welcome to PiGameHub – The Future of Web3 Gaming</h1>
+</div>
 
-<main>
-  <div class="central-circle">
-    <span class="pi-logo">⚙</span>
-  </div>
+<div class="title-box">
+<h1>Play, Compete, and Earn in the World of Web3 Gaming</h1>
+</div>
 
-  <div class="icons-grid">
-    <button class="game-icon" data-game="domino">
-      <img src="assets/domino.png" alt="الدومينو">
-    </button>
-    <button class="game-icon" data-game="chess">
-      <img src="assets/chess.png" alt="الشطرنج">
-    </button>
-    <button class="game-icon" data-game="cards">
-      <img src="assets/cards.png" alt="الكوتشينه">
-    </button>
-    <button class="game-icon" data-game="dice">
-      <img src="assets/dice.png" alt="النرد">
-    </button>
-    <button class="game-icon" data-game="uno">
-      <img src="assets/uno.png" alt="أونو">
-    </button>
-  </div>
-</main>
+<div class="title-box">
+<h1>PiGameHub – Decentralized Web3 Gaming Platform</h1>
+</div>
 
-<footer>
-  PiGameHub © 2026
-</footer>
+<div class="title-box">
+<h1>Experience Blockchain-Powered Gaming on PiGameHub</h1>
+</div>
 
-<script src="js/app.js"></script>
 </body>
 </html>
